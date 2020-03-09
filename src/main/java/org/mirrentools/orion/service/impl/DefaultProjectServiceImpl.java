@@ -414,7 +414,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 		try {
 			response.setContentType("application/force-download;charset=UTF-8");
 			String time = LocalDateTime.now().format(DateTimeFormatter.BASIC_ISO_DATE);
-			String fileName = "Orion_Swagger" + time + ".json";
+			String fileName = "Orion-API-" + time + ".json";
 			response.addHeader("Content-Disposition", "attachment;fileName=" + fileName);
 			String result = getJson(projectId);
 			try (PrintWriter writer = response.getWriter()) {
