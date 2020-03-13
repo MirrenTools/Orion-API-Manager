@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class DefaultProjectServiceImpl implements ProjectService {
-
 	@Override
 	public Map<String, Object> getProjectList() {
 		try {
@@ -264,8 +263,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			result.put("contactName", project.getContactName());
 			result.put("contactInfo", project.getContactInfo());
 			if (project.getLastTime() != null) {
-				result.put("lastTime",
-						new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date(project.getLastTime())));
+				result.put("lastTime", new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date(project.getLastTime())));
 			}
 			if (project.getSchemes() != null) {
 				try {
@@ -413,7 +411,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public void downJson(HttpServletResponse response, String projectId) {
 		try {
 			response.setContentType("application/force-download;charset=UTF-8");
-			String time = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME).replace("-", "").replace("t", "").replace(":", "");
+			String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-hh-mm-ss"));
 			String fileName = "Orion-API-" + time + ".json";
 			response.addHeader("Content-Disposition", "attachment;fileName=" + fileName);
 			String result = getJson(projectId);
