@@ -413,7 +413,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public void downJson(HttpServletResponse response, String projectId) {
 		try {
 			response.setContentType("application/force-download;charset=UTF-8");
-			String time = LocalDateTime.now().format(DateTimeFormatter.BASIC_ISO_DATE);
+			String time = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME).replace("-", "").replace("t", "").replace(":", "");
 			String fileName = "Orion-API-" + time + ".json";
 			response.addHeader("Content-Disposition", "attachment;fileName=" + fileName);
 			String result = getJson(projectId);
