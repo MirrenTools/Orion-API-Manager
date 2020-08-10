@@ -30,4 +30,6 @@ public interface ColumnsProject {
 	public final static String EXTENSIONS = "extensions";
 	/** last_time 最后操作时间 */
 	public final static String LAST_TIME = "last_time";
+	/** sorts 项目排序 */
+	public final static String SORTS = "sorts";
 }

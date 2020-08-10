@@ -1,6 +1,6 @@
 package org.mirrentools.orion;
 
-import org.mirrentools.orion.interceptor.BasicAuthInterceptor;
+import org.mirrentools.orion.interceptor.LoginSessionAuthInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -24,8 +24,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		InterceptorRegistration interceptor = registry.addInterceptor(new BasicAuthInterceptor());
-		interceptor.addPathPatterns("/Server-UI/**");
+		InterceptorRegistration interceptor = registry.addInterceptor(new LoginSessionAuthInterceptor());
+		interceptor.addPathPatterns("/private/**");
 		WebMvcConfigurer.super.addInterceptors(registry);
 	}
 

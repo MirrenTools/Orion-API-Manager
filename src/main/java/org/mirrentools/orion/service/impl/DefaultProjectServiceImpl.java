@@ -1,10 +1,13 @@
 package org.mirrentools.orion.service.impl;
 
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -14,6 +17,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mirrentools.orion.common.ConfigUtil;
+import org.mirrentools.orion.common.LoginSessionStore;
+import org.mirrentools.orion.common.MD5Util;
 import org.mirrentools.orion.common.ResultUtil;
 import org.mirrentools.orion.common.StringUtil;
 import org.mirrentools.orion.entity.Project;
@@ -25,6 +30,42 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class DefaultProjectServiceImpl implements ProjectService {
+
+	@Override
+	public Map<String, Object> login(String id, String pwd) {
+		if (StringUtil.isNullOrEmpty(id, pwd)) {
+			return ResultUtil.failed("登录失败,账号与密码不能为空!", 0);
+		}
+		try {
+			byte[] bytes = Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/config/user.json"));
+			JSONObject users = new JSONObject(new String(bytes));
+			if (users.has(id)) {
+				JSONObject user = users.getJSONObject(id);
+				if (user.has("pwd") && user.get("pwd").equals(pwd)) {
+					String sessionId = MD5Util.encode(UUID.randomUUID().toString(), 3);
+					LoginSessionStore.save(sessionId, id);
+					Map<String, String> result = new HashMap<>();
+					result.put("uid", id);
+					result.put("sessionId", sessionId);
+					return ResultUtil.succeed(result);
+				} else {
+					return ResultUtil.failed("登录失败,账号或密码错误!", 0);
+				}
+			} else {
+				return ResultUtil.failed("登录失败,账号或密码错误!", 0);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResultUtil.failed(e.getMessage(), 0);
+		}
+	}
+
+	@Override
+	public Map<String, Object> logout(String sessionId) {
+		LoginSessionStore.remove(sessionId);
+		return ResultUtil.succeed(1);
+	}
+
 	@Override
 	public Map<String, Object> getProjectList() {
 		try {
@@ -113,6 +154,34 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
+	public Map<String, Object> projectMoveUp(String key) {
+		try {
+			if (StringUtil.isNullOrEmpty(key)) {
+				return ResultUtil.failed("存在空值,项目的id不能为空");
+			}
+			ConfigUtil.updateProjectMoveUp(key);
+			return ResultUtil.succeed(1);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			return ResultUtil.failed(e.getMessage());
+		}
+	}
+
+	@Override
+	public Map<String, Object> projectMoveDown(String key) {
+		try {
+			if (StringUtil.isNullOrEmpty(key)) {
+				return ResultUtil.failed("存在空值,项目的id不能为空");
+			}
+			ConfigUtil.updateProjectMoveDown(key);
+			return ResultUtil.succeed(1);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			return ResultUtil.failed(e.getMessage());
+		}
+	}
+
+	@Override
 	public Map<String, Object> deleteProject(String key) {
 		try {
 			if (StringUtil.isNullOrEmpty(key)) {
@@ -168,7 +237,6 @@ public class DefaultProjectServiceImpl implements ProjectService {
 
 	@Override
 	public Map<String, Object> updateApiGroup(ProjectApiGroup group) {
-
 		try {
 			if (StringUtil.isNullOrEmpty(group.getGroupId())) {
 				return ResultUtil.failed("存在空值,分组的id不能为空");
@@ -179,7 +247,34 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			e.printStackTrace();
 			return ResultUtil.failed(e.getMessage());
 		}
+	}
 
+	@Override
+	public Map<String, Object> moveUpApiGroup(String id) {
+		try {
+			if (StringUtil.isNullOrEmpty(id)) {
+				return ResultUtil.failed("存在空值,分组的id不能为空");
+			}
+			ConfigUtil.updateProjectApiGroupMoveUp(id);
+			return ResultUtil.succeed(1);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			return ResultUtil.failed(e.getMessage());
+		}
+	}
+
+	@Override
+	public Map<String, Object> moveDownApiGroup(String id) {
+		try {
+			if (StringUtil.isNullOrEmpty(id)) {
+				return ResultUtil.failed("存在空值,分组的id不能为空");
+			}
+			ConfigUtil.updateProjectApiGroupMoveDown(id);
+			return ResultUtil.succeed(1);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			return ResultUtil.failed(e.getMessage());
+		}
 	}
 
 	@Override
@@ -228,6 +323,34 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> updateApi(ProjectApi api) {
 		try {
 			ConfigUtil.updateProjectApi(api);
+			return ResultUtil.succeed(1);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			return ResultUtil.failed(e.getMessage());
+		}
+	}
+
+	@Override
+	public Map<String, Object> moveUpApi(String id) {
+		try {
+			if (StringUtil.isNullOrEmpty(id)) {
+				return ResultUtil.failed("存在空值,分组的id不能为空");
+			}
+			ConfigUtil.updateProjectApiMoveUp(id);
+			return ResultUtil.succeed(1);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			return ResultUtil.failed(e.getMessage());
+		}
+	}
+
+	@Override
+	public Map<String, Object> moveDownApi(String id) {
+		try {
+			if (StringUtil.isNullOrEmpty(id)) {
+				return ResultUtil.failed("存在空值,分组的id不能为空");
+			}
+			ConfigUtil.updateProjectApiMoveDown(id);
 			return ResultUtil.succeed(1);
 		} catch (Throwable e) {
 			e.printStackTrace();

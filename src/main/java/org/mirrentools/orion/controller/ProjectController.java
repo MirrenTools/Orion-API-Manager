@@ -28,9 +28,9 @@ import org.springframework.web.bind.annotation.RestController;
  * @author <a href="http://szmirren.com">Mirren</a>
  *
  */
-@CrossOrigin(allowedHeaders = { "x-url", "x-type", "x-header" }, methods = { RequestMethod.DELETE, RequestMethod.GET,
-		RequestMethod.HEAD, RequestMethod.OPTIONS, RequestMethod.PATCH, RequestMethod.POST, RequestMethod.PUT,
-		RequestMethod.TRACE, })
+@CrossOrigin(allowedHeaders = { "x-url", "x-type", "x-header", "x-session" }, methods = { RequestMethod.DELETE,
+		RequestMethod.GET, RequestMethod.HEAD, RequestMethod.OPTIONS, RequestMethod.PATCH, RequestMethod.POST,
+		RequestMethod.PUT, RequestMethod.TRACE, })
 @RestController
 public class ProjectController {
 
@@ -52,14 +52,16 @@ public class ProjectController {
 				+ "	<h2 style='text-align: center;'><a href='/Server-UI/index.html'>服务端UI</a> <a style='margin-left:10px' href='/Client-UI/index.html'>客户端UI</a></h2>";
 	}
 
-	/**
-	 * 获取所有项目
-	 * 
-	 * @return
-	 */
-	@GetMapping(value = "/project", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> getProjectList() {
-		return proService.getProjectList();
+	@PostMapping(value = "/login", produces = { "application/json;charset=UTF-8" })
+	public Map<String, Object> login(String id, String pwd) {
+		Map<String, Object> result = proService.login(id, pwd);
+		return result;
+	}
+
+	@PostMapping(value = "/logout", produces = { "application/json;charset=UTF-8" })
+	public Map<String, Object> logout(String sessionId) {
+		Map<String, Object> result = proService.logout(sessionId);
+		return result;
 	}
 
 	/**
@@ -99,7 +101,17 @@ public class ProjectController {
 	 * 
 	 * @return
 	 */
-	@GetMapping(value = "/project/{id}", produces = { "application/json;charset=UTF-8" })
+	@GetMapping(value = "/project", produces = { "application/json;charset=UTF-8" })
+	public Map<String, Object> getProjectList() {
+		return proService.getProjectList();
+	}
+
+	/**
+	 * 获取指定项目
+	 * 
+	 * @return
+	 */
+	@GetMapping(value = "/private/project/{id}", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> getProject(@PathVariable(value = "id") String id) {
 		return proService.getProject(id);
 	}
@@ -109,27 +121,45 @@ public class ProjectController {
 	 * 
 	 * @return
 	 */
-	@PostMapping(value = "/project", produces = { "application/json;charset=UTF-8" })
+	@PostMapping(value = "/private/project", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> postProject(Project project) {
 		return proService.saveProject(project);
 	}
 
 	/**
-	 * 删除一个项目
+	 * 修改一个项目
 	 * 
 	 * @return
 	 */
-	@PutMapping(value = "/project", produces = { "application/json;charset=UTF-8" })
+	@PutMapping(value = "/private/project", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> updateProject(Project project) {
 		return proService.updateProject(project);
 	}
-
 	/**
-	 * 删除项目
+	 * 项目排序上移
 	 * 
 	 * @return
 	 */
-	@PostMapping(value = "/project/copy/{id}", produces = { "application/json;charset=UTF-8" })
+	@PutMapping(value = "/private/project/moveUp/{id}", produces = { "application/json;charset=UTF-8" })
+	public Map<String, Object> projectMoveUp(@PathVariable(value = "id") String id) {
+		return proService.projectMoveUp(id);
+	}
+	/**
+	 * 项目排序下移
+	 * 
+	 * @return
+	 */
+	@PutMapping(value = "/private/project/moveDown/{id}", produces = { "application/json;charset=UTF-8" })
+	public Map<String, Object> projectMoveDown(@PathVariable(value = "id") String id) {
+		return  proService.projectMoveDown(id);
+	}
+
+	/**
+	 * 复制项目
+	 * 
+	 * @return
+	 */
+	@PostMapping(value = "/private/project/copy/{id}", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> copyProject(@PathVariable(value = "id") String id) {
 		return proService.copyProject(id);
 	}
@@ -139,11 +169,13 @@ public class ProjectController {
 	 * 
 	 * @return
 	 */
-	@DeleteMapping(value = "/project/{id}", produces = { "application/json;charset=UTF-8" })
+	@DeleteMapping(value = "/private/project/{id}", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> postProject(@PathVariable(value = "id") String id) {
 		return proService.deleteProject(id);
 	}
-
+	
+	
+	
 	/**
 	 * 下载项目Json文件
 	 * 

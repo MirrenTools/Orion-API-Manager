@@ -19,6 +19,7 @@ import org.mirrentools.orion.entity.ProjectInfo;
 public class ConfigUtil {
 	private static final String DRIVER = "org.sqlite.JDBC";
 	private static final String DB_URL = "jdbc:sqlite:" + System.getProperty("user.dir") + "/config/ConfigDB.db";
+
 	/**
 	 * 获得数据库连接
 	 * 
@@ -34,12 +35,11 @@ public class ConfigUtil {
 	/**
 	 * 执行查询
 	 * 
-	 * @param sql
-	 *          SQL语句
-	 * @param handler
-	 *          返回结果
+	 * @param sql     SQL语句
+	 * @param handler 返回结果
 	 */
-	public static <R> FunctionResult<R> query(String sql, Function<ResultSet, FunctionResult<R>> handler) throws Exception {
+	public static <R> FunctionResult<R> query(String sql, Function<ResultSet, FunctionResult<R>> handler)
+			throws Exception {
 		try (Connection conn = getConnection()) {
 			try (Statement stat = conn.createStatement()) {
 				try (ResultSet set = stat.executeQuery(sql)) {
@@ -48,18 +48,17 @@ public class ConfigUtil {
 			}
 		}
 	}
+
 	/**
 	 * 执行查询
 	 * 
-	 * @param sql
-	 *          SQL语句
-	 * @param params
-	 *          参数 不能为null
+	 * @param sql    SQL语句
+	 * @param params 参数 不能为null
 	 * @return
 	 * @throws Exception
 	 */
-	public static <R> FunctionResult<R> query(String sql, List<Object> params, Function<ResultSet, FunctionResult<R>> handler)
-			throws Exception {
+	public static <R> FunctionResult<R> query(String sql, List<Object> params,
+			Function<ResultSet, FunctionResult<R>> handler) throws Exception {
 		try (Connection conn = getConnection()) {
 			try (PreparedStatement stat = conn.prepareStatement(sql)) {
 				for (int i = 0; i < params.size(); i++) {
@@ -71,11 +70,11 @@ public class ConfigUtil {
 			}
 		}
 	}
+
 	/**
 	 * 执行更新操作
 	 * 
-	 * @param sql
-	 *          SQL语句
+	 * @param sql SQL语句
 	 * @return
 	 * @throws Exception
 	 */
@@ -86,13 +85,12 @@ public class ConfigUtil {
 			}
 		}
 	}
+
 	/**
 	 * 执行更新操作
 	 * 
-	 * @param sql
-	 *          SQL语句
-	 * @param params
-	 *          参数,不能为null
+	 * @param sql    SQL语句
+	 * @param params 参数,不能为null
 	 * @return
 	 * @throws Exception
 	 */
@@ -106,13 +104,12 @@ public class ConfigUtil {
 			}
 		}
 	}
+
 	/**
 	 * 执行更新并返回主键
 	 * 
-	 * @param sql
-	 *          SQL语句
-	 * @param params
-	 *          参数,不能为null
+	 * @param sql    SQL语句
+	 * @param params 参数,不能为null
 	 * @return
 	 * @throws Exception
 	 */
@@ -137,8 +134,7 @@ public class ConfigUtil {
 	/**
 	 * 获取项目
 	 * 
-	 * @param id
-	 *          项目的id
+	 * @param id 项目的id
 	 * @return
 	 * @throws Throwable
 	 */
@@ -159,6 +155,7 @@ public class ConfigUtil {
 					project.setContactName(resultSet.getString(ColumnsProject.CONTACT_NAME));
 					project.setContactInfo(resultSet.getString(ColumnsProject.CONTACT_INFO));
 					project.setExtensions(resultSet.getString(ColumnsProject.EXTENSIONS));
+					project.setSorts(resultSet.getInt(ColumnsProject.SORTS));
 					project.setLastTime(resultSet.getLong(ColumnsProject.LAST_TIME));
 				}
 				return new FunctionResult<>(project);
@@ -183,8 +180,9 @@ public class ConfigUtil {
 	 * @throws Throwable
 	 */
 	public static List<ProjectInfo> getProjectList() throws Throwable {
-		String sql = String.format("select %s,%s,%s from project order by %s desc", ColumnsProject.KEY, ColumnsProject.NAME,
-				ColumnsProject.VERSIONS, ColumnsProject.LAST_TIME);
+		String sql = String.format("select %s,%s,%s,%s,%s from project order by %s asc, %s desc", ColumnsProject.KEY,
+				ColumnsProject.NAME, ColumnsProject.VERSIONS, ColumnsProject.LAST_TIME, ColumnsProject.SORTS,
+				ColumnsProject.SORTS, ColumnsProject.LAST_TIME);
 		FunctionResult<List<ProjectInfo>> execute = query(sql, resultSet -> {
 			try {
 				List<ProjectInfo> result = new ArrayList<>();
@@ -193,6 +191,8 @@ public class ConfigUtil {
 					projectInfo.setKey(resultSet.getString(ColumnsProject.KEY));
 					projectInfo.setName(resultSet.getString(ColumnsProject.NAME));
 					projectInfo.setVersion(resultSet.getString(ColumnsProject.VERSIONS));
+					projectInfo.setTime(resultSet.getLong(ColumnsProject.LAST_TIME));
+					projectInfo.setSorts(resultSet.getInt(ColumnsProject.SORTS));
 					result.add(projectInfo);
 				}
 				return new FunctionResult<>(result);
@@ -216,8 +216,9 @@ public class ConfigUtil {
 	 */
 	public static void saveProject(Project project) throws Exception {
 		project.setLastTime(System.currentTimeMillis());
-		String sql = String.format("insert into project (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) values(?,?,?,?,?,?,?,?,?,?,?,?)",
-				ColumnsProject.KEY, ColumnsProject.NAME, ColumnsProject.VERSIONS, ColumnsProject.DESCRIPTION, ColumnsProject.HOST,
+		String sql = String.format(
+				"insert into project (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) values(?,?,?,?,?,?,?,?,?,?,?,?)", ColumnsProject.KEY,
+				ColumnsProject.NAME, ColumnsProject.VERSIONS, ColumnsProject.DESCRIPTION, ColumnsProject.HOST,
 				ColumnsProject.BASE_PATH, ColumnsProject.SCHEMES, ColumnsProject.EXTERNAL_DOCS, ColumnsProject.CONTACT_NAME,
 				ColumnsProject.CONTACT_INFO, ColumnsProject.EXTENSIONS, ColumnsProject.LAST_TIME);
 		List<Object> params = new ArrayList<>();
@@ -293,8 +294,32 @@ public class ConfigUtil {
 		String sql = "update project " + set.toString() + " where key = ?";
 		params.add(project.getKey());
 		update(sql, params);
-
 	}
+
+	/**
+	 * 项目排序上移动
+	 * 
+	 * @param pid
+	 * @throws Exception
+	 */
+	public static void updateProjectMoveUp(String pid) throws Exception {
+		String sql = String.format("update project set %s=(%s-1) where %s=?", ColumnsProject.SORTS, ColumnsProject.SORTS,
+				ColumnsProject.KEY);
+		update(sql, StringUtil.asList(pid));
+	}
+
+	/**
+	 * 项目排序下移动
+	 * 
+	 * @param pid
+	 * @throws Exception
+	 */
+	public static void updateProjectMoveDown(String pid) throws Exception {
+		String sql = String.format("update project set %s=(%s+1) where %s=?", ColumnsProject.SORTS, ColumnsProject.SORTS,
+				ColumnsProject.KEY);
+		update(sql, StringUtil.asList(pid));
+	}
+
 	/**
 	 * 删除项目
 	 * 
@@ -304,7 +329,8 @@ public class ConfigUtil {
 	public static void delectProject(String key) throws Throwable {
 		List<Object> params = new ArrayList<>();
 		params.add(key);
-		String groupSql = String.format("select %s from project_api_group where %s=?", ColumnsApiGroup.GROUP_ID, ColumnsApiGroup.PROJECT_ID);
+		String groupSql = String.format("select %s from project_api_group where %s=?", ColumnsApiGroup.GROUP_ID,
+				ColumnsApiGroup.PROJECT_ID);
 		FunctionResult<List<String>> groupIds = query(groupSql, params, res -> {
 			try {
 				List<String> result = new ArrayList<>();
@@ -337,7 +363,8 @@ public class ConfigUtil {
 	 */
 	public static List<ProjectApiGroup> getProjectApiGroupList(String projectId) throws Exception {
 		try (Connection conn = getConnection()) {
-			String sql = String.format("select * from project_api_group where %s=?", ColumnsApiGroup.PROJECT_ID);
+			String sql = String.format("select * from project_api_group where %s=? order by %s ", ColumnsApiGroup.PROJECT_ID,
+					ColumnsApiGroup.SORTS);
 			try (PreparedStatement stat = conn.prepareStatement(sql)) {
 				stat.setString(1, projectId);
 				try (ResultSet resultSet = stat.executeQuery()) {
@@ -351,7 +378,8 @@ public class ConfigUtil {
 						group.setDescription(resultSet.getString(ColumnsApiGroup.DESCRIPTION));
 						group.setExternalDocs(resultSet.getString(ColumnsApiGroup.EXTERNAL_DOCS));
 						group.setExtensions(resultSet.getString(ColumnsApiGroup.EXTENSIONS));
-						String apiSql = String.format("select * from project_api where %s=?", ColumnsApiGroup.GROUP_ID);
+						group.setSorts(resultSet.getInt(ColumnsApiGroup.SORTS));
+						String apiSql = String.format("select * from project_api where %s=? order by %s", ColumnsApiGroup.GROUP_ID,ColumnsAPI.SORTS);
 						try (PreparedStatement statSub = conn.prepareStatement(apiSql)) {
 							statSub.setString(1, group.getGroupId());
 							try (ResultSet apiResult = statSub.executeQuery()) {
@@ -372,6 +400,8 @@ public class ConfigUtil {
 									api.setAdditional(apiResult.getString(ColumnsAPI.ADDITIONAL));
 									api.setExternalDocs(apiResult.getString(ColumnsAPI.EXTERNAL_DOCS));
 									api.setExtensions(apiResult.getString(ColumnsAPI.EXTENSIONS));
+									api.setVersion(apiResult.getLong(ColumnsAPI.VERSION));
+									api.setSorts(apiResult.getInt(ColumnsAPI.SORTS));
 									apiList.add(api);
 								}
 								group.setApis(apiList);
@@ -388,12 +418,12 @@ public class ConfigUtil {
 	/**
 	 * 获取指定项目的所有接口分组,该方法只放回分组本身,不返回分组的接口
 	 * 
-	 * @param groupId
-	 *          分组的id
+	 * @param groupId 分组的id
 	 * @return
 	 */
 	public static List<ProjectApiGroup> getProjectApiGroups(String projectId) throws Throwable {
-		String sql = String.format("select * from project_api_group where %s=?", ColumnsApiGroup.PROJECT_ID);
+		String sql = String.format("select * from project_api_group where %s=? order by %s ", ColumnsApiGroup.PROJECT_ID,
+				ColumnsApiGroup.SORTS);
 		FunctionResult<List<ProjectApiGroup>> execute = query(sql, StringUtil.asList(projectId), res -> {
 			List<ProjectApiGroup> result = new ArrayList<>();
 			try {
@@ -406,6 +436,7 @@ public class ConfigUtil {
 					group.setDescription(res.getString(ColumnsApiGroup.DESCRIPTION));
 					group.setExternalDocs(res.getString(ColumnsApiGroup.EXTERNAL_DOCS));
 					group.setExtensions(res.getString(ColumnsApiGroup.EXTENSIONS));
+					group.setSorts(res.getInt(ColumnsApiGroup.SORTS));
 					result.add(group);
 				}
 				return new FunctionResult<>(result);
@@ -419,15 +450,15 @@ public class ConfigUtil {
 			throw execute.cause();
 		}
 	}
+
 	/**
 	 * 获取指定接口分组的数据
 	 * 
-	 * @param groupId
-	 *          分组的id
+	 * @param groupId 分组的id
 	 * @return
 	 */
 	public static ProjectApiGroup getProjectApiGroup(String groupId) throws Throwable {
-		String sql = String.format("select * from project_api_group where %s=?", ColumnsApiGroup.GROUP_ID);
+		String sql = String.format("select * from project_api_group where %s=? ", ColumnsApiGroup.GROUP_ID);
 		FunctionResult<ProjectApiGroup> execute = query(sql, StringUtil.asList(groupId), res -> {
 			ProjectApiGroup group = new ProjectApiGroup();
 			try {
@@ -459,9 +490,9 @@ public class ConfigUtil {
 	 * @throws Exception
 	 */
 	public static void saveProjectApiGroup(ProjectApiGroup group) throws Exception {
-		String sql = String.format("insert into project_api_group (%s,%s,%s,%s,%s,%s,%s) values(?,?,?,?,?,?,?)", ColumnsApiGroup.GROUP_ID,
-				ColumnsApiGroup.PROJECT_ID, ColumnsApiGroup.NAME, ColumnsApiGroup.SUMMARY, ColumnsApiGroup.DESCRIPTION,
-				ColumnsApiGroup.EXTERNAL_DOCS, ColumnsApiGroup.EXTENSIONS);
+		String sql = String.format("insert into project_api_group (%s,%s,%s,%s,%s,%s,%s,%s) values(?,?,?,?,?,?,?,?)",
+				ColumnsApiGroup.GROUP_ID, ColumnsApiGroup.PROJECT_ID, ColumnsApiGroup.NAME, ColumnsApiGroup.SUMMARY,
+				ColumnsApiGroup.DESCRIPTION, ColumnsApiGroup.EXTERNAL_DOCS, ColumnsApiGroup.EXTENSIONS, ColumnsApiGroup.SORTS);
 		List<Object> params = new ArrayList<>();
 		params.add(StringUtil.isNullOrEmpty(group.getGroupId()) ? UUID.randomUUID().toString() : group.getGroupId());
 		params.add(group.getProjectId());
@@ -470,11 +501,12 @@ public class ConfigUtil {
 		params.add(group.getDescription());
 		params.add(group.getExternalDocs());
 		params.add(group.getExtensions());
+		params.add(group.getSorts());
 		update(sql, params);
 	}
 
 	/**
-	 * 删除接口分组
+	 * 修改接口分组
 	 * 
 	 * @param key
 	 * @throws Exception
@@ -502,10 +534,39 @@ public class ConfigUtil {
 			set.append(ColumnsApiGroup.EXTENSIONS + " = ? ,");
 			params.add(group.getExtensions());
 		}
+
+		if (group.getSorts() != null) {
+			set.append(ColumnsApiGroup.SORTS + " = ? ,");
+			params.add(group.getSorts());
+		}
 		String sql = "update project_api_group " + set.substring(0, set.length() - 1)
 				+ String.format(" where %s = ? ", ColumnsApiGroup.GROUP_ID);
 		params.add(group.getGroupId());
 		update(sql, params);
+	}
+
+	/**
+	 * 接口分组排序上移动
+	 * 
+	 * @param gid
+	 * @throws Exception
+	 */
+	public static void updateProjectApiGroupMoveUp(String gid) throws Exception {
+		String sql = String.format("update project_api_group set %s=(%s-1) where %s=?", ColumnsApiGroup.SORTS,
+				ColumnsApiGroup.SORTS, ColumnsApiGroup.GROUP_ID);
+		update(sql, StringUtil.asList(gid));
+	}
+
+	/**
+	 * 接口分组排序下移动
+	 * 
+	 * @param gid
+	 * @throws Exception
+	 */
+	public static void updateProjectApiGroupMoveDown(String gid) throws Exception {
+		String sql = String.format("update project_api_group set %s=(%s+1) where %s=?", ColumnsApiGroup.SORTS,
+				ColumnsApiGroup.SORTS, ColumnsApiGroup.GROUP_ID);
+		update(sql, StringUtil.asList(gid));
 	}
 
 	/**
@@ -522,6 +583,7 @@ public class ConfigUtil {
 		String groupSql = String.format("delete from project_api_group where %s = ? ", ColumnsApiGroup.GROUP_ID);
 		update(groupSql, params);
 	}
+
 	/**
 	 * 新增接口
 	 * 
@@ -530,10 +592,12 @@ public class ConfigUtil {
 	 */
 	public static void saveProjectApi(ProjectApi api) throws Exception {
 		String sql = String.format(
-				"insert into project_api (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) " + "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)", ColumnsAPI.API_ID,
-				ColumnsAPI.GROUP_ID, ColumnsAPI.METHOD, ColumnsAPI.PATH, ColumnsAPI.TITLE, ColumnsAPI.DESCRIPTION, ColumnsAPI.CONSUMES,
-				ColumnsAPI.PARAMETERS, ColumnsAPI.PRODUCES, ColumnsAPI.RESPONSES, ColumnsAPI.DEPRECATED, ColumnsAPI.ADDITIONAL,
-				ColumnsAPI.EXTERNAL_DOCS, ColumnsAPI.EXTENSIONS);
+				"insert into project_api (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) "
+						+ "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+				ColumnsAPI.API_ID, ColumnsAPI.GROUP_ID, ColumnsAPI.METHOD, ColumnsAPI.PATH, ColumnsAPI.TITLE,
+				ColumnsAPI.DESCRIPTION, ColumnsAPI.CONSUMES, ColumnsAPI.PARAMETERS, ColumnsAPI.PRODUCES, ColumnsAPI.RESPONSES,
+				ColumnsAPI.DEPRECATED, ColumnsAPI.ADDITIONAL, ColumnsAPI.EXTERNAL_DOCS, ColumnsAPI.EXTENSIONS,
+				ColumnsAPI.VERSION, ColumnsAPI.SORTS);
 		List<Object> params = new ArrayList<>();
 		params.add(StringUtil.isNullOrEmpty(api.getApiId()) ? UUID.randomUUID().toString() : api.getApiId());
 		params.add(api.getGroupId());
@@ -549,6 +613,8 @@ public class ConfigUtil {
 		params.add(api.getAdditional());
 		params.add(api.getExternalDocs());
 		params.add(api.getExtensions());
+		params.add(api.getVersion());
+		params.add(api.getSorts());
 		update(sql, params);
 	}
 
@@ -560,7 +626,7 @@ public class ConfigUtil {
 	 * @throws Throwable
 	 */
 	public static List<ProjectApi> getProjectApiList(String groupsId) throws Throwable {
-		String sql = String.format("select * from project_api where %s=?", ColumnsAPI.GROUP_ID);
+		String sql = String.format("select * from project_api where %s=? order by %s", ColumnsAPI.GROUP_ID,ColumnsAPI.SORTS);
 		FunctionResult<List<ProjectApi>> result = query(sql, StringUtil.asList(groupsId), res -> {
 			try {
 				List<ProjectApi> apis = new ArrayList<>();
@@ -580,6 +646,8 @@ public class ConfigUtil {
 					api.setAdditional(res.getString(ColumnsAPI.ADDITIONAL));
 					api.setExternalDocs(res.getString(ColumnsAPI.EXTERNAL_DOCS));
 					api.setExtensions(res.getString(ColumnsAPI.EXTENSIONS));
+					api.setVersion(res.getLong(ColumnsAPI.VERSION));
+					api.setSorts(res.getInt(ColumnsAPI.SORTS));
 					apis.add(api);
 				}
 				return new FunctionResult<>(apis);
@@ -593,6 +661,7 @@ public class ConfigUtil {
 			throw result.cause();
 		}
 	}
+
 	/**
 	 * 获取指定接口的信息
 	 * 
@@ -620,6 +689,8 @@ public class ConfigUtil {
 					api.setAdditional(res.getString(ColumnsAPI.ADDITIONAL));
 					api.setExternalDocs(res.getString(ColumnsAPI.EXTERNAL_DOCS));
 					api.setExtensions(res.getString(ColumnsAPI.EXTENSIONS));
+					api.setVersion(res.getLong(ColumnsAPI.VERSION));
+					api.setSorts(res.getInt(ColumnsAPI.SORTS));
 				}
 				return new FunctionResult<>(api);
 			} catch (SQLException e) {
@@ -632,6 +703,7 @@ public class ConfigUtil {
 			throw result.cause();
 		}
 	}
+
 	/**
 	 * 更新接口
 	 * 
@@ -689,10 +761,44 @@ public class ConfigUtil {
 			set.append(ColumnsAPI.EXTENSIONS + " = ? ,");
 			params.add(api.getExtensions());
 		}
-		String sql = "update project_api " + set.substring(0, set.length() - 1) + String.format(" where %s = ? ", ColumnsAPI.API_ID);
+		if (api.getVersion() != null) {
+			set.append(ColumnsAPI.VERSION + " = ? ,");
+			params.add(api.getVersion());
+		}
+		if (api.getSorts() != null) {
+			set.append(ColumnsAPI.SORTS + " = ? ,");
+			params.add(api.getSorts());
+		}
+		String sql = "update project_api " + set.substring(0, set.length() - 1)
+				+ String.format(" where %s = ? ", ColumnsAPI.API_ID);
 		params.add(api.getApiId());
 		update(sql, params);
 	}
+
+	/**
+	 * API排序上移动
+	 * 
+	 * @param aid
+	 * @throws Exception
+	 */
+	public static void updateProjectApiMoveUp(String aid) throws Exception {
+		String sql = String.format("update project_api set %s=(%s-1) where %s=?", ColumnsAPI.SORTS, ColumnsAPI.SORTS,
+				ColumnsAPI.API_ID);
+		update(sql, StringUtil.asList(aid));
+	}
+
+	/**
+	 * API排序下移动
+	 * 
+	 * @param aid
+	 * @throws Exception
+	 */
+	public static void updateProjectApiMoveDown(String aid) throws Exception {
+		String sql = String.format("update project_api set %s=(%s+1) where %s=?", ColumnsAPI.SORTS, ColumnsAPI.SORTS,
+				ColumnsAPI.API_ID);
+		update(sql, StringUtil.asList(aid));
+	}
+
 	/**
 	 * 删除接口
 	 * 

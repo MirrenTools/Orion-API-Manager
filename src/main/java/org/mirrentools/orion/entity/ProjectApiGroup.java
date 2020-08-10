@@ -19,10 +19,16 @@ public class ProjectApiGroup {
 	private String summary;
 	/** 分组的详细描述 */
 	private String description;
-	/** 分组的拓展文档 */
+	/**
+	 * 分组的拓展文档(JsonObject):<br>
+	 * description(String):附加文档说明<br>
+	 * url(String): 附加文档路径
+	 */
 	private String externalDocs;
 	/** 分组的拓展属性 */
 	private String extensions;
+	/** 分组的排序 */
+	private Integer sorts;
 
 	/** 该分组下的所有接口 */
 	private List<ProjectApi> apis;
@@ -160,6 +166,14 @@ public class ProjectApiGroup {
 		this.extensions = extensions;
 	}
 
+	public Integer getSorts() {
+		return sorts;
+	}
+
+	public void setSorts(Integer sorts) {
+		this.sorts = sorts;
+	}
+
 	public List<ProjectApi> getApis() {
 		return apis;
 	}
@@ -170,8 +184,9 @@ public class ProjectApiGroup {
 
 	@Override
 	public String toString() {
-		return "ProjectApiGroup [groupId=" + groupId + ", projectId=" + projectId + ", name=" + name + ", summary=" + summary + ", description="
-				+ description + ", externalDocs=" + externalDocs + ", extensions=" + extensions + ", apis=" + apis + "]";
+		return "ProjectApiGroup [groupId=" + groupId + ", projectId=" + projectId + ", name=" + name + ", summary="
+				+ summary + ", description=" + description + ", externalDocs=" + externalDocs + ", extensions=" + extensions
+				+ ", sorts=" + sorts + ", apis=" + apis + "]";
 	}
 
 }

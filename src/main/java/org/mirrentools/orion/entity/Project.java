@@ -30,6 +30,8 @@ public class Project {
 	/** 拓展信息 */
 	private String extensions;
 	/** 最后操作时间 */
+	private Integer sorts;
+	/** 最后操作时间 */
 	private Long lastTime;
 
 	/**
@@ -38,6 +40,7 @@ public class Project {
 	public Project() {
 		super();
 	}
+
 	/**
 	 * 获取key
 	 * 
@@ -237,6 +240,24 @@ public class Project {
 	}
 
 	/**
+	 * 获取项目排序
+	 * 
+	 * @return
+	 */
+	public Integer getSorts() {
+		return sorts;
+	}
+
+	/**
+	 * 设置项目排序
+	 * 
+	 * @param sorts
+	 */
+	public void setSorts(Integer sorts) {
+		this.sorts = sorts;
+	}
+
+	/**
 	 * 获取lastTime
 	 * 
 	 * @return
@@ -256,10 +277,10 @@ public class Project {
 
 	@Override
 	public String toString() {
-		return "Project [key=" + key + " , name=" + name + " , versions=" + versions + " , description=" + description + " , host=" + host
-				+ " , basePath=" + basePath + " , schemes=" + schemes + " , externalDocs=" + externalDocs + " , contactName=" + contactName
-				+ " , contactInfo=" + contactInfo + " , extensions=" + extensions + " , lastTime=" + lastTime + "  ]";
-
+		return "Project [key=" + key + ", name=" + name + ", versions=" + versions + ", description=" + description
+				+ ", host=" + host + ", basePath=" + basePath + ", schemes=" + schemes + ", externalDocs=" + externalDocs
+				+ ", contactName=" + contactName + ", contactInfo=" + contactInfo + ", extensions=" + extensions + ", sorts="
+				+ sorts + ", lastTime=" + lastTime + "]";
 	}
 
 }

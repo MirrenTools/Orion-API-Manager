@@ -1,4 +1,5 @@
 package org.mirrentools.orion.common;
+
 /**
  * 接口表的列名
  * 
@@ -34,4 +35,8 @@ public interface ColumnsAPI {
 	public static final String EXTERNAL_DOCS = "external_docs";
 	/** extensions */
 	public static final String EXTENSIONS = "extensions";
+	/** version */
+	public static final String VERSION = "version";
+	/** sorts */
+	public static final String SORTS = "sorts";
 }

@@ -20,4 +20,6 @@ public interface ColumnsApiGroup {
 	public static final String EXTERNAL_DOCS = "external_docs";
 	/** 分组的拓展字段 */
 	public static final String EXTENSIONS = "extensions";
+	/** 排序 */
+	public static final String SORTS = "sorts";
 }

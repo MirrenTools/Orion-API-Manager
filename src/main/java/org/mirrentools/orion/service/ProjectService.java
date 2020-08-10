@@ -16,16 +16,30 @@ import org.mirrentools.orion.entity.ProjectApiGroup;
  */
 public interface ProjectService {
 	/**
+	 * 登录
+	 * 
+	 * @return
+	 */
+	Map<String, Object> login(String id, String pwd);
+
+	/**
+	 * 退出登录
+	 * 
+	 * @return
+	 */
+	Map<String, Object> logout(String sessionId);
+
+	/**
 	 * 获取项目列表
 	 * 
 	 * @return
 	 */
 	Map<String, Object> getProjectList();
+
 	/**
 	 * 获取项目
 	 * 
-	 * @param id
-	 *          项目的id
+	 * @param id 项目的id
 	 * @return
 	 */
 	Map<String, Object> getProject(String id);
@@ -37,6 +51,7 @@ public interface ProjectService {
 	 * @return
 	 */
 	Map<String, Object> saveProject(Project project);
+
 	/**
 	 * 复制一份项目
 	 * 
@@ -44,6 +59,7 @@ public interface ProjectService {
 	 * @return
 	 */
 	Map<String, Object> copyProject(String key);
+
 	/**
 	 * 更新项目
 	 * 
@@ -51,6 +67,23 @@ public interface ProjectService {
 	 * @return
 	 */
 	Map<String, Object> updateProject(Project project);
+
+	/**
+	 * 项目排序上移
+	 * 
+	 * @param project
+	 * @return
+	 */
+	Map<String, Object> projectMoveUp(String key);
+
+	/**
+	 * 项目排序下移
+	 * 
+	 * @param project
+	 * @return
+	 */
+	Map<String, Object> projectMoveDown(String key);
+
 	/**
 	 * 更新项目
 	 * 
@@ -66,6 +99,7 @@ public interface ProjectService {
 	 * @return
 	 */
 	Map<String, Object> getApiGroupList(String projectId);
+
 	/**
 	 * 获取指定的接口分组
 	 * 
@@ -81,6 +115,7 @@ public interface ProjectService {
 	 * @return
 	 */
 	Map<String, Object> saveApiGroup(ProjectApiGroup group);
+
 	/**
 	 * 修改指定Project的接口分组
 	 * 
@@ -88,6 +123,23 @@ public interface ProjectService {
 	 * @return
 	 */
 	Map<String, Object> updateApiGroup(ProjectApiGroup group);
+
+	/**
+	 * 接口分组上移动
+	 * 
+	 * @param group
+	 * @return
+	 */
+	Map<String, Object> moveUpApiGroup(String id);
+
+	/**
+	 * 接口分组下移动
+	 * 
+	 * @param group
+	 * @return
+	 */
+	Map<String, Object> moveDownApiGroup(String id);
+
 	/**
 	 * 删除指定Project的接口分组
 	 * 
@@ -95,6 +147,7 @@ public interface ProjectService {
 	 * @return
 	 */
 	Map<String, Object> deleteApiGroup(String groupId);
+
 	/**
 	 * 新增接口
 	 * 
@@ -102,6 +155,7 @@ public interface ProjectService {
 	 * @return
 	 */
 	Map<String, Object> saveApi(ProjectApi api);
+
 	/**
 	 * 通过id获取接口
 	 * 
@@ -109,6 +163,7 @@ public interface ProjectService {
 	 * @return
 	 */
 	Map<String, Object> getApi(String apiId);
+
 	/**
 	 * 更新接口
 	 * 
@@ -116,6 +171,23 @@ public interface ProjectService {
 	 * @return
 	 */
 	Map<String, Object> updateApi(ProjectApi api);
+
+	/**
+	 * API排序上移动
+	 * 
+	 * @param group
+	 * @return
+	 */
+	Map<String, Object> moveUpApi(String id);
+
+	/**
+	 * API排序下移动
+	 * 
+	 * @param group
+	 * @return
+	 */
+	Map<String, Object> moveDownApi(String id);
+
 	/**
 	 * 通过API删除指定接口
 	 * 
@@ -136,8 +208,7 @@ public interface ProjectService {
 	 * 下载JSON文件
 	 * 
 	 * @param response
-	 * @param projectId
-	 *          项目的id
+	 * @param projectId 项目的id
 	 */
 	void downJson(HttpServletResponse response, String projectId);
 

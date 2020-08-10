@@ -6,9 +6,8 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
-public class OrionApiDocApplication {
+public class Main {
 	public static void main(String[] args) {
-		SpringApplication.run(OrionApiDocApplication.class, args);
+		SpringApplication.run(Main.class, args);
 	}
-
 }
