@@ -59,7 +59,11 @@ public class ProjectApi {
 	private String responses;
 	/** API是否已经过时 */
 	private String deprecated;
-	/** 附加说明 */
+	/**
+	 * 附加说明(JsonArray(JsonObject)):<br>
+	 * title(String):标题<br>
+	 * description(String):描述
+	 */
 	private String additional;
 	/**
 	 * 拓展文档(JsonObject):<br>
@@ -351,11 +355,10 @@ public class ProjectApi {
 
 	@Override
 	public String toString() {
-		return "ProjectApi [apiId=" + apiId + ", groupId=" + groupId + ", method=" + method + ", path=" + path + ", title="
-				+ title + ", description=" + description + ", consumes=" + consumes + ", parameters=" + parameters
-				+ ", produces=" + produces + ", responses=" + responses + ", deprecated=" + deprecated + ", additional="
-				+ additional + ", externalDocs=" + externalDocs + ", extensions=" + extensions + ", version=" + version
-				+ ", sorts=" + sorts + "]";
+		return "ProjectApi [apiId=" + apiId + ", groupId=" + groupId + ", method=" + method + ", path=" + path + ", title=" + title
+				+ ", description=" + description + ", consumes=" + consumes + ", parameters=" + parameters + ", produces=" + produces
+				+ ", responses=" + responses + ", deprecated=" + deprecated + ", additional=" + additional + ", externalDocs=" + externalDocs
+				+ ", extensions=" + extensions + ", version=" + version + ", sorts=" + sorts + "]";
 	}
 
 }
