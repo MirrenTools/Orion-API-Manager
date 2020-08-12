@@ -15,12 +15,13 @@ public class Project {
 	private String versions;
 	/** 项目的描述 */
 	private String description;
-	/** 服务主机 */
-	private String host;
-	/** 跟路径 */
-	private String basePath;
-	/** 服务协议 */
-	private String schemes;
+	/**
+	 * 可用的服务地址(JsonArray(JsonObject)):<br>
+	 * url(String): 服务地址: 协议://主机:端口/更路径<br>
+	 * description(String): 这个服务的描述
+	 * 
+	 */
+	private String servers;
 	/** 拓展文档 */
 	private String externalDocs;
 	/** 联系名称 */
@@ -112,59 +113,22 @@ public class Project {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-
 	/**
-	 * 获取host
+	 * 获取服务地址
 	 * 
 	 * @return
 	 */
-	public String getHost() {
-		return host;
+	public String getServers() {
+		return servers;
 	}
 
 	/**
-	 * 设置host
+	 * 设置服务地址
 	 * 
-	 * @param host
+	 * @param servers
 	 */
-	public void setHost(String host) {
-		this.host = host;
-	}
-
-	/**
-	 * 获取basePath
-	 * 
-	 * @return
-	 */
-	public String getBasePath() {
-		return basePath;
-	}
-
-	/**
-	 * 设置basePath
-	 * 
-	 * @param basePath
-	 */
-	public void setBasePath(String basePath) {
-		this.basePath = basePath;
-	}
-
-	/**
-	 * 获取schemes
-	 * 
-	 * @return
-	 */
-	public String getSchemes() {
-		return schemes;
-	}
-
-	/**
-	 * 设置schemes
-	 * 
-	 * @param schemes
-	 */
-	public void setSchemes(String schemes) {
-		this.schemes = schemes;
+	public void setServers(String servers) {
+		this.servers = servers;
 	}
 
 	/**
@@ -277,10 +241,9 @@ public class Project {
 
 	@Override
 	public String toString() {
-		return "Project [key=" + key + ", name=" + name + ", versions=" + versions + ", description=" + description
-				+ ", host=" + host + ", basePath=" + basePath + ", schemes=" + schemes + ", externalDocs=" + externalDocs
-				+ ", contactName=" + contactName + ", contactInfo=" + contactInfo + ", extensions=" + extensions + ", sorts="
-				+ sorts + ", lastTime=" + lastTime + "]";
+		return "Project [key=" + key + ", name=" + name + ", versions=" + versions + ", description=" + description + ", servers=" + servers
+				+ ", externalDocs=" + externalDocs + ", contactName=" + contactName + ", contactInfo=" + contactInfo + ", extensions=" + extensions
+				+ ", sorts=" + sorts + ", lastTime=" + lastTime + "]";
 	}
 
 }

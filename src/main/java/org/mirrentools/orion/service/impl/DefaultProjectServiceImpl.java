@@ -92,7 +92,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	@Override
 	public Map<String, Object> saveProject(Project project) {
 		try {
-			if (StringUtil.isNullOrEmpty(project.getHost(), project.getName())) {
+			if (StringUtil.isNullOrEmpty(project.getServers(), project.getName())) {
 				return ResultUtil.failed("存在空值,name与host都为必填");
 			}
 			ConfigUtil.saveProject(project);
@@ -140,7 +140,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	@Override
 	public Map<String, Object> updateProject(Project project) {
 		try {
-			if (StringUtil.isNullOrEmpty(project.getKey(), project.getHost(), project.getName())) {
+			if (StringUtil.isNullOrEmpty(project.getKey(), project.getServers(), project.getName())) {
 				System.out.println(project);
 				return ResultUtil.failed("存在空值,host,name,key都为必填");
 			}
@@ -226,6 +226,9 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	@Override
 	public Map<String, Object> saveApiGroup(ProjectApiGroup group) {
 		try {
+			if (group.getSorts() == null) {
+				group.setSorts(0);
+			}
 			ConfigUtil.saveProjectApiGroup(group);
 			return ResultUtil.succeed(1);
 		} catch (Exception e) {
@@ -240,6 +243,9 @@ public class DefaultProjectServiceImpl implements ProjectService {
 		try {
 			if (StringUtil.isNullOrEmpty(group.getGroupId())) {
 				return ResultUtil.failed("存在空值,分组的id不能为空");
+			}
+			if (group.getSorts() == null) {
+				group.setSorts(0);
 			}
 			ConfigUtil.updateProjectApiGroup(group);
 			return ResultUtil.succeed(1);
@@ -297,6 +303,12 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(api.getGroupId())) {
 				return ResultUtil.failed("存在空值,分组的id不能为空");
 			}
+			if (api.getVersion() == null) {
+				api.setVersion(1L);
+			}
+			if (api.getSorts() == null) {
+				api.setSorts(0);
+			}
 			ConfigUtil.saveProjectApi(api);
 			return ResultUtil.succeed(1);
 		} catch (Throwable e) {
@@ -322,6 +334,9 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	@Override
 	public Map<String, Object> updateApi(ProjectApi api) {
 		try {
+			if (api.getVersion() == null) {
+				api.setVersion(1L);
+			}
 			ConfigUtil.updateProjectApi(api);
 			return ResultUtil.succeed(1);
 		} catch (Throwable e) {
@@ -381,20 +396,15 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			result.put("name", project.getName());
 			result.put("versions", project.getVersions());
 			result.put("description", project.getDescription());
-			result.put("host", project.getHost());
-			result.put("basePath", project.getBasePath());
+			try {
+				result.put("servers", new JSONArray(project.getServers()));
+			} catch (Exception e) {
+				result.put("servers", project.getServers());
+			}
 			result.put("contactName", project.getContactName());
 			result.put("contactInfo", project.getContactInfo());
 			if (project.getLastTime() != null) {
 				result.put("lastTime", new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date(project.getLastTime())));
-			}
-			if (project.getSchemes() != null) {
-				try {
-					result.put("schemes", new JSONArray(project.getSchemes()));
-				} catch (Exception e) {
-					result.put("schemes", project.getSchemes());
-					e.printStackTrace();
-				}
 			}
 			if (project.getExternalDocs() != null) {
 				try {
@@ -412,7 +422,6 @@ public class DefaultProjectServiceImpl implements ProjectService {
 						result.put("extensions", new JSONArray(project.getExtensions()));
 					} catch (Exception e1) {
 						result.put("extensions", project.getExtensions());
-						e1.printStackTrace();
 					}
 				}
 			}

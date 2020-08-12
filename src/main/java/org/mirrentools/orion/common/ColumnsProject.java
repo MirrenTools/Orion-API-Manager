@@ -15,11 +15,7 @@ public interface ColumnsProject {
 	/** description */
 	public final static String DESCRIPTION = "description";
 	/** host */
-	public final static String HOST = "host";
-	/** basePath */
-	public final static String BASE_PATH = "base_path";
-	/** schemes */
-	public final static String SCHEMES = "schemes";
+	public final static String SERVERS = "servers";
 	/** contact_name */
 	public final static String CONTACT_NAME = "contact_name";
 	/** contact_info */
