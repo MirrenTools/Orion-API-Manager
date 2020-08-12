@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mirrentools.orion.common.ConfigUtil;
+import org.mirrentools.orion.common.OrionApiManager;
 import org.mirrentools.orion.common.LoginSessionStore;
 import org.mirrentools.orion.common.MD5Util;
 import org.mirrentools.orion.common.ResultUtil;
@@ -95,6 +96,9 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(project.getServers(), project.getName())) {
 				return ResultUtil.failed("存在空值,name与host都为必填");
 			}
+			if (project.getSorts()==null) {
+				project.setSorts(0);
+			}
 			ConfigUtil.saveProject(project);
 			return ResultUtil.succeed(1);
 		} catch (Exception e) {
@@ -143,6 +147,9 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(project.getKey(), project.getServers(), project.getName())) {
 				System.out.println(project);
 				return ResultUtil.failed("存在空值,host,name,key都为必填");
+			}
+			if (project.getSorts()==null) {
+				project.setSorts(0);
 			}
 			project.setLastTime(System.currentTimeMillis());
 			ConfigUtil.updateProject(project);
@@ -392,6 +399,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 		try {
 			Project project = ConfigUtil.getProject(projectId);
 			JSONObject result = new JSONObject();
+			result.put("orionApi", OrionApiManager.VERSION);
 			result.put("key", project.getKey());
 			result.put("name", project.getName());
 			result.put("versions", project.getVersions());
@@ -542,11 +550,11 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	@Override
 	public void downJson(HttpServletResponse response, String projectId) {
 		try {
+			String result = getJson(projectId);
 			response.setContentType("application/force-download;charset=UTF-8");
-			String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-hh-mm-ss"));
+			String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-hhmmss"));
 			String fileName = "Orion-API-" + time + ".json";
 			response.addHeader("Content-Disposition", "attachment;fileName=" + fileName);
-			String result = getJson(projectId);
 			try (PrintWriter writer = response.getWriter()) {
 				writer.write(result);
 			}

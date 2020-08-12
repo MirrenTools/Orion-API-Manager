@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
-import org.mirrentools.orion.common.Constant;
+import org.mirrentools.orion.common.OrionApiManager;
 import org.springframework.web.servlet.HandlerInterceptor;
 /**
  * 普通认证的拦截器
@@ -23,13 +23,13 @@ public class BasicAuthInterceptor implements HandlerInterceptor {
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 		String auth = request.getHeader(AUTHORIZATION);
 		if (auth == null) {
-			response.addHeader("WWW-Authenticate", "Basic realm=\"" + Constant.MSAM_NAME_VERSION + "\"");
+			response.addHeader("WWW-Authenticate", "Basic realm=\"" + OrionApiManager.NAME_VERSION + "\"");
 			response.setStatus(401);
 			return false;
 		} else {
 			if ("false".equals(request.getSession().getAttribute(IS_AUTH))) {
 				request.getSession().removeAttribute(IS_AUTH);
-				response.addHeader("WWW-Authenticate", "Basic realm=\"" + Constant.MSAM_NAME_VERSION + "\"");
+				response.addHeader("WWW-Authenticate", "Basic realm=\"" + OrionApiManager.NAME_VERSION + "\"");
 				response.setStatus(401);
 				return false;
 			} else {
@@ -61,7 +61,7 @@ public class BasicAuthInterceptor implements HandlerInterceptor {
 				}
 
 				if (!authResult) {
-					response.addHeader("WWW-Authenticate", "Basic realm=\"" + Constant.MSAM_NAME_VERSION + "\"");
+					response.addHeader("WWW-Authenticate", "Basic realm=\"" + OrionApiManager.NAME_VERSION + "\"");
 					response.setStatus(401);
 				}
 				return authResult;

@@ -5,7 +5,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.mirrentools.orion.common.Constant;
+import org.mirrentools.orion.common.OrionApiManager;
 import org.mirrentools.orion.entity.Project;
 import org.mirrentools.orion.entity.RequestData;
 import org.mirrentools.orion.service.HttpApiProxy;
@@ -46,9 +46,9 @@ public class ProjectController {
 	 */
 	@RequestMapping(value = { "/", "/index.html" }, produces = { "text/html;charset=UTF-8" })
 	public String index(HttpServletResponse response) {
-		response.addHeader("title", Constant.MSAM_NAME);
-		return "<h1 style='text-align: center;'>欢迎使用" + Constant.MSAM_MIN_NAME + "</h1>"
-				+ "	<h1 style='text-align: center;'>" + Constant.MSAM_NAME_VERSION + "</h1>"
+		response.addHeader("title", OrionApiManager.NAME);
+		return "<h1 style='text-align: center;'>欢迎使用" + OrionApiManager.MIN_NAME + "</h1>"
+				+ "	<h1 style='text-align: center;'>" + OrionApiManager.NAME_VERSION + "</h1>"
 				+ "	<h2 style='text-align: center;'><a href='/Server-UI/index.html'>服务端UI</a> <a style='margin-left:10px' href='/Client-UI/index.html'>客户端UI</a></h2>";
 	}
 
