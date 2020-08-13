@@ -96,11 +96,78 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(project.getServers(), project.getName())) {
 				return ResultUtil.failed("存在空值,name与host都为必填");
 			}
-			if (project.getSorts()==null) {
+			if (project.getSorts() == null) {
 				project.setSorts(0);
 			}
 			ConfigUtil.saveProject(project);
 			return ResultUtil.succeed(1);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResultUtil.failed(e.getMessage());
+		}
+	}
+
+	@Override
+	public Map<String, Object> saveProjectfromJson(String json) {
+		try {
+			if (StringUtil.isNullOrEmpty(json)) {
+				return ResultUtil.failed("project不能为空,应为项目的json字符串!");
+			}
+			JSONObject data = new JSONObject(json);
+			if (StringUtil.isNullOrEmpty(data.getString("name"), data.getString("servers"))) {
+				return ResultUtil.failed("项目名称,服务集不能为空!");
+			}
+			Project project = new Project();
+			project.setKey(UUID.randomUUID().toString());
+			project.setName(data.getString("name"));
+			project.setServers(data.getString("servers"));
+			project.setSorts(data.has("sorts") ? data.getInt("sorts") : 0);
+			project.setVersions(data.has("versions") ? data.getString("versions") : null);
+			project.setDescription(data.has("description") ? data.getString("description") : null);
+			project.setExternalDocs(data.has("externalDocs") ? data.getString("externalDocs") : null);
+			project.setContactName(data.has("contactName") ? data.getString("contactName") : null);
+			project.setContactInfo(data.has("contactInfo") ? data.getString("contactInfo") : null);
+			project.setLastTime(System.currentTimeMillis());
+			int saveProject = ConfigUtil.saveProject(project);
+			if (saveProject > 0) {
+				if (data.has("content")) {
+					JSONArray array = data.getJSONArray("content");
+					for (int i = 0; i < array.length(); i++) {
+						JSONObject gdata = array.getJSONObject(i);
+						ProjectApiGroup group = new ProjectApiGroup();
+						group.setProjectId(project.getKey());
+						group.setGroupId(UUID.randomUUID().toString());
+						group.setSorts(gdata.has("sort") ? gdata.getInt("sort") : 0);
+						group.setName(gdata.has("name") ? gdata.getString("name") : "group");
+						group.setSummary(gdata.has("summary") ? gdata.getString("summary") : "summary");
+						group.setDescription(gdata.has("description") ? gdata.getString("description") : null);
+						group.setExternalDocs(gdata.has("externalDocs") ? gdata.getString("externalDocs") : null);
+						int saveGroup = ConfigUtil.saveProjectApiGroup(group);
+						if (saveGroup > 0 && gdata.has("apis")) {
+							JSONArray apis = gdata.getJSONArray("apis");
+							for (int j = 0; j < apis.length(); j++) {
+								JSONObject adata = apis.getJSONObject(j);
+								ProjectApi api = new ProjectApi();
+								api.setGroupId(group.getGroupId());
+								api.setSorts(adata.has("sorts") ? adata.getInt("sorts") : 0);
+								api.setMethod(adata.has("method") ? adata.getString("method") : "get");
+								api.setTitle(adata.has("title") ? adata.getString("title") : "title");
+								api.setPath(adata.has("path") ? adata.getString("path") : "path");
+								api.setDescription(adata.has("description") ? adata.getString("description") : null);
+								api.setConsumes(adata.has("consumes") ? adata.getString("consumes") : null);
+								api.setParameters(adata.has("parameters") ? adata.getString("parameters") : null);
+								api.setProduces(adata.has("produces") ? adata.getString("produces") : null);
+								api.setResponses(adata.has("responses") ? adata.getString("responses") : null);
+								api.setExternalDocs(adata.has("externalDocs") ? adata.getString("externalDocs") : null);
+								ConfigUtil.saveProjectApi(api);
+							}
+						}
+					}
+				}
+				return ResultUtil.succeed(1);
+			} else {
+				return ResultUtil.failed("请返回检查项目是否已经新增成功!");
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResultUtil.failed(e.getMessage());
@@ -148,7 +215,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 				System.out.println(project);
 				return ResultUtil.failed("存在空值,host,name,key都为必填");
 			}
-			if (project.getSorts()==null) {
+			if (project.getSorts() == null) {
 				project.setSorts(0);
 			}
 			project.setLastTime(System.currentTimeMillis());

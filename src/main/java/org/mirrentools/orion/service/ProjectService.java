@@ -53,6 +53,14 @@ public interface ProjectService {
 	Map<String, Object> saveProject(Project project);
 
 	/**
+	 * 保存一个项目,这个项目可能包含分组与API
+	 * 
+	 * @param json
+	 * @return
+	 */
+	Map<String, Object> saveProjectfromJson(String json);
+
+	/**
 	 * 复制一份项目
 	 * 
 	 * @param key

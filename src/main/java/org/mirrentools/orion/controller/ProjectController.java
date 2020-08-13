@@ -121,6 +121,16 @@ public class ProjectController {
 	 * 
 	 * @return
 	 */
+	@PostMapping(value = "/private/project/fromJson", produces = { "application/json;charset=UTF-8" })
+	public Map<String, Object> postProjectfromJson(String project) {
+		return proService.saveProjectfromJson(project);
+	}
+	
+	/**
+	 * 添加一个项目
+	 * 
+	 * @return
+	 */
 	@PostMapping(value = "/private/project", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> postProject(Project project) {
 		return proService.saveProject(project);
