@@ -5,9 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,14 +17,13 @@ import org.apache.http.HeaderIterator;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 import org.mirrentools.orion.common.ResultUtil;
+import org.mirrentools.orion.common.StringUtil;
 import org.mirrentools.orion.entity.OrionHttpRequest;
 import org.mirrentools.orion.entity.RequestData;
 import org.mirrentools.orion.service.HttpApiProxy;
@@ -109,26 +106,19 @@ public class HttpApiProxyImpl implements HttpApiProxy {
 				Set<String> set = hd.keySet();
 				for (String key : set) {
 					req.addHeader(key, hd.getString(key));
-					
 				}
 			}
+
 			String xtype = request.getHeader("x-type");
 			System.out.println("proxy-type: " + xtype);
-			if (xtype != null && "x-www-form-urlencoded".equals(xtype)) {
-				String body = request.getParameter("x-wfubody");
-				System.out.println("proxy-body: " + body);
-				if (body != null) {
-					req.setHeader("Content-Type", "application/x-www-form-urlencoded");
-					List<BasicNameValuePair> list = new ArrayList<>();
-					JSONObject hd = new JSONObject(body);
-					Set<String> set = hd.keySet();
-					for (String key : set) {
-						list.add(new BasicNameValuePair(key, hd.getString(key)));
-					}
-					req.setEntity(new UrlEncodedFormEntity(list, "UTF-8"));
-				}
-			} else {
-				req.setEntity(new ByteArrayEntity(readInputStream(request.getInputStream()).toByteArray()));
+			if (!StringUtil.isNullOrEmpty(xtype)) {
+				req.setHeader("Content-Type", xtype);
+			}
+			int length = request.getContentLength();
+			System.out.println("body length:" + length);
+			if (length > 0) {
+//TODO				req.setEntity(new ByteArrayEntity(readInputStream(request.getInputStream()).toByteArray()));
+
 			}
 			HttpResponse resp = client.execute(req);
 			HeaderIterator iterator = resp.headerIterator();
@@ -171,10 +161,13 @@ public class HttpApiProxyImpl implements HttpApiProxy {
 	 */
 	private ByteArrayOutputStream readInputStream(InputStream in) throws Exception {
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		StringBuilder builder = new StringBuilder();
 		int ch;
 		while ((ch = in.read()) != -1) {
 			outputStream.write(ch);
+			builder.append((char) ch);
 		}
+		System.out.println(builder);
 		return outputStream;
 	}
 }

@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author <a href="http://szmirren.com">Mirren</a>
  *
  */
-@CrossOrigin(allowedHeaders = {"x-url", "x-type", "x-header", "x-session"}, methods = {RequestMethod.DELETE, RequestMethod.GET,
+@CrossOrigin(allowedHeaders = {"x-url", "x-type", "x-header", "x-session","content-type"}, methods = {RequestMethod.DELETE, RequestMethod.GET,
 		RequestMethod.HEAD, RequestMethod.OPTIONS, RequestMethod.PATCH, RequestMethod.POST, RequestMethod.PUT, RequestMethod.TRACE,})
 @RestController
 public class ProjectController {
@@ -79,7 +79,7 @@ public class ProjectController {
 	 * 
 	 * @return
 	 */
-	@RequestMapping(value = "/proxy/server")
+	@PostMapping(value = "/proxy/server")
 	public void proxy(HttpServletRequest request, HttpServletResponse response) {
 		apiProxy.executeProxy(request, response);
 	}
