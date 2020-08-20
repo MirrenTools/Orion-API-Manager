@@ -35,6 +35,9 @@ public class HttpApiProxyImpl implements HttpApiProxy {
 	@Override
 	public Map<String, Object> getProxy(String url) {
 		try {
+			if (url == null) {
+				return ResultUtil.failed("project url is null");
+			}
 			HttpClient client = HttpClientBuilder.create().build();
 			HttpGet get = new HttpGet(url);
 			HttpResponse response = client.execute(get);
@@ -93,15 +96,30 @@ public class HttpApiProxyImpl implements HttpApiProxy {
 	@Override
 	public void executeProxy(HttpServletRequest request, HttpServletResponse response) {
 		try {
+			response.setHeader("Content-Type", "application/json");
 			String method = request.getMethod();
 			String query = request.getQueryString();
 			String url = request.getHeader("x-url");
-			System.out.println("proxy-url: " + url + "?" + query);
+			if (StringUtil.isNullOrEmpty(url)) {
+				response.setStatus(502);
+				JSONObject result = new JSONObject();
+				result.put("status", 500);
+				result.put("msg", "Proxy failed!");
+				result.put("err", "reuqest URL is null or empty");
+				try {
+					response.getOutputStream().write(result.toString().getBytes("utf-8"));
+					response.flushBuffer();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				return;
+			}
+			System.out.println("proxy-url: " + url + (query == null ? "" : "?" + query));
 			OrionHttpRequest req = new OrionHttpRequest(method, url + "?" + query);
 			HttpClient client = HttpClientBuilder.create().build();
 			String header = request.getHeader("x-header");
-			System.out.println("proxy-header: " + header);
 			if (header != null) {
+				System.out.println("proxy-header: " + header);
 				JSONObject hd = new JSONObject(header);
 				Set<String> set = hd.keySet();
 				for (String key : set) {
@@ -110,15 +128,14 @@ public class HttpApiProxyImpl implements HttpApiProxy {
 			}
 
 			String xtype = request.getHeader("x-type");
-			System.out.println("proxy-type: " + xtype);
 			if (!StringUtil.isNullOrEmpty(xtype)) {
+				System.out.println("proxy-type: " + xtype);
 				req.setHeader("Content-Type", xtype);
 			}
 			int length = request.getContentLength();
-			System.out.println("body length:" + length);
 			if (length > 0) {
-//TODO				req.setEntity(new ByteArrayEntity(readInputStream(request.getInputStream()).toByteArray()));
-
+				System.out.println("body length:" + length);
+				req.setEntity(new ByteArrayEntity(readInputStream(request.getInputStream()).toByteArray()));
 			}
 			HttpResponse resp = client.execute(req);
 			HeaderIterator iterator = resp.headerIterator();
@@ -134,7 +151,7 @@ public class HttpApiProxyImpl implements HttpApiProxy {
 			response.setStatus(502);
 			JSONObject result = new JSONObject();
 			result.put("status", 502);
-			result.put("msg", "代理请求失败!");
+			result.put("msg", "Proxy failed!");
 			String message = e.getMessage();
 			if (message != null) {
 				result.put("err", message);
@@ -167,7 +184,7 @@ public class HttpApiProxyImpl implements HttpApiProxy {
 			outputStream.write(ch);
 			builder.append((char) ch);
 		}
-		System.out.println(builder);
+		System.out.println("proxy-body:\n" + builder);
 		return outputStream;
 	}
 }

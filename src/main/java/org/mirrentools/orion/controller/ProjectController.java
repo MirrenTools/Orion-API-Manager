@@ -79,7 +79,7 @@ public class ProjectController {
 	 * 
 	 * @return
 	 */
-	@PostMapping(value = "/proxy/server")
+	@RequestMapping(value = "/proxy/server")
 	public void proxy(HttpServletRequest request, HttpServletResponse response) {
 		apiProxy.executeProxy(request, response);
 	}
