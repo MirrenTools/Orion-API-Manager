@@ -19,7 +19,7 @@ public class LoginSessionAuthInterceptor implements HandlerInterceptor {
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 		response.addHeader("Access-Control-Allow-Origin", "*");
 		response.addHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE");
-		response.addHeader("Access-Control-Allow-Headers", "x-session");
+		response.addHeader("Access-Control-Allow-Headers", "x-session,content-type");
 		String sessionId = request.getHeader("x-session");
 		String uid = LoginSessionStore.get(sessionId);
 		System.out.println("请求检查-->" + sessionId + ": " + uid+", Path:"+request.getServletPath());

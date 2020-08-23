@@ -23,6 +23,8 @@ public interface ColumnsAPI {
 	public static final String CONSUMES = "consumes";
 	/** parameters */
 	public static final String PARAMETERS = "parameters";
+	/** body */
+	public static final String BODY = "body";
 	/** produces */
 	public static final String PRODUCES = "produces";
 	/** responses */

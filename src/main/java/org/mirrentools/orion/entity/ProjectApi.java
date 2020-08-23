@@ -41,6 +41,8 @@ public class ProjectApi {
 	 * regex(String): 正则表达式<br>
 	 */
 	private String parameters;
+	/** 请求的body */
+	private String body;
 	/** API的响应produces:["produces",...] */
 	private String produces;
 	/**
@@ -229,6 +231,14 @@ public class ProjectApi {
 		this.parameters = parameters;
 	}
 
+	public String getBody() {
+		return body;
+	}
+
+	public void setBody(String body) {
+		this.body = body;
+	}
+
 	/**
 	 * 获取produces
 	 * 
@@ -355,10 +365,10 @@ public class ProjectApi {
 
 	@Override
 	public String toString() {
-		return "ProjectApi [apiId=" + apiId + ", groupId=" + groupId + ", method=" + method + ", path=" + path + ", title=" + title
-				+ ", description=" + description + ", consumes=" + consumes + ", parameters=" + parameters + ", produces=" + produces
-				+ ", responses=" + responses + ", deprecated=" + deprecated + ", additional=" + additional + ", externalDocs=" + externalDocs
-				+ ", extensions=" + extensions + ", version=" + version + ", sorts=" + sorts + "]";
+		return "ProjectApi [apiId=" + apiId + ", groupId=" + groupId + ", method=" + method + ", path=" + path + ", title="
+				+ title + ", description=" + description + ", consumes=" + consumes + ", parameters=" + parameters + ", body="
+				+ body + ", produces=" + produces + ", responses=" + responses + ", deprecated=" + deprecated + ", additional="
+				+ additional + ", externalDocs=" + externalDocs + ", extensions=" + extensions + ", version=" + version
+				+ ", sorts=" + sorts + "]";
 	}
-
 }

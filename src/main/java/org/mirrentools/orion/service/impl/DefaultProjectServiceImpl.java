@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.websocket.Session;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,6 +23,7 @@ import org.mirrentools.orion.common.LoginSessionStore;
 import org.mirrentools.orion.common.MD5Util;
 import org.mirrentools.orion.common.ResultUtil;
 import org.mirrentools.orion.common.StringUtil;
+import org.mirrentools.orion.common.WebSocket;
 import org.mirrentools.orion.entity.Project;
 import org.mirrentools.orion.entity.ProjectApi;
 import org.mirrentools.orion.entity.ProjectApiGroup;
@@ -117,48 +119,20 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(data.getString("name"), data.getString("servers"))) {
 				return ResultUtil.failed("项目名称,服务集不能为空!");
 			}
-			Project project = new Project();
-			project.setKey(UUID.randomUUID().toString());
-			project.setName(data.getString("name"));
-			project.setServers(data.getString("servers"));
-			project.setSorts(data.has("sorts") ? data.getInt("sorts") : 0);
-			project.setVersions(data.has("versions") ? data.getString("versions") : null);
-			project.setDescription(data.has("description") ? data.getString("description") : null);
-			project.setExternalDocs(data.has("externalDocs") ? data.getString("externalDocs") : null);
-			project.setContactName(data.has("contactName") ? data.getString("contactName") : null);
-			project.setContactInfo(data.has("contactInfo") ? data.getString("contactInfo") : null);
-			project.setLastTime(System.currentTimeMillis());
+			Project project = convertProject(data);
 			int saveProject = ConfigUtil.saveProject(project);
 			if (saveProject > 0) {
 				if (data.has("content")) {
 					JSONArray array = data.getJSONArray("content");
 					for (int i = 0; i < array.length(); i++) {
 						JSONObject gdata = array.getJSONObject(i);
-						ProjectApiGroup group = new ProjectApiGroup();
-						group.setProjectId(project.getKey());
-						group.setGroupId(UUID.randomUUID().toString());
-						group.setSorts(gdata.has("sort") ? gdata.getInt("sort") : 0);
-						group.setName(gdata.has("name") ? gdata.getString("name") : "group");
-						group.setSummary(gdata.has("summary") ? gdata.getString("summary") : "summary");
-						group.setDescription(gdata.has("description") ? gdata.getString("description") : null);
-						group.setExternalDocs(gdata.has("externalDocs") ? gdata.getString("externalDocs") : null);
+						ProjectApiGroup group = convertGroup(project.getKey(), gdata);
 						int saveGroup = ConfigUtil.saveProjectApiGroup(group);
 						if (saveGroup > 0 && gdata.has("apis")) {
 							JSONArray apis = gdata.getJSONArray("apis");
 							for (int j = 0; j < apis.length(); j++) {
 								JSONObject adata = apis.getJSONObject(j);
-								ProjectApi api = new ProjectApi();
-								api.setGroupId(group.getGroupId());
-								api.setSorts(adata.has("sorts") ? adata.getInt("sorts") : 0);
-								api.setMethod(adata.has("method") ? adata.getString("method") : "get");
-								api.setTitle(adata.has("title") ? adata.getString("title") : "title");
-								api.setPath(adata.has("path") ? adata.getString("path") : "path");
-								api.setDescription(adata.has("description") ? adata.getString("description") : null);
-								api.setConsumes(adata.has("consumes") ? adata.getString("consumes") : null);
-								api.setParameters(adata.has("parameters") ? adata.getString("parameters") : null);
-								api.setProduces(adata.has("produces") ? adata.getString("produces") : null);
-								api.setResponses(adata.has("responses") ? adata.getString("responses") : null);
-								api.setExternalDocs(adata.has("externalDocs") ? adata.getString("externalDocs") : null);
+								ProjectApi api = convertApi(group.getGroupId(), adata);
 								ConfigUtil.saveProjectApi(api);
 							}
 						}
@@ -171,6 +145,73 @@ public class DefaultProjectServiceImpl implements ProjectService {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResultUtil.failed(e.getMessage());
+		}
+	}
+
+	@Override
+	public void saveProjectfromJsonWebSocket(String json, Session session) {
+		try {
+			if (StringUtil.isNullOrEmpty(json)) {
+				session.getAsyncRemote().sendText(WebSocket.failed(WebSocket.CHECK_PROJECT_JSON));
+				return;
+			}
+			JSONObject data = new JSONObject(json);
+			if (StringUtil.isNullOrEmpty(data.getString("name"), data.getString("servers"))) {
+				if (session != null && session.isOpen()) {
+					session.getAsyncRemote().sendText(WebSocket.failed(WebSocket.CHECK_PROJECT_NAME_SERVERS));
+				}
+				return;
+			}
+			Project project = convertProject(data);
+			if (session != null && session.isOpen()) {
+				session.getAsyncRemote().sendText(WebSocket.success(WebSocket.PROJECT_SAVEING, project.getName()));
+			}
+			int saveProject = ConfigUtil.saveProject(project);
+			if (saveProject > 0) {
+				if (session != null && session.isOpen()) {
+					session.getAsyncRemote().sendText(WebSocket.success(WebSocket.PROJECT_SAVED, project.getName()));
+				}
+				if (data.has("content")) {
+					JSONArray groups = data.getJSONArray("content");
+					for (int i = 0; i < groups.length(); i++) {
+						JSONObject gdata = groups.getJSONObject(i);
+						ProjectApiGroup group = convertGroup(project.getKey(), gdata);
+						int saveGroup = ConfigUtil.saveProjectApiGroup(group);
+						if (session != null && session.isOpen()) {
+							session.getAsyncRemote().sendText(WebSocket.success(WebSocket.GROUP_SAVED,
+									WebSocket.progressModel(group.getName(), (i + 1), groups.length(), saveGroup)));
+						}
+						if (saveGroup > 0 && gdata.has("apis")) {
+							JSONArray apis = gdata.getJSONArray("apis");
+							for (int j = 0; j < apis.length(); j++) {
+								JSONObject adata = apis.getJSONObject(j);
+								ProjectApi api = convertApi(group.getGroupId(), adata);
+								int saveApi = ConfigUtil.saveProjectApi(api);
+								if (session != null && session.isOpen()) {
+									session.getAsyncRemote().sendText(WebSocket.success(WebSocket.API_SAVED,
+											WebSocket.progressModel(api.getTitle(), (j + 1), apis.length(), saveApi)));
+								}
+							}
+						}
+					}
+				}
+			} else {
+				if (session != null && session.isOpen()) {
+					session.getAsyncRemote().sendText(WebSocket.success(WebSocket.PROJECT_SAVE_EXCEPTION, project.getName()));
+				}
+			}
+			try {
+				if (session != null && session.isOpen()) {
+					session.getAsyncRemote().sendText(WebSocket.end());
+				}
+			} catch (Exception e) {
+				session.getAsyncRemote().sendText(WebSocket.end());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (session != null && session.isOpen()) {
+				session.getAsyncRemote().sendText(WebSocket.failed(e.getMessage()));
+			}
 		}
 	}
 
@@ -377,6 +418,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(api.getGroupId())) {
 				return ResultUtil.failed("存在空值,分组的id不能为空");
 			}
+			if (api.getDeprecated()==null) {
+				api.setDeprecated(Boolean.toString(false));
+				
+			}
 			if (api.getVersion() == null) {
 				api.setVersion(1L);
 			}
@@ -408,6 +453,9 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	@Override
 	public Map<String, Object> updateApi(ProjectApi api) {
 		try {
+			if (StringUtil.isNullOrEmpty(api.getApiId())) {
+				return ResultUtil.failed("存在空值,id不能为空");
+			}
 			if (api.getVersion() == null) {
 				api.setVersion(1L);
 			}
@@ -553,6 +601,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 									e.printStackTrace();
 								}
 							}
+							api.put("body", pa.getBody());
 							if (pa.getProduces() != null) {
 								try {
 									api.put("produces", new JSONArray(pa.getProduces()));
@@ -628,5 +677,68 @@ public class DefaultProjectServiceImpl implements ProjectService {
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * 转换项目信息
+	 * 
+	 * @param data
+	 * @return
+	 */
+	private Project convertProject(JSONObject data) {
+		Project project = new Project();
+		project.setKey(UUID.randomUUID().toString());
+		project.setName(data.getString("name"));
+		project.setServers(data.getString("servers"));
+		project.setSorts(data.has("sorts") ? data.getInt("sorts") : 0);
+		project.setVersions(data.has("versions") ? data.getString("versions") : null);
+		project.setDescription(data.has("description") ? data.getString("description") : null);
+		project.setExternalDocs(data.has("externalDocs") ? data.getString("externalDocs") : null);
+		project.setContactName(data.has("contactName") ? data.getString("contactName") : null);
+		project.setContactInfo(data.has("contactInfo") ? data.getString("contactInfo") : null);
+		project.setLastTime(System.currentTimeMillis());
+		return project;
+	}
+
+	/**
+	 * 转换分组信息
+	 * 
+	 * @param projectId
+	 * @param gdata
+	 * @return
+	 */
+	private ProjectApiGroup convertGroup(String projectId, JSONObject gdata) {
+		ProjectApiGroup group = new ProjectApiGroup();
+		group.setProjectId(projectId);
+		group.setGroupId(UUID.randomUUID().toString());
+		group.setSorts(gdata.has("sort") ? gdata.getInt("sort") : 0);
+		group.setName(gdata.has("name") ? gdata.getString("name") : "group");
+		group.setSummary(gdata.has("summary") ? gdata.getString("summary") : "summary");
+		group.setDescription(gdata.has("description") ? gdata.getString("description") : null);
+		group.setExternalDocs(gdata.has("externalDocs") ? gdata.getString("externalDocs") : null);
+		return group;
+	}
+
+	/**
+	 * 转换API信息
+	 * 
+	 * @param groupId
+	 * @param adata
+	 * @return
+	 */
+	private ProjectApi convertApi(String groupId, JSONObject adata) {
+		ProjectApi api = new ProjectApi();
+		api.setGroupId(groupId);
+		api.setSorts(adata.has("sorts") ? adata.getInt("sorts") : 0);
+		api.setMethod(adata.has("method") ? adata.getString("method") : "get");
+		api.setTitle(adata.has("title") ? adata.getString("title") : "title");
+		api.setPath(adata.has("path") ? adata.getString("path") : "path");
+		api.setDescription(adata.has("description") ? adata.getString("description") : null);
+		api.setConsumes(adata.has("consumes") ? adata.getString("consumes") : null);
+		api.setParameters(adata.has("parameters") ? adata.getString("parameters") : null);
+		api.setProduces(adata.has("produces") ? adata.getString("produces") : null);
+		api.setResponses(adata.has("responses") ? adata.getString("responses") : null);
+		api.setExternalDocs(adata.has("externalDocs") ? adata.getString("externalDocs") : null);
+		return api;
 	}
 }

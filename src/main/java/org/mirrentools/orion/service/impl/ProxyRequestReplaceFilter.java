@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.mirrentools.orion.entity.MyServletRequestWrapper;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-@WebFilter(urlPatterns = {"/proxy/server"})
+@WebFilter(urlPatterns = { "/proxy/server" })
 public class ProxyRequestReplaceFilter extends OncePerRequestFilter {
 
 	@Override

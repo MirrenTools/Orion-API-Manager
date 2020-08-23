@@ -131,7 +131,7 @@ public class ProjectController {
 	 * @return
 	 */
 	@PostMapping(value = "/private/project", produces = {"application/json;charset=UTF-8"})
-	public Map<String, Object> postProject(Project project) {
+	public Map<String, Object> postProject(@RequestBody Project project) {
 		return proService.saveProject(project);
 	}
 
@@ -141,7 +141,7 @@ public class ProjectController {
 	 * @return
 	 */
 	@PutMapping(value = "/private/project", produces = {"application/json;charset=UTF-8"})
-	public Map<String, Object> updateProject(Project project) {
+	public Map<String, Object> updateProject(@RequestBody Project project) {
 		return proService.updateProject(project);
 	}
 	/**

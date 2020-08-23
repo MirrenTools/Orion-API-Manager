@@ -382,6 +382,7 @@ public class ConfigUtil {
 									api.setDescription(apiResult.getString(ColumnsAPI.DESCRIPTION));
 									api.setConsumes(apiResult.getString(ColumnsAPI.CONSUMES));
 									api.setParameters(apiResult.getString(ColumnsAPI.PARAMETERS));
+									api.setBody(apiResult.getString(ColumnsAPI.BODY));
 									api.setProduces(apiResult.getString(ColumnsAPI.PRODUCES));
 									api.setResponses(apiResult.getString(ColumnsAPI.RESPONSES));
 									api.setDeprecated(apiResult.getString(ColumnsAPI.DEPRECATED));
@@ -580,12 +581,12 @@ public class ConfigUtil {
 	 * @param api
 	 * @throws Exception
 	 */
-	public static void saveProjectApi(ProjectApi api) throws Exception {
+	public static int saveProjectApi(ProjectApi api) throws Exception {
 		String sql = String.format(
-				"insert into project_api (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) "
-						+ "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+				"insert into project_api (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) "
+						+ "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
 				ColumnsAPI.API_ID, ColumnsAPI.GROUP_ID, ColumnsAPI.METHOD, ColumnsAPI.PATH, ColumnsAPI.TITLE,
-				ColumnsAPI.DESCRIPTION, ColumnsAPI.CONSUMES, ColumnsAPI.PARAMETERS, ColumnsAPI.PRODUCES, ColumnsAPI.RESPONSES,
+				ColumnsAPI.DESCRIPTION, ColumnsAPI.CONSUMES, ColumnsAPI.PARAMETERS, ColumnsAPI.BODY, ColumnsAPI.PRODUCES, ColumnsAPI.RESPONSES,
 				ColumnsAPI.DEPRECATED, ColumnsAPI.ADDITIONAL, ColumnsAPI.EXTERNAL_DOCS, ColumnsAPI.EXTENSIONS,
 				ColumnsAPI.VERSION, ColumnsAPI.SORTS);
 		List<Object> params = new ArrayList<>();
@@ -597,6 +598,7 @@ public class ConfigUtil {
 		params.add(api.getDescription());
 		params.add(api.getConsumes());
 		params.add(api.getParameters());
+		params.add(api.getBody());
 		params.add(api.getProduces());
 		params.add(api.getResponses());
 		params.add(api.getDeprecated());
@@ -605,7 +607,7 @@ public class ConfigUtil {
 		params.add(api.getExtensions());
 		params.add(api.getVersion());
 		params.add(api.getSorts());
-		update(sql, params);
+		return update(sql, params);
 	}
 
 	/**
@@ -631,6 +633,7 @@ public class ConfigUtil {
 					api.setDescription(res.getString(ColumnsAPI.DESCRIPTION));
 					api.setConsumes(res.getString(ColumnsAPI.CONSUMES));
 					api.setParameters(res.getString(ColumnsAPI.PARAMETERS));
+					api.setBody(res.getString(ColumnsAPI.BODY));
 					api.setProduces(res.getString(ColumnsAPI.PRODUCES));
 					api.setResponses(res.getString(ColumnsAPI.RESPONSES));
 					api.setDeprecated(res.getString(ColumnsAPI.DEPRECATED));
@@ -674,6 +677,7 @@ public class ConfigUtil {
 					api.setDescription(res.getString(ColumnsAPI.DESCRIPTION));
 					api.setConsumes(res.getString(ColumnsAPI.CONSUMES));
 					api.setParameters(res.getString(ColumnsAPI.PARAMETERS));
+					api.setBody(res.getString(ColumnsAPI.BODY));
 					api.setProduces(res.getString(ColumnsAPI.PRODUCES));
 					api.setResponses(res.getString(ColumnsAPI.RESPONSES));
 					api.setDeprecated(res.getString(ColumnsAPI.DEPRECATED));
@@ -727,6 +731,10 @@ public class ConfigUtil {
 		if (api.getParameters() != null) {
 			set.append(ColumnsAPI.PARAMETERS + " = ? ,");
 			params.add(api.getParameters());
+		}
+		if (api.getBody() != null) {
+			set.append(ColumnsAPI.BODY + " = ? ,");
+			params.add(api.getBody());
 		}
 		if (api.getProduces() != null) {
 			set.append(ColumnsAPI.PRODUCES + " = ? ,");

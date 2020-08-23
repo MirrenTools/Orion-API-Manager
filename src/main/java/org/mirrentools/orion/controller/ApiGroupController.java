@@ -12,9 +12,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin
+@CrossOrigin(allowedHeaders = { "x-session", "content-type" }, methods = { RequestMethod.DELETE, RequestMethod.GET,
+		RequestMethod.OPTIONS, RequestMethod.POST, RequestMethod.PUT, })
 @RestController
 public class ApiGroupController {
 	/** 项目服务接口 */
@@ -48,7 +51,7 @@ public class ApiGroupController {
 	 * @return
 	 */
 	@PostMapping(value = "/private/apiGroup", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> saveApiGroup(ProjectApiGroup group) {
+	public Map<String, Object> saveApiGroup(@RequestBody ProjectApiGroup group) {
 		return proService.saveApiGroup(group);
 	}
 
@@ -59,7 +62,7 @@ public class ApiGroupController {
 	 * @return
 	 */
 	@PutMapping(value = "/private/apiGroup", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> updateApiGroup(ProjectApiGroup group) {
+	public Map<String, Object> updateApiGroup(@RequestBody ProjectApiGroup group) {
 		return proService.updateApiGroup(group);
 	}
 
@@ -113,7 +116,7 @@ public class ApiGroupController {
 	 * @return
 	 */
 	@PostMapping(value = "/private/api", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> saveApi(ProjectApi api) {
+	public Map<String, Object> saveApi(@RequestBody ProjectApi api) {
 		return proService.saveApi(api);
 	}
 
@@ -124,7 +127,7 @@ public class ApiGroupController {
 	 * @return
 	 */
 	@PutMapping(value = "/private/api", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> updateApi(ProjectApi api) {
+	public Map<String, Object> updateApi(@RequestBody ProjectApi api) {
 		return proService.updateApi(api);
 	}
 

@@ -3,6 +3,7 @@ package org.mirrentools.orion.service;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.websocket.Session;
 
 import org.mirrentools.orion.entity.Project;
 import org.mirrentools.orion.entity.ProjectApi;
@@ -59,6 +60,15 @@ public interface ProjectService {
 	 * @return
 	 */
 	Map<String, Object> saveProjectfromJson(String json);
+
+	/**
+	 * 保存一个项目,并推送处理进度给前端WebSocket
+	 * 
+	 * @param json
+	 * @param session
+	 * @return
+	 */
+	void  saveProjectfromJsonWebSocket(String json, Session session);
 
 	/**
 	 * 复制一份项目
