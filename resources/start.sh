@@ -1,1 +1,1 @@
-java -jar ./Orion-API-Doc.jar
+java -jar ./Orion-API-Manager.jar

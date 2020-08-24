@@ -19,6 +19,11 @@ import org.mirrentools.orion.service.ProjectService;
 import org.mirrentools.orion.service.impl.DefaultProjectServiceImpl;
 import org.springframework.stereotype.Component;
 
+/**
+ * 用于导入API的WebSocket
+ * @author <a href="https://mirrentools.org">Mirren</a>
+ *
+ */
 @ServerEndpoint("/private/ws/project/fromJson/{sessionId}")
 @Component
 public class ImportWebSocketServer {

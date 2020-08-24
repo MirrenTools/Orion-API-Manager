@@ -3,7 +3,7 @@ package org.mirrentools.orion.entity;
 /**
  * 执行请求需要的数据
  * 
- * @author <a href="http://szmirren.com">Mirren</a>
+ * @author <a href="https://mirrentools.org">Mirren</a>
  *
  */
 public class RequestData {

@@ -4,7 +4,7 @@ import java.security.MessageDigest;
 /**
  * MD5工具
  * 
- * @author <a href="http://szmirren.com">Mirren</a>
+ * @author <a href="https://mirrentools.org">Mirren</a>
  *
  */
 public class MD5Util {

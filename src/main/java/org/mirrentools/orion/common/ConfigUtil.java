@@ -15,7 +15,11 @@ import org.mirrentools.orion.entity.Project;
 import org.mirrentools.orion.entity.ProjectApi;
 import org.mirrentools.orion.entity.ProjectApiGroup;
 import org.mirrentools.orion.entity.ProjectInfo;
-
+/**
+ * 数据库交互工具
+ * @author <a href="https://mirrentools.org">Mirren</a>
+ *
+ */
 public class ConfigUtil {
 	private static final String DRIVER = "org.sqlite.JDBC";
 	private static final String DB_URL = "jdbc:sqlite:" + System.getProperty("user.dir") + "/config/ConfigDB.db";

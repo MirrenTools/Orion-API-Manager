@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * 接口分组的实体类
  * 
- * @author <a href="http://szmirren.com">Mirren</a>
+ * @author <a href="https://mirrentools.org">Mirren</a>
  *
  */
 public class ProjectApiGroup {

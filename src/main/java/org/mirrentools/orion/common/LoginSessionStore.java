@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 一个简单的数据存储,本设计仅用于存储登录信息,这并不是一个安全操作方式,纯属为了简单,默认会话保存7天,大于7天未登录则会话失效
  * 
- * @author Mirren
+ * @author <a href="https://mirrentools.org">Mirren</a>
  *
  */
 public class LoginSessionStore {

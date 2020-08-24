@@ -1,2 +1,2 @@
 set path=runtime\jre\bin
-start java -jar Mirren-Swagger-API-Manager.jar
+start java -jar Orion-API-Manager.jar

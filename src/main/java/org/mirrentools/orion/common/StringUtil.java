@@ -11,7 +11,7 @@ import java.util.UUID;
 /**
  * 字符串工具
  * 
- * @author <a href="http://szmirren.com">Mirren</a>
+ * @author <a href="https://mirrentools.org">Mirren</a>
  *
  */
 public class StringUtil {

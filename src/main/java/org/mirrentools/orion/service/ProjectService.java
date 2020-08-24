@@ -12,7 +12,7 @@ import org.mirrentools.orion.entity.ProjectApiGroup;
 /**
  * 项目的服务接口
  * 
- * @author <a href="http://szmirren.com">Mirren</a>
+ * @author <a href="https://mirrentools.org">Mirren</a>
  *
  */
 public interface ProjectService {

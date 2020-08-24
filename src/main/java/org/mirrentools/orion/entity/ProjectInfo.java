@@ -3,7 +3,7 @@ package org.mirrentools.orion.entity;
 /**
  * 项目的基本属性
  * 
- * @author <a href="http://szmirren.com">Mirren</a>
+ * @author <a href="https://mirrentools.org">Mirren</a>
  *
  */
 public class ProjectInfo {

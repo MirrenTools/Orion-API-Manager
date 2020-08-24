@@ -668,7 +668,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 		try {
 			String result = getJson(projectId);
 			response.setContentType("application/force-download;charset=UTF-8");
-			String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddhhmmss"));
+			String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-hhmmss"));
 			String fileName = "API-DATA-" + time + ".json";
 			response.addHeader("Content-Disposition", "attachment;fileName=" + fileName);
 			try (PrintWriter writer = response.getWriter()) {

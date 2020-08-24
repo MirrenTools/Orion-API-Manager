@@ -16,6 +16,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * API分组与API管理的控制器
+ * @author <a href="https://mirrentools.org">Mirren</a>
+ *
+ */
 @CrossOrigin(allowedHeaders = { "x-session", "content-type" }, methods = { RequestMethod.DELETE, RequestMethod.GET,
 		RequestMethod.OPTIONS, RequestMethod.POST, RequestMethod.PUT, })
 @RestController

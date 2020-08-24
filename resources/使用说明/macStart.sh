@@ -6,4 +6,4 @@ while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
 done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )" 
 set path = runtime/Contents/Home/bin
-java -jar $DIR/Mirren-Swagger-API-Manager.jar
+java -jar $DIR/Orion-API-Manager.jar

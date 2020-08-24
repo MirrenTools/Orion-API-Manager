@@ -1,5 +1,5 @@
 1.如果已经有java 1.8环境,直接运行start.bat(windows)或start.sh(unix)
-2.软件默认端口号为8686,如果需要改端口可以修改或执行内容为:java -jar -Dserver.port=端口号  Mirren-Swagger-API-Manager.jar
+2.软件默认端口号为8686,如果需要改端口可以修改或执行内容为:java -jar -Dserver.port=端口号  Orion-API-Manager.jar
 3.启动软件后在浏览器访问http://服务地址:端口号/
 4.选择服务端UI或客户端UI进行操作
 5.服务端地址: http://服务地址:端口号/Server-UI/index.html

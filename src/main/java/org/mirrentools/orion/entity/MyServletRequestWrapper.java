@@ -12,7 +12,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
 /**
- * 包装HttpServletRequest
+ * 用于复制Request的流使其可以被重复使用,该类目前只作用于代理请求
+ * @author <a href="https://mirrentools.org">Mirren</a>
+ *
  */
 public class MyServletRequestWrapper extends HttpServletRequestWrapper {
 

@@ -23,9 +23,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 项目的控制器
- * 
- * @author <a href="http://szmirren.com">Mirren</a>
+ * 项目,代理,下载等的控制器
+ * @author <a href="https://mirrentools.org">Mirren</a>
  *
  */
 @CrossOrigin(allowedHeaders = {"x-url", "x-type", "x-header", "x-session","content-type"}, methods = {RequestMethod.DELETE, RequestMethod.GET,

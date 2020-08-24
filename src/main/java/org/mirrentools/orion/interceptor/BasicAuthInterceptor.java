@@ -13,7 +13,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 /**
  * 普通认证的拦截器
  * 
- * @author <a href="http://szmirren.com">Mirren</a>
+ * @author <a href="https://mirrentools.org">Mirren</a>
  *
  */
 public class BasicAuthInterceptor implements HandlerInterceptor {

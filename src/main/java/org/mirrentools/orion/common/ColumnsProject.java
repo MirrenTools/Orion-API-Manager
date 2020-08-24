@@ -2,7 +2,7 @@ package org.mirrentools.orion.common;
 /**
  * 项目的表名属性列
  * 
- * @author <a href="http://szmirren.com">Mirren</a>
+ * @author <a href="https://mirrentools.org">Mirren</a>
  *
  */
 public interface ColumnsProject {

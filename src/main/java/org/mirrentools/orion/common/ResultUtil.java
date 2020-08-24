@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * 返回结果工具
  * 
- * @author <a href="http://szmirren.com">Mirren</a>
+ * @author <a href="https://mirrentools.org">Mirren</a>
  *
  */
 public class ResultUtil {

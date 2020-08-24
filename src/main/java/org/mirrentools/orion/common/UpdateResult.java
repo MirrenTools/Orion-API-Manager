@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * 返回结果
  * 
- * @author <a href="http://szmirren.com">Mirren</a>
+ * @author <a href="https://mirrentools.org">Mirren</a>
  *
  */
 public class UpdateResult {

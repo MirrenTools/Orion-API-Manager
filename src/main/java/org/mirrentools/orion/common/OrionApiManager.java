@@ -1,8 +1,8 @@
 package org.mirrentools.orion.common;
 /**
- * 一些常量
+ * 项目信息的常量
  * 
- * @author <a href="http://szmirren.com">Mirren</a>
+ * @author <a href="https://mirrentools.org">Mirren</a>
  *
  */
 public interface OrionApiManager {

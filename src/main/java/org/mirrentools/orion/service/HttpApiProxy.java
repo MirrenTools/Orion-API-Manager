@@ -10,7 +10,7 @@ import org.mirrentools.orion.entity.RequestData;
 /**
  * 请求别人API的代理服务器
  * 
- * @author <a href="http://szmirren.com">Mirren</a>
+ * @author <a href="https://mirrentools.org">Mirren</a>
  *
  */
 public interface HttpApiProxy {

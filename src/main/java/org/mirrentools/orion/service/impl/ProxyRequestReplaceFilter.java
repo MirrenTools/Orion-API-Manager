@@ -10,7 +10,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.mirrentools.orion.entity.MyServletRequestWrapper;
 import org.springframework.web.filter.OncePerRequestFilter;
-
+/**
+ * 复制请求流的过滤器
+ * @author <a href="https://mirrentools.org">Mirren</a>
+ *
+ */
 @WebFilter(urlPatterns = { "/proxy/server" })
 public class ProxyRequestReplaceFilter extends OncePerRequestFilter {
 

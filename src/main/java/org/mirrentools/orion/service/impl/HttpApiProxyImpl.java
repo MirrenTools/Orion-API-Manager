@@ -28,7 +28,11 @@ import org.mirrentools.orion.entity.OrionHttpRequest;
 import org.mirrentools.orion.entity.RequestData;
 import org.mirrentools.orion.service.HttpApiProxy;
 import org.springframework.stereotype.Service;
-
+/**
+ * 代理的默认实现
+ * @author <a href="https://mirrentools.org">Mirren</a>
+ *
+ */
 @Service
 public class HttpApiProxyImpl implements HttpApiProxy {
 
