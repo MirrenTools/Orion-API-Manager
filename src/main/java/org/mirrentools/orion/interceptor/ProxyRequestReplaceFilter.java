@@ -1,4 +1,4 @@
-package org.mirrentools.orion.service.impl;
+package org.mirrentools.orion.interceptor;
 
 import java.io.IOException;
 

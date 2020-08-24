@@ -1,12 +1,12 @@
 package org.mirrentools.orion.upgrade;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.mirrentools.orion.common.ConfigUtil;
 
 /**
  * 用于将旧版本的API升级为最新的数据格式,主要是将schemes,host,base_path,合成为servers集合
@@ -16,7 +16,8 @@ import org.mirrentools.orion.common.ConfigUtil;
  */
 public class ProjectUpgrade {
 	public static void main(String[] args) throws Exception {
-		Connection connection = ConfigUtil.getConnection();
+		Class.forName("org.sqlite.JDBC");
+		Connection connection = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\minid\\Desktop\\Orion\\ConfigDB.db");
 		PreparedStatement pstt = connection.prepareStatement("update project set servers=? where key=?");
 		ResultSet query = connection.createStatement().executeQuery("select key,schemes,host,base_path from project ");
 		while (query.next()) {

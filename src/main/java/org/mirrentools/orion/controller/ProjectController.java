@@ -27,8 +27,17 @@ import org.springframework.web.bind.annotation.RestController;
  * @author <a href="https://mirrentools.org">Mirren</a>
  *
  */
-@CrossOrigin(allowedHeaders = {"x-url", "x-type", "x-header", "x-session","content-type"}, methods = {RequestMethod.DELETE, RequestMethod.GET,
-		RequestMethod.HEAD, RequestMethod.OPTIONS, RequestMethod.PATCH, RequestMethod.POST, RequestMethod.PUT, RequestMethod.TRACE,})
+@CrossOrigin(
+allowedHeaders = {"x-url", "x-type", "x-header", "x-session","content-type"}, 
+methods = {RequestMethod.DELETE, 
+		RequestMethod.GET,
+		RequestMethod.HEAD, 
+		RequestMethod.OPTIONS, 
+		RequestMethod.PATCH, 
+		RequestMethod.POST, 
+		RequestMethod.PUT, 
+		RequestMethod.TRACE,}
+)
 @RestController
 public class ProjectController {
 

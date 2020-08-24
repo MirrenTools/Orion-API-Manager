@@ -4,7 +4,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.mirrentools.orion.common.LoginSessionStore;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
@@ -13,7 +12,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
  * @author <a href="http://szmirren.com">Mirren</a>
  *
  */
-@CrossOrigin
 public class LoginSessionAuthInterceptor implements HandlerInterceptor {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -22,7 +20,7 @@ public class LoginSessionAuthInterceptor implements HandlerInterceptor {
 		response.addHeader("Access-Control-Allow-Headers", "x-session,content-type");
 		String sessionId = request.getHeader("x-session");
 		String uid = LoginSessionStore.get(sessionId);
-		System.out.println("请求检查-->" + sessionId + ": " + uid+", Path:"+request.getServletPath());
+		System.out.println("请求检查-->" + sessionId + ": " + uid + ", Path:" + request.getServletPath());
 		if (uid == null) {
 			response.addHeader("Content-Type", "application/json;charset=UTF-8");
 			try {
