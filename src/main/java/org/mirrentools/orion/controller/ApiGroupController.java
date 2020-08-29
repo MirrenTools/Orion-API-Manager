@@ -103,6 +103,17 @@ public class ApiGroupController {
 	public Map<String, Object> daleteApiGroup(@PathVariable(value = "groupId") String groupId) {
 		return proService.deleteApiGroup(groupId);
 	}
+	
+	/**
+	 * 获取分组的所有接口数据
+	 * 
+	 * @param groupId
+	 * @return
+	 */
+	@GetMapping(value = "/private/apis/{groupId}", produces = { "application/json;charset=UTF-8" })
+	public Map<String, Object> findApis(@PathVariable(value = "groupId") String groupId) {
+		return proService.findApis(groupId);
+	}
 
 	/**
 	 * 获取指定接口的数据

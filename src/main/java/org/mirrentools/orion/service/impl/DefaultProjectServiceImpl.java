@@ -178,8 +178,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 						ProjectApiGroup group = convertGroup(project.getKey(), gdata);
 						int saveGroup = ConfigUtil.saveProjectApiGroup(group);
 						if (session != null && session.isOpen()) {
-							session.getAsyncRemote().sendText(WebSocket.success(WebSocket.GROUP_SAVED,
-									WebSocket.progressModel(group.getName(), (i + 1), groups.length(), saveGroup)));
+							session.getAsyncRemote().sendText(
+									WebSocket.success(WebSocket.GROUP_SAVED, WebSocket.progressModel(group.getName(), (i + 1), groups.length(), saveGroup)));
 						}
 						if (saveGroup > 0 && gdata.has("apis")) {
 							JSONArray apis = gdata.getJSONArray("apis");
@@ -188,8 +188,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 								ProjectApi api = convertApi(group.getGroupId(), adata);
 								int saveApi = ConfigUtil.saveProjectApi(api);
 								if (session != null && session.isOpen()) {
-									session.getAsyncRemote().sendText(WebSocket.success(WebSocket.API_SAVED,
-											WebSocket.progressModel(api.getTitle(), (j + 1), apis.length(), saveApi)));
+									session.getAsyncRemote().sendText(
+											WebSocket.success(WebSocket.API_SAVED, WebSocket.progressModel(api.getTitle(), (j + 1), apis.length(), saveApi)));
 								}
 							}
 						}
@@ -418,9 +418,9 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(api.getGroupId())) {
 				return ResultUtil.failed("存在空值,分组的id不能为空");
 			}
-			if (api.getDeprecated()==null) {
+			if (api.getDeprecated() == null) {
 				api.setDeprecated(Boolean.toString(false));
-				
+
 			}
 			if (api.getVersion() == null) {
 				api.setVersion(1L);
@@ -430,6 +430,20 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			}
 			ConfigUtil.saveProjectApi(api);
 			return ResultUtil.succeed(1);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			return ResultUtil.failed(e.getMessage());
+		}
+	}
+
+	@Override
+	public Map<String, Object> findApis(String groupId) {
+		try {
+			if (StringUtil.isNullOrEmpty(groupId)) {
+				return ResultUtil.failed("存在空值,分组id不能为空");
+			}
+			List<ProjectApi> result = ConfigUtil.getProjectApiList(groupId);
+			return ResultUtil.succeed(result);
 		} catch (Throwable e) {
 			e.printStackTrace();
 			return ResultUtil.failed(e.getMessage());

@@ -177,6 +177,13 @@ public interface ProjectService {
 	/**
 	 * 通过id获取接口
 	 * 
+	 * @param groupId
+	 * @return
+	 */
+	Map<String, Object> findApis(String groupId);
+	/**
+	 * 通过id获取接口
+	 * 
 	 * @param apiId
 	 * @return
 	 */
