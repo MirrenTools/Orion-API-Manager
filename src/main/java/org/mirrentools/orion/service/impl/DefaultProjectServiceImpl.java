@@ -15,14 +15,14 @@ import javax.websocket.Session;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.mirrentools.orion.common.ColumnsAPI;
+import org.mirrentools.orion.common.ColumnsApiGroup;
+import org.mirrentools.orion.common.ColumnsProject;
 import org.mirrentools.orion.common.OrionApiManager;
 import org.mirrentools.orion.common.ResultUtil;
 import org.mirrentools.orion.common.SqlAssist;
 import org.mirrentools.orion.common.StringUtil;
 import org.mirrentools.orion.common.WebSocket;
-import org.mirrentools.orion.db.ColumnsAPI;
-import org.mirrentools.orion.db.ColumnsApiGroup;
-import org.mirrentools.orion.db.ColumnsProject;
 import org.mirrentools.orion.entity.Project;
 import org.mirrentools.orion.entity.ProjectApi;
 import org.mirrentools.orion.entity.ProjectApiGroup;
@@ -60,8 +60,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> getProjectList() {
 		try {
 			SqlAssist assist = new SqlAssist();
-			assist.setResultColumn(String.format("%s,%s,%s,%s,%s", ColumnsProject.KEY, ColumnsProject.NAME,
-					ColumnsProject.VERSIONS, ColumnsProject.LAST_TIME, ColumnsProject.SORTS));
+			assist.setResultColumn(String.format("%s,%s,%s,%s,%s", ColumnsProject.KEY, ColumnsProject.NAME, ColumnsProject.VERSIONS,
+					ColumnsProject.LAST_TIME, ColumnsProject.SORTS));
 			assist.setOrderBy(String.format("%s asc, %s desc", ColumnsProject.SORTS, ColumnsProject.LAST_TIME));
 			List<Project> all = projectMapper.selectAll(new SqlAssist());
 			List<ProjectInfo> result = new ArrayList<ProjectInfo>();
@@ -198,8 +198,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 						ProjectApiGroup group = convertGroup(project.getKey(), gdata);
 						int saveGroup = groupMapper.insertNotNull(group);
 						if (session != null && session.isOpen()) {
-							session.getAsyncRemote().sendText(WebSocket.success(WebSocket.GROUP_SAVED,
-									WebSocket.progressModel(group.getName(), (i + 1), groups.length(), saveGroup)));
+							session.getAsyncRemote().sendText(
+									WebSocket.success(WebSocket.GROUP_SAVED, WebSocket.progressModel(group.getName(), (i + 1), groups.length(), saveGroup)));
 						}
 						if (saveGroup > 0 && gdata.has("apis")) {
 							JSONArray apis = gdata.getJSONArray("apis");
@@ -208,8 +208,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 								ProjectApi api = convertApi(group.getGroupId(), adata);
 								int saveApi = apiMapper.insertNotNull(api);
 								if (session != null && session.isOpen()) {
-									session.getAsyncRemote().sendText(WebSocket.success(WebSocket.API_SAVED,
-											WebSocket.progressModel(api.getTitle(), (j + 1), apis.length(), saveApi)));
+									session.getAsyncRemote().sendText(
+											WebSocket.success(WebSocket.API_SAVED, WebSocket.progressModel(api.getTitle(), (j + 1), apis.length(), saveApi)));
 								}
 							}
 						}
@@ -326,6 +326,14 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(key)) {
 				return ResultUtil.failed("存在空值,项目的id不能为空");
 			}
+			List<ProjectApiGroup> gids = groupMapper
+					.selectAll(new SqlAssist().setResultColumn(ColumnsApiGroup.GROUP_ID).andEq(ColumnsApiGroup.PROJECT_ID, key));
+			if (gids != null) {
+				for (ProjectApiGroup g : gids) {
+					apiMapper.deleteByAssist(new SqlAssist().andEq(ColumnsAPI.GROUP_ID, g.getGroupId()));
+					groupMapper.deleteById(g.getGroupId());
+				}
+			}
 			int result = projectMapper.deleteById(key);
 			return ResultUtil.succeed(result);
 		} catch (Throwable e) {
@@ -433,6 +441,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(groupId)) {
 				return ResultUtil.failed("存在空值,分组的id不能为空");
 			}
+			apiMapper.deleteByAssist(new SqlAssist().andEq(ColumnsAPI.GROUP_ID, groupId));
 			int result = groupMapper.deleteById(groupId);
 			return ResultUtil.succeed(result);
 		} catch (Exception e) {

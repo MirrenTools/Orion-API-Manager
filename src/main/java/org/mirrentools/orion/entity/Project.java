@@ -3,7 +3,7 @@ package org.mirrentools.orion.entity;
 
 /**
  * 项目表
- * @author <a href="https://mirrentools.org">Mirren</a>
+ * @author 
  */ 
 public class Project {
 	/** 项目的id */
@@ -24,6 +24,10 @@ public class Project {
 	private String contactInfo; 
 	/** 拓展信息 */
 	private String extensions; 
+	/** 创建该项目的人 */
+	private String owner; 
+	/** 可以查看该项目的人 */
+	private String owners; 
 	/** 最后操作时间 */
 	private Long lastTime; 
 	/** 项目排序 */
@@ -173,6 +177,38 @@ public class Project {
 		this.extensions = extensions;
 	}
 	/**
+	 * 获取创建该项目的人
+	 * 
+	 * @return
+	 */
+	public String getOwner() {
+		return owner;
+	}
+	/**
+	 * 设置创建该项目的人
+	 * 
+	 * @param owner
+	 */
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+	/**
+	 * 获取可以查看该项目的人
+	 * 
+	 * @return
+	 */
+	public String getOwners() {
+		return owners;
+	}
+	/**
+	 * 设置可以查看该项目的人
+	 * 
+	 * @param owners
+	 */
+	public void setOwners(String owners) {
+		this.owners = owners;
+	}
+	/**
 	 * 获取最后操作时间
 	 * 
 	 * @return
@@ -207,6 +243,6 @@ public class Project {
 
 	@Override
 	public String toString() {
-		return "Project [key=" + key + " , name=" + name + " , versions=" + versions + " , description=" + description + " , servers=" + servers + " , externalDocs=" + externalDocs + " , contactName=" + contactName + " , contactInfo=" + contactInfo + " , extensions=" + extensions + " , lastTime=" + lastTime + " , sorts=" + sorts + "  ]";
+		return "Project [key=" + key + " , name=" + name + " , versions=" + versions + " , description=" + description + " , servers=" + servers + " , externalDocs=" + externalDocs + " , contactName=" + contactName + " , contactInfo=" + contactInfo + " , extensions=" + extensions + " , owner=" + owner + " , owners=" + owners + " , lastTime=" + lastTime + " , sorts=" + sorts + "  ]";
 	}
 }

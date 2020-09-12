@@ -1,4 +1,4 @@
-package org.mirrentools.orion.db;
+package org.mirrentools.orion.common;
 
 /**
  * 用户标签的列名
@@ -6,7 +6,7 @@ package org.mirrentools.orion.db;
  * @author <a href="https://mirrentools.org/">Mirren</a>
  *
  */
-public class ColumnsTags {
+public interface ColumnsTags {
 	/** tid */
 	public static final String TID = "tid";
 	/** tname */

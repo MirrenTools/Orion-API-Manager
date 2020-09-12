@@ -12,6 +12,8 @@
 		<result column="contact_name" property="contactName" />
 		<result column="contact_info" property="contactInfo" />
 		<result column="extensions" property="extensions" />
+		<result column="owner" property="owner" />
+		<result column="owners" property="owners" />
 		<result column="last_time" property="lastTime" />
 		<result column="sorts" property="sorts" />
 	</resultMap>
@@ -68,7 +70,7 @@
 
 	<!-- 数据库中表的列名 -->
 	<sql id="table_column">
-		key,name,versions,description,servers,external_docs,contact_name,contact_info,extensions,last_time,sorts
+		key,name,versions,description,servers,external_docs,contact_name,contact_info,extensions,owner,owners,last_time,sorts
 	</sql>
 
 	<!--获取数据总行数 -->
@@ -122,6 +124,8 @@
 			<if test="contactName != null"> and contact_name = #{contactName}</if>
 			<if test="contactInfo != null"> and contact_info = #{contactInfo}</if>
 			<if test="extensions != null"> and extensions = #{extensions}</if>
+			<if test="owner != null"> and owner = #{owner}</if>
+			<if test="owners != null"> and owners = #{owners}</if>
 			<if test="lastTime != null"> and last_time = #{lastTime}</if>
 			<if test="sorts != null"> and sorts = #{sorts}</if>
 			<if test="key != null"> and key = #{key}</if>
@@ -143,6 +147,8 @@
 			<if test="contactName != null"> and contact_name = #{contactName}</if>
 			<if test="contactInfo != null"> and contact_info = #{contactInfo}</if>
 			<if test="extensions != null"> and extensions = #{extensions}</if>
+			<if test="owner != null"> and owner = #{owner}</if>
+			<if test="owners != null"> and owners = #{owners}</if>
 			<if test="lastTime != null"> and last_time = #{lastTime}</if>
 			<if test="sorts != null"> and sorts = #{sorts}</if>
 			<if test="key != null"> and key = #{key}</if>
@@ -153,8 +159,8 @@
 	<insert id="insertAll" parameterType="org.mirrentools.orion.entity.Project">
 		insert into
 		project
-		(key,name,versions,description,servers,external_docs,contact_name,contact_info,extensions,last_time,sorts)
-		values(#{key},#{name},#{versions},#{description},#{servers},#{externalDocs},#{contactName},#{contactInfo},#{extensions},#{lastTime},#{sorts})
+		(key,name,versions,description,servers,external_docs,contact_name,contact_info,extensions,owner,owners,last_time,sorts)
+		values(#{key},#{name},#{versions},#{description},#{servers},#{externalDocs},#{contactName},#{contactInfo},#{extensions},#{owner},#{owners},#{lastTime},#{sorts})
 	</insert>
 
 	<!-- 插入一个对象,只插入对象中值不为null的属性 -->
@@ -170,6 +176,8 @@
 			<if test="contactName != null">contact_name,</if>
 			<if test="contactInfo != null">contact_info,</if>
 			<if test="extensions != null">extensions,</if>
+			<if test="owner != null">owner,</if>
+			<if test="owners != null">owners,</if>
 			<if test="lastTime != null">last_time,</if>
 			<if test="sorts != null">sorts,</if>
 		</trim>
@@ -183,6 +191,8 @@
 			<if test="contactName != null">#{contactName},</if>
 			<if test="contactInfo != null">#{contactInfo},</if>
 			<if test="extensions != null">#{extensions},</if>
+			<if test="owner != null">#{owner},</if>
+			<if test="owners != null">#{owners},</if>
 			<if test="lastTime != null">#{lastTime},</if>
 			<if test="sorts != null">#{sorts},</if>
 		</trim>
@@ -192,10 +202,10 @@
 	<insert id="insertBatch" parameterType="ArrayList">
 		insert into
 		project
-		(key,name,versions,description,servers,external_docs,contact_name,contact_info,extensions,last_time,sorts)
+		(key,name,versions,description,servers,external_docs,contact_name,contact_info,extensions,owner,owners,last_time,sorts)
 		values
 		<foreach collection="list" item="item" index="index" separator=",">
-			(#{item.key},#{item.name},#{item.versions},#{item.description},#{item.servers},#{item.externalDocs},#{item.contactName},#{item.contactInfo},#{item.extensions},#{item.lastTime},#{item.sorts})
+			(#{item.key},#{item.name},#{item.versions},#{item.description},#{item.servers},#{item.externalDocs},#{item.contactName},#{item.contactInfo},#{item.extensions},#{item.owner},#{item.owners},#{item.lastTime},#{item.sorts})
 		</foreach>
 	</insert>
 
@@ -203,8 +213,8 @@
 	<insert id="replace" parameterType="org.mirrentools.orion.entity.Project">
 		replace into
 		project
-		(key,name,versions,description,servers,external_docs,contact_name,contact_info,extensions,last_time,sorts)
-		values(#{key},#{name},#{versions},#{description},#{servers},#{externalDocs},#{contactName},#{contactInfo},#{extensions},#{lastTime},#{sorts})
+		(key,name,versions,description,servers,external_docs,contact_name,contact_info,extensions,owner,owners,last_time,sorts)
+		values(#{key},#{name},#{versions},#{description},#{servers},#{externalDocs},#{contactName},#{contactInfo},#{extensions},#{owner},#{owners},#{lastTime},#{sorts})
 	</insert>
 
 	<!-- 通过查询帮助类删除数据 -->
@@ -229,6 +239,8 @@
 			contact_name = #{contactName},
 			contact_info = #{contactInfo},
 			extensions = #{extensions},
+			owner = #{owner},
+			owners = #{owners},
 			last_time = #{lastTime},
 			sorts = #{sorts}
 		</set>
@@ -252,6 +264,8 @@
 			<if test="data.contactName != null">contact_name = #{contactName},</if>
 			<if test="data.contactInfo != null">contact_info = #{contactInfo},</if>
 			<if test="data.extensions != null">extensions = #{extensions},</if>
+			<if test="data.owner != null">owner = #{owner},</if>
+			<if test="data.owners != null">owners = #{owners},</if>
 			<if test="data.lastTime != null">last_time = #{lastTime},</if>
 			<if test="data.sorts != null">sorts = #{sorts}</if>
 		</set>
@@ -287,6 +301,8 @@
 			contact_name = #{contactName},
 			contact_info = #{contactInfo},
 			extensions = #{extensions},
+			owner = #{owner},
+			owners = #{owners},
 			last_time = #{lastTime},
 			sorts = #{sorts}
 		</set>
@@ -305,6 +321,8 @@
 			<if test="contactName != null">contact_name = #{contactName},</if>
 			<if test="contactInfo != null">contact_info = #{contactInfo},</if>
 			<if test="extensions != null">extensions = #{extensions},</if>
+			<if test="owner != null">owner = #{owner},</if>
+			<if test="owners != null">owners = #{owners},</if>
 			<if test="lastTime != null">last_time = #{lastTime},</if>
 			<if test="sorts != null">sorts = #{sorts}</if>
 		</set>

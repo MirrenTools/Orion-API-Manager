@@ -30,6 +30,8 @@ public class Constant {
 		bean.addColumn(new SdColumn().setName("contact_name").setType(SdType.STRING).setLength(60).setRemark("联系人"));
 		bean.addColumn(new SdColumn().setName("contact_info").setType(SdType.TEXT).setRemark("联系人信息"));
 		bean.addColumn(new SdColumn().setName("extensions").setType(SdType.TEXT).setRemark("拓展信息"));
+		bean.addColumn(new SdColumn().setName("owner").setType(SdType.STRING).setLength(255).setRemark("创建该项目的人"));
+		bean.addColumn(new SdColumn().setName("owners").setType(SdType.TEXT).setRemark("可以查看该项目的人"));
 		bean.addColumn(new SdColumn().setName("last_time").setType(SdType.LONG).setRemark("最后操作时间"));
 		bean.addColumn(new SdColumn().setName("sorts").setType(SdType.INTEGER).setDefaults("0").setRemark("项目排序"));
 		return bean;

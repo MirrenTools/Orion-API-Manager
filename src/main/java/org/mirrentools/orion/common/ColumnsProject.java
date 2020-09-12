@@ -1,4 +1,4 @@
-package org.mirrentools.orion.db;
+package org.mirrentools.orion.common;
 /**
  * 项目的表名属性列
  * 
@@ -6,26 +6,30 @@ package org.mirrentools.orion.db;
  *
  */
 public interface ColumnsProject {
-	/** key 项目的id */
+	/** 项目的id */
 	public final static String KEY = "key";
-	/** name */
+	/** 项目的名称 */
 	public final static String NAME = "name";
-	/** versions */
+	/** 项目的版本号 */
 	public final static String VERSIONS = "versions";
-	/** description */
+	/** 项目的简介 */
 	public final static String DESCRIPTION = "description";
-	/** host */
+	/** 项目的服务集 */
 	public final static String SERVERS = "servers";
-	/** contact_name */
+	/** 联系人 */
 	public final static String CONTACT_NAME = "contact_name";
-	/** contact_info */
+	/** 联系人信息 */
 	public final static String CONTACT_INFO = "contact_info";
-	/** externalDocs */
+	/** 附加文档 */
 	public final static String EXTERNAL_DOCS = "external_docs";
-	/** extensions */
+	/** 拓展属性 */
 	public final static String EXTENSIONS = "extensions";
-	/** last_time 最后操作时间 */
+	/** 创建该项目的人 */
+	public final static String OWNER = "owner";
+	/** 可以查看该项目的人 */
+	public final static String OWNERS = "owners";
+	/** 最后操作时间 */
 	public final static String LAST_TIME = "last_time";
-	/** sorts 项目排序 */
+	/** 项目排序 */
 	public final static String SORTS = "sorts";
 }

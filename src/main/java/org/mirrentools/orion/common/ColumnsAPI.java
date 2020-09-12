@@ -1,4 +1,4 @@
-package org.mirrentools.orion.db;
+package org.mirrentools.orion.common;
 
 /**
  * 接口表的列名
