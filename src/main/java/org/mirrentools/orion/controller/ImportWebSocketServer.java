@@ -13,6 +13,8 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
 import org.json.JSONObject;
+import org.mirrentools.orion.common.LoginRole;
+import org.mirrentools.orion.common.LoginSession;
 import org.mirrentools.orion.common.LoginSessionStore;
 import org.mirrentools.orion.common.WebSocket;
 import org.mirrentools.orion.service.ProjectService;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * 用于导入API的WebSocket
+ * 
  * @author <a href="https://mirrentools.org">Mirren</a>
  *
  */
@@ -36,8 +39,8 @@ public class ImportWebSocketServer {
 
 	@OnOpen
 	public void onOpen(Session session, @PathParam(value = "sessionId") String sessionId) {
-		String uid = LoginSessionStore.get(sessionId);
-		if (uid == null) {
+		LoginSession login = LoginSessionStore.get(sessionId);
+		if (login == null || login.getUid() == null || LoginRole.CLIENT == login.getRole()) {
 			session.getAsyncRemote().sendText(WebSocket.failed401());
 			try {
 				session.close();

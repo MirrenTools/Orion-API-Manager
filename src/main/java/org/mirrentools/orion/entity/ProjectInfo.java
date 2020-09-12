@@ -10,8 +10,8 @@ public class ProjectInfo {
 	private String key;
 	private String name;
 	private String version;
-	private long time;
-	private int sorts;
+	private Long time;
+	private Integer sorts;
 
 	public ProjectInfo() {
 		super();
@@ -41,19 +41,19 @@ public class ProjectInfo {
 		this.version = version;
 	}
 
-	public long getTime() {
+	public Long getTime() {
 		return time;
 	}
 
-	public void setTime(long time) {
+	public void setTime(Long time) {
 		this.time = time;
 	}
 
-	public int getSorts() {
+	public Integer getSorts() {
 		return sorts;
 	}
 
-	public void setSorts(int sorts) {
+	public void setSorts(Integer sorts) {
 		this.sorts = sorts;
 	}
 

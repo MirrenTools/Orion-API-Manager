@@ -24,51 +24,26 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 项目,代理,下载等的控制器
+ * 
  * @author <a href="https://mirrentools.org">Mirren</a>
  *
  */
-@CrossOrigin(
-allowedHeaders = {"x-url", "x-type", "x-header", "x-session","content-type"}, 
-methods = {RequestMethod.DELETE, 
-		RequestMethod.GET,
-		RequestMethod.HEAD, 
-		RequestMethod.OPTIONS, 
-		RequestMethod.PATCH, 
-		RequestMethod.POST, 
-		RequestMethod.PUT, 
-		RequestMethod.TRACE,}
-)
+@CrossOrigin(allowedHeaders = { "x-url", "x-type", "x-header", "x-session", "content-type" }, methods = {
+		RequestMethod.DELETE, RequestMethod.GET, RequestMethod.HEAD, RequestMethod.OPTIONS, RequestMethod.PATCH,
+		RequestMethod.POST, RequestMethod.PUT, RequestMethod.TRACE, })
 @RestController
 public class ProjectController {
-
-	/** 项目服务接口 */
 	@Autowired
 	private ProjectService proService;
 	@Autowired
 	private HttpApiProxy apiProxy;
 
-	/**
-	 * 
-	 * @return
-	 */
-	@RequestMapping(value = {"/", "/index.html"}, produces = {"text/html;charset=UTF-8"})
+	@RequestMapping(value = { "/", "/index.html" }, produces = { "text/html;charset=UTF-8" })
 	public String index(HttpServletResponse response) {
 		response.addHeader("title", OrionApiManager.NAME);
-		return "<h1 style='text-align: center;'>欢迎使用" + OrionApiManager.MIN_NAME + "</h1>" + "	<h1 style='text-align: center;'>"
-				+ OrionApiManager.NAME_VERSION + "</h1>"
+		return "<h1 style='text-align: center;'>欢迎使用" + OrionApiManager.MIN_NAME + "</h1>"
+				+ "	<h1 style='text-align: center;'>" + OrionApiManager.NAME_VERSION + "</h1>"
 				+ "	<h2 style='text-align: center;'><a href='/Server-UI/index.html'>服务端UI</a> <a style='margin-left:10px' href='/Client-UI/index.html'>客户端UI</a></h2>";
-	}
-
-	@PostMapping(value = "/login", produces = {"application/json;charset=UTF-8"})
-	public Map<String, Object> login(String id, String pwd) {
-		Map<String, Object> result = proService.login(id, pwd);
-		return result;
-	}
-
-	@PostMapping(value = "/logout", produces = {"application/json;charset=UTF-8"})
-	public Map<String, Object> logout(String sessionId) {
-		Map<String, Object> result = proService.logout(sessionId);
-		return result;
 	}
 
 	/**
@@ -76,7 +51,7 @@ public class ProjectController {
 	 * 
 	 * @return
 	 */
-	@PostMapping(value = "/proxy", produces = {"application/json;charset=UTF-8"})
+	@PostMapping(value = "/proxy", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> proxy(@RequestBody RequestData data) {
 		Map<String, Object> result = apiProxy.executeProxy(data);
 		return result;
@@ -97,7 +72,7 @@ public class ProjectController {
 	 * 
 	 * @return
 	 */
-	@GetMapping(value = "/proxy/project", produces = {"application/json;charset=UTF-8"})
+	@GetMapping(value = "/proxy/project", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> proxyGetProject(String url) {
 		Map<String, Object> result = apiProxy.getProxy(url);
 		return result;
@@ -108,7 +83,7 @@ public class ProjectController {
 	 * 
 	 * @return
 	 */
-	@GetMapping(value = {"/private/project", "/project"}, produces = {"application/json;charset=UTF-8"})
+	@GetMapping(value = { "/private/project", "/project" }, produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> getProjectList() {
 		return proService.getProjectList();
 	}
@@ -118,7 +93,7 @@ public class ProjectController {
 	 * 
 	 * @return
 	 */
-	@GetMapping(value = "/private/project/{id}", produces = {"application/json;charset=UTF-8"})
+	@GetMapping(value = "/private/project/{id}", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> getProject(@PathVariable(value = "id") String id) {
 		return proService.getProject(id);
 	}
@@ -128,7 +103,7 @@ public class ProjectController {
 	 * 
 	 * @return
 	 */
-	@PostMapping(value = "/private/project/fromJson", produces = {"application/json;charset=UTF-8"})
+	@PostMapping(value = "/private/project/fromJson", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> postProjectfromJson(String project) {
 		return proService.saveProjectfromJson(project);
 	}
@@ -138,7 +113,7 @@ public class ProjectController {
 	 * 
 	 * @return
 	 */
-	@PostMapping(value = "/private/project", produces = {"application/json;charset=UTF-8"})
+	@PostMapping(value = "/private/project", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> postProject(@RequestBody Project project) {
 		return proService.saveProject(project);
 	}
@@ -148,25 +123,27 @@ public class ProjectController {
 	 * 
 	 * @return
 	 */
-	@PutMapping(value = "/private/project", produces = {"application/json;charset=UTF-8"})
+	@PutMapping(value = "/private/project", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> updateProject(@RequestBody Project project) {
 		return proService.updateProject(project);
 	}
+
 	/**
 	 * 项目排序上移
 	 * 
 	 * @return
 	 */
-	@PutMapping(value = "/private/project/moveUp/{id}", produces = {"application/json;charset=UTF-8"})
+	@PutMapping(value = "/private/project/moveUp/{id}", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> projectMoveUp(@PathVariable(value = "id") String id) {
 		return proService.projectMoveUp(id);
 	}
+
 	/**
 	 * 项目排序下移
 	 * 
 	 * @return
 	 */
-	@PutMapping(value = "/private/project/moveDown/{id}", produces = {"application/json;charset=UTF-8"})
+	@PutMapping(value = "/private/project/moveDown/{id}", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> projectMoveDown(@PathVariable(value = "id") String id) {
 		return proService.projectMoveDown(id);
 	}
@@ -176,7 +153,7 @@ public class ProjectController {
 	 * 
 	 * @return
 	 */
-	@PostMapping(value = "/private/project/copy/{id}", produces = {"application/json;charset=UTF-8"})
+	@PostMapping(value = "/private/project/copy/{id}", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> copyProject(@PathVariable(value = "id") String id) {
 		return proService.copyProject(id);
 	}
@@ -186,7 +163,7 @@ public class ProjectController {
 	 * 
 	 * @return
 	 */
-	@DeleteMapping(value = "/private/project/{id}", produces = {"application/json;charset=UTF-8"})
+	@DeleteMapping(value = "/private/project/{id}", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> postProject(@PathVariable(value = "id") String id) {
 		return proService.deleteProject(id);
 	}
@@ -208,7 +185,7 @@ public class ProjectController {
 	 * @param id
 	 * @return
 	 */
-	@GetMapping(value = "/project/getJson/{id}", produces = {"application/json;charset=UTF-8"})
+	@GetMapping(value = "/project/getJson/{id}", produces = { "application/json;charset=UTF-8" })
 	public String getProjectJson(@PathVariable(value = "id") String id) {
 		return proService.getJson(id);
 	}

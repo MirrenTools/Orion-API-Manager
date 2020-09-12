@@ -1,13 +1,11 @@
 package org.mirrentools.orion.service.impl;
 
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -17,65 +15,69 @@ import javax.websocket.Session;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.mirrentools.orion.common.ConfigUtil;
 import org.mirrentools.orion.common.OrionApiManager;
-import org.mirrentools.orion.common.LoginSessionStore;
-import org.mirrentools.orion.common.MD5Util;
 import org.mirrentools.orion.common.ResultUtil;
+import org.mirrentools.orion.common.SqlAssist;
 import org.mirrentools.orion.common.StringUtil;
 import org.mirrentools.orion.common.WebSocket;
+import org.mirrentools.orion.db.ColumnsAPI;
+import org.mirrentools.orion.db.ColumnsApiGroup;
+import org.mirrentools.orion.db.ColumnsProject;
 import org.mirrentools.orion.entity.Project;
 import org.mirrentools.orion.entity.ProjectApi;
 import org.mirrentools.orion.entity.ProjectApiGroup;
 import org.mirrentools.orion.entity.ProjectInfo;
+import org.mirrentools.orion.mapper.ProjectApiGroupMapper;
+import org.mirrentools.orion.mapper.ProjectApiMapper;
+import org.mirrentools.orion.mapper.ProjectMapper;
 import org.mirrentools.orion.service.ProjectService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * 项目的服务接口的默认实现
+ * 
+ * @author <a href="https://mirrentools.org/">Mirren</a>
+ *
+ */
 @Service
 public class DefaultProjectServiceImpl implements ProjectService {
 
-	@Override
-	public Map<String, Object> login(String id, String pwd) {
-		if (StringUtil.isNullOrEmpty(id, pwd)) {
-			return ResultUtil.failed("登录失败,账号与密码不能为空!", 0);
-		}
-		try {
-			byte[] bytes = Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/config/user.json"));
-			JSONObject users = new JSONObject(new String(bytes));
-			if (users.has(id)) {
-				JSONObject user = users.getJSONObject(id);
-				if (user.has("pwd") && user.get("pwd").equals(pwd)) {
-					String sessionId = MD5Util.encode(UUID.randomUUID().toString(), 3);
-					LoginSessionStore.save(sessionId, id);
-					Map<String, String> result = new HashMap<>();
-					result.put("uid", id);
-					result.put("sessionId", sessionId);
-					return ResultUtil.succeed(result);
-				} else {
-					return ResultUtil.failed("登录失败,账号或密码错误!", 0);
-				}
-			} else {
-				return ResultUtil.failed("登录失败,账号或密码错误!", 0);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResultUtil.failed(e.getMessage(), 0);
-		}
-	}
+	private static final Logger LOG = LoggerFactory.getLogger(DefaultProjectServiceImpl.class);
 
-	@Override
-	public Map<String, Object> logout(String sessionId) {
-		LoginSessionStore.remove(sessionId);
-		return ResultUtil.succeed(1);
-	}
+	/** 项目相关的数据库操作 */
+	@Autowired
+	private ProjectMapper projectMapper;
+	/** 接口分组相关的数据库操作 */
+	@Autowired
+	private ProjectApiGroupMapper groupMapper;
+	@Autowired
+	private ProjectApiMapper apiMapper;
 
 	@Override
 	public Map<String, Object> getProjectList() {
 		try {
-			List<ProjectInfo> list = ConfigUtil.getProjectList();
-			return ResultUtil.succeed(list);
+			SqlAssist assist = new SqlAssist();
+			assist.setResultColumn(String.format("%s,%s,%s,%s,%s", ColumnsProject.KEY, ColumnsProject.NAME,
+					ColumnsProject.VERSIONS, ColumnsProject.LAST_TIME, ColumnsProject.SORTS));
+			assist.setOrderBy(String.format("%s asc, %s desc", ColumnsProject.SORTS, ColumnsProject.LAST_TIME));
+			List<Project> all = projectMapper.selectAll(new SqlAssist());
+			List<ProjectInfo> result = new ArrayList<ProjectInfo>();
+			for (int i = 0; i < all.size(); i++) {
+				Project project = all.get(i);
+				ProjectInfo projectInfo = new ProjectInfo();
+				projectInfo.setKey(project.getKey());
+				projectInfo.setName(project.getName());
+				projectInfo.setVersion(project.getVersions());
+				projectInfo.setTime(project.getLastTime());
+				projectInfo.setSorts(project.getSorts());
+				result.add(projectInfo);
+			}
+			return ResultUtil.succeed(result);
 		} catch (Throwable e) {
-			e.printStackTrace();
+			LOG.error("执行获取项目列表-->失败:", e);
 			return ResultUtil.failed(e.getMessage());
 		}
 	}
@@ -83,10 +85,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	@Override
 	public Map<String, Object> getProject(String id) {
 		try {
-			Project project = ConfigUtil.getProject(id);
+			Project project = projectMapper.selectById(id);
 			return ResultUtil.succeed(project);
 		} catch (Throwable e) {
-			e.printStackTrace();
+			LOG.error("执行获取项目->" + id + "-->失败:", e);
 			return ResultUtil.failed(e.getMessage());
 		}
 
@@ -98,13 +100,17 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(project.getServers(), project.getName())) {
 				return ResultUtil.failed("存在空值,name与host都为必填");
 			}
+			if (StringUtil.isNullOrEmpty(project.getKey())) {
+				project.setKey(UUID.randomUUID().toString());
+			}
 			if (project.getSorts() == null) {
 				project.setSorts(0);
 			}
-			ConfigUtil.saveProject(project);
-			return ResultUtil.succeed(1);
+			project.setLastTime(System.currentTimeMillis());
+			int result = projectMapper.insertNotNull(project);
+			return ResultUtil.succeed(result);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOG.error("执行保存项目->\n" + project + "\n-->失败:", e);
 			return ResultUtil.failed(e.getMessage());
 		}
 	}
@@ -120,20 +126,27 @@ public class DefaultProjectServiceImpl implements ProjectService {
 				return ResultUtil.failed("项目名称,服务集不能为空!");
 			}
 			Project project = convertProject(data);
-			int saveProject = ConfigUtil.saveProject(project);
+			if (StringUtil.isNullOrEmpty(project.getKey())) {
+				project.setKey(UUID.randomUUID().toString());
+			}
+			if (project.getSorts() == null) {
+				project.setSorts(0);
+			}
+			project.setLastTime(System.currentTimeMillis());
+			int saveProject = projectMapper.insertNotNull(project);
 			if (saveProject > 0) {
 				if (data.has("content")) {
 					JSONArray array = data.getJSONArray("content");
 					for (int i = 0; i < array.length(); i++) {
 						JSONObject gdata = array.getJSONObject(i);
 						ProjectApiGroup group = convertGroup(project.getKey(), gdata);
-						int saveGroup = ConfigUtil.saveProjectApiGroup(group);
+						int saveGroup = groupMapper.insertNotNull(group);
 						if (saveGroup > 0 && gdata.has("apis")) {
 							JSONArray apis = gdata.getJSONArray("apis");
 							for (int j = 0; j < apis.length(); j++) {
 								JSONObject adata = apis.getJSONObject(j);
 								ProjectApi api = convertApi(group.getGroupId(), adata);
-								ConfigUtil.saveProjectApi(api);
+								apiMapper.insertNotNull(api);
 							}
 						}
 					}
@@ -143,7 +156,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 				return ResultUtil.failed("请返回检查项目是否已经新增成功!");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOG.error("执行通过导入json并保存项目->\n" + json + "\n-->失败:", e);
 			return ResultUtil.failed(e.getMessage());
 		}
 	}
@@ -166,7 +179,14 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (session != null && session.isOpen()) {
 				session.getAsyncRemote().sendText(WebSocket.success(WebSocket.PROJECT_SAVEING, project.getName()));
 			}
-			int saveProject = ConfigUtil.saveProject(project);
+			if (StringUtil.isNullOrEmpty(project.getKey())) {
+				project.setKey(UUID.randomUUID().toString());
+			}
+			if (project.getSorts() == null) {
+				project.setSorts(0);
+			}
+			project.setLastTime(System.currentTimeMillis());
+			int saveProject = projectMapper.insertNotNull(project);
 			if (saveProject > 0) {
 				if (session != null && session.isOpen()) {
 					session.getAsyncRemote().sendText(WebSocket.success(WebSocket.PROJECT_SAVED, project.getName()));
@@ -176,20 +196,20 @@ public class DefaultProjectServiceImpl implements ProjectService {
 					for (int i = 0; i < groups.length(); i++) {
 						JSONObject gdata = groups.getJSONObject(i);
 						ProjectApiGroup group = convertGroup(project.getKey(), gdata);
-						int saveGroup = ConfigUtil.saveProjectApiGroup(group);
+						int saveGroup = groupMapper.insertNotNull(group);
 						if (session != null && session.isOpen()) {
-							session.getAsyncRemote().sendText(
-									WebSocket.success(WebSocket.GROUP_SAVED, WebSocket.progressModel(group.getName(), (i + 1), groups.length(), saveGroup)));
+							session.getAsyncRemote().sendText(WebSocket.success(WebSocket.GROUP_SAVED,
+									WebSocket.progressModel(group.getName(), (i + 1), groups.length(), saveGroup)));
 						}
 						if (saveGroup > 0 && gdata.has("apis")) {
 							JSONArray apis = gdata.getJSONArray("apis");
 							for (int j = 0; j < apis.length(); j++) {
 								JSONObject adata = apis.getJSONObject(j);
 								ProjectApi api = convertApi(group.getGroupId(), adata);
-								int saveApi = ConfigUtil.saveProjectApi(api);
+								int saveApi = apiMapper.insertNotNull(api);
 								if (session != null && session.isOpen()) {
-									session.getAsyncRemote().sendText(
-											WebSocket.success(WebSocket.API_SAVED, WebSocket.progressModel(api.getTitle(), (j + 1), apis.length(), saveApi)));
+									session.getAsyncRemote().sendText(WebSocket.success(WebSocket.API_SAVED,
+											WebSocket.progressModel(api.getTitle(), (j + 1), apis.length(), saveApi)));
 								}
 							}
 						}
@@ -208,7 +228,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 				session.getAsyncRemote().sendText(WebSocket.end());
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOG.error("执行通过Websocket导入json并保存项目->\n" + json + "\n-->失败:", e);
 			if (session != null && session.isOpen()) {
 				session.getAsyncRemote().sendText(WebSocket.failed(e.getMessage()));
 			}
@@ -221,30 +241,34 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(key)) {
 				return ResultUtil.failed("存在空值,项目的id为必填");
 			}
-			Project project = ConfigUtil.getProject(key);
+			Project project = projectMapper.selectById(key);
 			project.setKey(UUID.randomUUID().toString());
 			project.setName(project.getName() + "_副本");
-			List<ProjectApiGroup> groups = ConfigUtil.getProjectApiGroups(key);
+			if (project.getSorts() == null) {
+				project.setSorts(0);
+			}
+			project.setLastTime(System.currentTimeMillis());
+			List<ProjectApiGroup> groups = groupMapper.selectAll(new SqlAssist().andEq(ColumnsApiGroup.PROJECT_ID, key));
 			if (groups != null && !groups.isEmpty()) {
 				for (ProjectApiGroup g : groups) {
 					String gid = new String(g.getGroupId());
 					g.setProjectId(project.getKey());
 					g.setGroupId(UUID.randomUUID().toString());
-					ConfigUtil.saveProjectApiGroup(g);
-					List<ProjectApi> apiList = ConfigUtil.getProjectApiList(gid);
+					groupMapper.insertNotNull(g);
+					List<ProjectApi> apiList = apiMapper.selectAll(new SqlAssist().andEq(ColumnsAPI.GROUP_ID, gid));
 					if (apiList != null && !apiList.isEmpty()) {
 						for (ProjectApi api : apiList) {
 							api.setGroupId(g.getGroupId());
 							api.setApiId(UUID.randomUUID().toString());
-							ConfigUtil.saveProjectApi(api);
+							apiMapper.insertNotNull(api);
 						}
 					}
 				}
 			}
-			ConfigUtil.saveProject(project);
-			return ResultUtil.succeed(1);
+			int result = projectMapper.insertNotNull(project);
+			return ResultUtil.succeed(result);
 		} catch (Throwable e) {
-			e.printStackTrace();
+			LOG.error("执行复制项目->\n" + key + "\n-->失败:", e);
 			return ResultUtil.failed(e.getMessage());
 		}
 	}
@@ -253,17 +277,17 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> updateProject(Project project) {
 		try {
 			if (StringUtil.isNullOrEmpty(project.getKey(), project.getServers(), project.getName())) {
-				System.out.println(project);
 				return ResultUtil.failed("存在空值,host,name,key都为必填");
 			}
 			if (project.getSorts() == null) {
 				project.setSorts(0);
 			}
 			project.setLastTime(System.currentTimeMillis());
-			ConfigUtil.updateProject(project);
-			return ResultUtil.succeed(1);
+			System.out.println(project);
+			int result = projectMapper.updateNotNullById(project);
+			return ResultUtil.succeed(result);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOG.error("执行更新项目->\n" + project + "\n-->失败:", e);
 			return ResultUtil.failed(e.getMessage());
 		}
 	}
@@ -274,10 +298,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(key)) {
 				return ResultUtil.failed("存在空值,项目的id不能为空");
 			}
-			ConfigUtil.updateProjectMoveUp(key);
-			return ResultUtil.succeed(1);
+			int result = projectMapper.updateProjectMoveUp(key);
+			return ResultUtil.succeed(result);
 		} catch (Throwable e) {
-			e.printStackTrace();
+			LOG.error("执行将项目上移动->" + key + "-->失败:", e);
 			return ResultUtil.failed(e.getMessage());
 		}
 	}
@@ -288,10 +312,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(key)) {
 				return ResultUtil.failed("存在空值,项目的id不能为空");
 			}
-			ConfigUtil.updateProjectMoveDown(key);
-			return ResultUtil.succeed(1);
+			int result = projectMapper.updateProjectMoveDown(key);
+			return ResultUtil.succeed(result);
 		} catch (Throwable e) {
-			e.printStackTrace();
+			LOG.error("执行将项目下移动->" + key + "-->失败:", e);
 			return ResultUtil.failed(e.getMessage());
 		}
 	}
@@ -302,10 +326,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(key)) {
 				return ResultUtil.failed("存在空值,项目的id不能为空");
 			}
-			ConfigUtil.delectProject(key);
-			return ResultUtil.succeed(1);
+			int result = projectMapper.deleteById(key);
+			return ResultUtil.succeed(result);
 		} catch (Throwable e) {
-			e.printStackTrace();
+			LOG.error("执行删除项目->" + key + "-->失败:", e);
 			return ResultUtil.failed(e.getMessage());
 		}
 	}
@@ -316,10 +340,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(projectId)) {
 				return ResultUtil.failed("存在空值,项目的id不能为空");
 			}
-			List<ProjectApiGroup> result = ConfigUtil.getProjectApiGroupList(projectId);
+			List<ProjectApiGroup> result = getProjectApiGroupList(projectId);
 			return ResultUtil.succeed(result);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOG.error("执行获取接口分组列表包含分组信息->项目:" + projectId + "-->失败:", e);
 			return ResultUtil.failed(e.getMessage());
 		}
 	}
@@ -330,10 +354,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(groupId)) {
 				return ResultUtil.failed("存在空值,项目的id不能为空");
 			}
-			ProjectApiGroup result = ConfigUtil.getProjectApiGroup(groupId);
+			ProjectApiGroup result = groupMapper.selectById(groupId);
 			return ResultUtil.succeed(result);
 		} catch (Throwable e) {
-			e.printStackTrace();
+			LOG.error("执行获取指定接口分组信息->" + groupId + "-->失败:", e);
 			return ResultUtil.failed(e.getMessage());
 		}
 	}
@@ -341,16 +365,21 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	@Override
 	public Map<String, Object> saveApiGroup(ProjectApiGroup group) {
 		try {
+			if (StringUtil.isNullOrEmpty(group.getName(), group.getSummary())) {
+				return ResultUtil.failed("存在空值,分组的名称与简介不能为空");
+			}
+			if (StringUtil.isNullOrEmpty(group.getGroupId())) {
+				group.setGroupId(UUID.randomUUID().toString());
+			}
 			if (group.getSorts() == null) {
 				group.setSorts(0);
 			}
-			ConfigUtil.saveProjectApiGroup(group);
-			return ResultUtil.succeed(1);
+			int result = groupMapper.insertNotNull(group);
+			return ResultUtil.succeed(result);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOG.error("执行保存接口分组->\n" + group + "\n-->失败:", e);
 			return ResultUtil.failed(e.getMessage());
 		}
-
 	}
 
 	@Override
@@ -362,10 +391,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (group.getSorts() == null) {
 				group.setSorts(0);
 			}
-			ConfigUtil.updateProjectApiGroup(group);
-			return ResultUtil.succeed(1);
+			int result = groupMapper.updateNotNullById(group);
+			return ResultUtil.succeed(result);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOG.error("执行修改接口分组->\n" + group + "\n-->失败:", e);
 			return ResultUtil.failed(e.getMessage());
 		}
 	}
@@ -376,10 +405,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(id)) {
 				return ResultUtil.failed("存在空值,分组的id不能为空");
 			}
-			ConfigUtil.updateProjectApiGroupMoveUp(id);
-			return ResultUtil.succeed(1);
+			int result = groupMapper.updateProjectApiGroupMoveUp(id);
+			return ResultUtil.succeed(result);
 		} catch (Throwable e) {
-			e.printStackTrace();
+			LOG.error("执行将接口分组下移动->" + id + "-->失败:", e);
 			return ResultUtil.failed(e.getMessage());
 		}
 	}
@@ -390,10 +419,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(id)) {
 				return ResultUtil.failed("存在空值,分组的id不能为空");
 			}
-			ConfigUtil.updateProjectApiGroupMoveDown(id);
-			return ResultUtil.succeed(1);
+			int result = groupMapper.updateProjectApiGroupMoveDown(id);
+			return ResultUtil.succeed(result);
 		} catch (Throwable e) {
-			e.printStackTrace();
+			LOG.error("执行将接口分组上移动->" + id + "-->失败:", e);
 			return ResultUtil.failed(e.getMessage());
 		}
 	}
@@ -404,10 +433,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(groupId)) {
 				return ResultUtil.failed("存在空值,分组的id不能为空");
 			}
-			ConfigUtil.delectProjectApiGroup(groupId);
-			return ResultUtil.succeed(1);
+			int result = groupMapper.deleteById(groupId);
+			return ResultUtil.succeed(result);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOG.error("执行删除接口分组->" + groupId + "-->失败:", e);
 			return ResultUtil.failed(e.getMessage());
 		}
 	}
@@ -420,18 +449,17 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			}
 			if (api.getDeprecated() == null) {
 				api.setDeprecated(Boolean.toString(false));
-
 			}
-			if (api.getVersion() == null) {
-				api.setVersion(1L);
+			if (StringUtil.isNullOrEmpty(api.getApiId())) {
+				api.setApiId(UUID.randomUUID().toString());
 			}
 			if (api.getSorts() == null) {
 				api.setSorts(0);
 			}
-			ConfigUtil.saveProjectApi(api);
-			return ResultUtil.succeed(1);
+			int result = apiMapper.insertNotNull(api);
+			return ResultUtil.succeed(result);
 		} catch (Throwable e) {
-			e.printStackTrace();
+			LOG.error("执行新增接口->\n" + api + "\n-->失败:", e);
 			return ResultUtil.failed(e.getMessage());
 		}
 	}
@@ -442,10 +470,13 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(groupId)) {
 				return ResultUtil.failed("存在空值,分组id不能为空");
 			}
-			List<ProjectApi> result = ConfigUtil.getProjectApiList(groupId);
+			SqlAssist assist = new SqlAssist();
+			assist.andEq(ColumnsAPI.GROUP_ID, groupId);
+			assist.setOrderBy(ColumnsAPI.SORTS);
+			List<ProjectApi> result = apiMapper.selectAll(assist);
 			return ResultUtil.succeed(result);
 		} catch (Throwable e) {
-			e.printStackTrace();
+			LOG.error("执行获取指定分组接口列表->" + groupId + "-->失败:", e);
 			return ResultUtil.failed(e.getMessage());
 		}
 	}
@@ -456,10 +487,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(apiId)) {
 				return ResultUtil.failed("存在空值,id不能为空");
 			}
-			ProjectApi result = ConfigUtil.getProjectApi(apiId);
+			ProjectApi result = apiMapper.selectById(apiId);
 			return ResultUtil.succeed(result);
 		} catch (Throwable e) {
-			e.printStackTrace();
+			LOG.error("执行获取指定接口->" + apiId + "-->失败:", e);
 			return ResultUtil.failed(e.getMessage());
 		}
 	}
@@ -470,13 +501,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(api.getApiId())) {
 				return ResultUtil.failed("存在空值,id不能为空");
 			}
-			if (api.getVersion() == null) {
-				api.setVersion(1L);
-			}
-			ConfigUtil.updateProjectApi(api);
-			return ResultUtil.succeed(1);
+			int result = apiMapper.updateNotNullById(api);
+			return ResultUtil.succeed(result);
 		} catch (Throwable e) {
-			e.printStackTrace();
+			LOG.error("执行修改接口->\n" + api + "\n-->失败:", e);
 			return ResultUtil.failed(e.getMessage());
 		}
 	}
@@ -487,10 +515,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(id)) {
 				return ResultUtil.failed("存在空值,分组的id不能为空");
 			}
-			ConfigUtil.updateProjectApiMoveUp(id);
-			return ResultUtil.succeed(1);
+			int result = apiMapper.updateProjectApiMoveUp(id);
+			return ResultUtil.succeed(result);
 		} catch (Throwable e) {
-			e.printStackTrace();
+			LOG.error("执行将接口上移动->" + id + "-->失败:", e);
 			return ResultUtil.failed(e.getMessage());
 		}
 	}
@@ -501,10 +529,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(id)) {
 				return ResultUtil.failed("存在空值,分组的id不能为空");
 			}
-			ConfigUtil.updateProjectApiMoveDown(id);
-			return ResultUtil.succeed(1);
+			int result = apiMapper.updateProjectApiMoveDown(id);
+			return ResultUtil.succeed(result);
 		} catch (Throwable e) {
-			e.printStackTrace();
+			LOG.error("执行将接口下移动->" + id + "-->失败:", e);
 			return ResultUtil.failed(e.getMessage());
 		}
 	}
@@ -515,10 +543,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(apiId)) {
 				return ResultUtil.failed("存在空值,id不能为空");
 			}
-			ConfigUtil.deleteProjectApi(apiId);
-			return ResultUtil.succeed(1);
+			int result = apiMapper.deleteById(apiId);
+			return ResultUtil.succeed(result);
 		} catch (Throwable e) {
-			e.printStackTrace();
+			LOG.error("执行删除接口->" + apiId + "-->失败:", e);
 			return ResultUtil.failed(e.getMessage());
 		}
 	}
@@ -526,7 +554,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	@Override
 	public String getJson(String projectId) {
 		try {
-			Project project = ConfigUtil.getProject(projectId);
+			Project project = projectMapper.selectById(projectId);
 			JSONObject result = new JSONObject();
 			result.put("orionApi", OrionApiManager.VERSION);
 			result.put("key", project.getKey());
@@ -562,7 +590,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 					}
 				}
 			}
-			List<ProjectApiGroup> list = ConfigUtil.getProjectApiGroupList(projectId);
+			List<ProjectApiGroup> list = getProjectApiGroupList(projectId);
 			if (list != null && !list.isEmpty()) {
 				JSONArray content = new JSONArray();
 				for (ProjectApiGroup pag : list) {
@@ -671,7 +699,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			}
 			return result.toString(2);
 		} catch (Throwable e) {
-			e.printStackTrace();
+			LOG.error("执行获取项目并转化为JSON->" + projectId + "-->失败:", e);
 			String msg = e == null ? "无法追踪错误" : e.getMessage();
 			return "{\"error\":\"" + msg + "\"}";
 		}
@@ -689,8 +717,29 @@ public class DefaultProjectServiceImpl implements ProjectService {
 				writer.write(result);
 			}
 		} catch (Throwable e) {
-			e.printStackTrace();
+			LOG.error("执行下载JSON文件->" + projectId + "-->失败:", e);
 		}
+	}
+
+	/**
+	 * 获取指定项目的所有分组,包括分组的接口
+	 * 
+	 * @param projectId
+	 * @return
+	 */
+	private List<ProjectApiGroup> getProjectApiGroupList(String projectId) {
+		SqlAssist gAssist = new SqlAssist().andEq(ColumnsApiGroup.PROJECT_ID, projectId).setOrderBy(ColumnsApiGroup.SORTS);
+		List<ProjectApiGroup> groups = groupMapper.selectAll(gAssist);
+		if (groups != null) {
+			for (int i = 0; i < groups.size(); i++) {
+				ProjectApiGroup group = groups.get(i);
+				String gid = group.getGroupId();
+				SqlAssist assist = new SqlAssist().andEq(ColumnsAPI.GROUP_ID, gid).setOrderBy(ColumnsAPI.SORTS);
+				List<ProjectApi> apiList = apiMapper.selectAll(assist);
+				group.setApis(apiList);
+			}
+		}
+		return groups;
 	}
 
 	/**
@@ -742,6 +791,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	 */
 	private ProjectApi convertApi(String groupId, JSONObject adata) {
 		ProjectApi api = new ProjectApi();
+		api.setApiId(UUID.randomUUID().toString());
 		api.setGroupId(groupId);
 		api.setSorts(adata.has("sorts") ? adata.getInt("sorts") : 0);
 		api.setMethod(adata.has("method") ? adata.getString("method") : "get");
@@ -755,4 +805,5 @@ public class DefaultProjectServiceImpl implements ProjectService {
 		api.setExternalDocs(adata.has("externalDocs") ? adata.getString("externalDocs") : null);
 		return api;
 	}
+
 }

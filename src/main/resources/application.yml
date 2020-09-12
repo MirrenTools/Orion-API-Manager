@@ -1,2 +1,10 @@
 server:
   port: 8686
+spring:
+  datasource:
+    url: jdbc:sqlite:${user.dir}/config/ConfigDB.db
+    driver-class-name: org.sqlite.JDBC
+mybatis:
+  mapper-locations: classpath:mappers/*Mapper.xml
+logging:  file:    path: ./logs
+    

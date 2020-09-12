@@ -1,5 +1,6 @@
 package org.mirrentools.orion;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -39,10 +40,12 @@ import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class })
 @EnableWebMvc
 @ServletComponentScan
+@MapperScan("org.mirrentools.orion.mapper")
 public class Main {
 	public static void main(String[] args) {
 		SpringApplication.run(Main.class, args);
 	}
+
 	@Bean
 	public ServerEndpointExporter serverEndpointExporter() {
 		return new ServerEndpointExporter();

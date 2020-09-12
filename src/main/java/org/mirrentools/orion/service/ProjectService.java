@@ -16,19 +16,6 @@ import org.mirrentools.orion.entity.ProjectApiGroup;
  *
  */
 public interface ProjectService {
-	/**
-	 * 登录
-	 * 
-	 * @return
-	 */
-	Map<String, Object> login(String id, String pwd);
-
-	/**
-	 * 退出登录
-	 * 
-	 * @return
-	 */
-	Map<String, Object> logout(String sessionId);
 
 	/**
 	 * 获取项目列表
@@ -68,7 +55,7 @@ public interface ProjectService {
 	 * @param session
 	 * @return
 	 */
-	void  saveProjectfromJsonWebSocket(String json, Session session);
+	void saveProjectfromJsonWebSocket(String json, Session session);
 
 	/**
 	 * 复制一份项目
@@ -181,6 +168,7 @@ public interface ProjectService {
 	 * @return
 	 */
 	Map<String, Object> findApis(String groupId);
+
 	/**
 	 * 通过id获取接口
 	 * 
