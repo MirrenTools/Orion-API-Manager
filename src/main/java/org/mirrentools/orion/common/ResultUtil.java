@@ -15,6 +15,11 @@ public class ResultUtil {
 	/** 成功的模式的默认提示 */
 	public final static String SM = "成功";
 
+	/** 认证不通过或检查不通过的状态码 */
+	public final static int C403 = 403;
+	/** 认证不通过或检查不通过的默认提示信息 */
+	public final static String M403 = "验证不通过!";
+
 	/** 失败的默认状态码 */
 	public final static int FC = 500;
 	/** 失败的模式的默认提示 */
@@ -48,7 +53,7 @@ public class ResultUtil {
 		return format(FC, FM, data);
 	}
 	/**
-	 * 返回code=200,msg=消息,data=数据
+	 * 返回code=500,msg=消息,data=数据
 	 * 
 	 * @param data
 	 * @return

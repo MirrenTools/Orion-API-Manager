@@ -17,7 +17,7 @@ public interface UsersService {
 	 * 
 	 * @return
 	 */
-	Map<String, Object> login(String id, String pwd);
+	Map<String, Object> login(String id, String pwd, String index, String value);
 
 	/**
 	 * 退出登录

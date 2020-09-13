@@ -23,14 +23,10 @@ public class VerifyCodeSessionStore {
 	/**
 	 * 保存回话
 	 * 
-	 * @param index
-	 *          下标,也是回话的id
-	 * @param value
-	 *          正确的值
-	 * @param data
-	 *          需要点击的验证码
-	 * @param code
-	 *          验证码
+	 * @param index 下标,也是回话的id
+	 * @param value 正确的值
+	 * @param data  需要点击的验证码
+	 * @param code  验证码
 	 * @return
 	 */
 	public static boolean save(String index, String value, String data, String code) {
@@ -52,7 +48,7 @@ public class VerifyCodeSessionStore {
 			}
 		}
 		VerifyCodeSession session = new VerifyCodeSession();
-		session.setIndex(index).setValue(value).setData(data).setCode(code);
+		session.setIndex(index).setValue(value).setData(data).setCode(code).setLastTime(System.currentTimeMillis());
 		DATA.put(index, session);
 		return true;
 	}
@@ -60,8 +56,7 @@ public class VerifyCodeSessionStore {
 	/**
 	 * 获取会话对应的用户id
 	 * 
-	 * @param sessionId
-	 *          会话id
+	 * @param sessionId 会话id
 	 * @return 用户id
 	 */
 	public static VerifyCodeSession get(String sessionId) {
@@ -85,8 +80,7 @@ public class VerifyCodeSessionStore {
 	/**
 	 * 删除会话
 	 * 
-	 * @param sessionId
-	 *          会话的id
+	 * @param sessionId 会话的id
 	 */
 	public static void remove(String sessionId) {
 		if (sessionId == null) {

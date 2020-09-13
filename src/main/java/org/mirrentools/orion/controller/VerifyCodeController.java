@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.websocket.server.PathParam;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mirrentools.orion.common.ResultUtil;
@@ -30,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class VerifyCodeController {
 	private static final Logger LOG = LogManager.getLogger(VerifyCodeController.class);
 
-	/**
+	/**	
 	 * 获取验证码数据
 	 * 
 	 * @return

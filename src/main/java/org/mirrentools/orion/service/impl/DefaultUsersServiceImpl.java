@@ -21,6 +21,8 @@ import org.mirrentools.orion.common.ResultUtil;
 import org.mirrentools.orion.common.SqlAssist;
 import org.mirrentools.orion.common.SqlAssist.LimitResult;
 import org.mirrentools.orion.common.StringUtil;
+import org.mirrentools.orion.common.VerifyCodeSession;
+import org.mirrentools.orion.common.VerifyCodeSessionStore;
 import org.mirrentools.orion.entity.Tags;
 import org.mirrentools.orion.entity.Users;
 import org.mirrentools.orion.mapper.ProjectMapper;
@@ -40,17 +42,24 @@ import org.springframework.stereotype.Service;
 public class DefaultUsersServiceImpl implements UsersService {
 	private static final Logger LOG = LogManager.getLogger(DefaultUsersServiceImpl.class);
 	/** 用户的SQL */
+	@Autowired
 	private UsersMapper usersMapper;
 	/** 标签的SQL */
 	@Autowired
 	private TagsMapper tagsMapper;
 	/** 项目的SQL */
+	@Autowired
 	private ProjectMapper projectMapper;
 
 	@Override
-	public Map<String, Object> login(String id, String pwd) {
-		if (StringUtil.isNullOrEmpty(id, pwd)) {
-			return ResultUtil.failed("登录失败,账号与密码不能为空!", 0);
+	public Map<String, Object> login(String id, String pwd, String index, String value) {
+		if (StringUtil.isNullOrEmpty(id, pwd, index, value)) {
+			return ResultUtil.failed("登录失败,账号密码与验证码不能为空!", 0);
+		}
+
+		VerifyCodeSession verify = VerifyCodeSessionStore.get(index);
+		if (verify == null || !value.equals(verify.getValue())) {
+			return ResultUtil.format(ResultUtil.C403, ResultUtil.M403, null);
 		}
 		if (id.startsWith("X-")) {
 			try {
@@ -58,7 +67,7 @@ public class DefaultUsersServiceImpl implements UsersService {
 				JSONObject users = new JSONObject(new String(bytes));
 				if (users.has(id)) {
 					JSONObject user = users.getJSONObject(id);
-					if (user.has("pwd") && MD5Util.compare(MD5Util.encode(user.getString(pwd), 2), pwd)) {
+					if (user.has("pwd") && MD5Util.compare(user.getString("pwd"), 2, MD5Util.encode(pwd))) {
 						String sessionId = MD5Util.encode(UUID.randomUUID().toString(), 3);
 						LoginSessionStore.save(sessionId, id, LoginRole.ROOT);
 						Map<String, String> result = new HashMap<>();
@@ -73,8 +82,8 @@ public class DefaultUsersServiceImpl implements UsersService {
 					return ResultUtil.failed("登录失败,账号或密码错误!", 0);
 				}
 			} catch (Exception e) {
-				LOG.error("执行ROOT用户登录-->失败:" + e);
-				return ResultUtil.failed(e.getMessage(), 0);
+				LOG.error("执行ROOT用户登录-->失败:", e);
+				return ResultUtil.failed(e == null ? "未知的错误" : e.getMessage(), 0);
 			}
 		} else {
 			try {
@@ -82,7 +91,7 @@ public class DefaultUsersServiceImpl implements UsersService {
 				if (users == null || users.getUid() == null) {
 					return ResultUtil.failed("登录失败,账号或密码错误!", 0);
 				} else {
-					if (MD5Util.compare(users.getPwd(), MD5Util.encode(pwd))) {
+					if (MD5Util.compare(pwd, users.getPwd())) {
 						String sessionId = MD5Util.encode(UUID.randomUUID().toString(), 3);
 						LoginSessionStore.save(sessionId, id, LoginRole.ROOT);
 						Map<String, String> result = new HashMap<>();
@@ -100,7 +109,7 @@ public class DefaultUsersServiceImpl implements UsersService {
 					}
 				}
 			} catch (Exception e) {
-				LOG.error("执行用户登录-->失败:" + e);
+				LOG.error("执行用户登录-->失败:", e);
 				return ResultUtil.failed("登录失败,请稍后重试", 0);
 			}
 		}
@@ -112,7 +121,7 @@ public class DefaultUsersServiceImpl implements UsersService {
 			LoginSessionStore.remove(sessionId);
 			return ResultUtil.succeed(1);
 		} catch (Exception e) {
-			LOG.error("执行退出登录-->失败:" + e);
+			LOG.error("执行退出登录-->失败:", e);
 			return ResultUtil.succeed(1);
 		}
 	}
@@ -122,17 +131,19 @@ public class DefaultUsersServiceImpl implements UsersService {
 		try {
 			SqlAssist assist = new SqlAssist();
 			if (!StringUtil.isNullOrEmpty(keywords)) {
-				assist.andEq(ColumnsUsers.NICKNAME, "%" + keywords + "%");
-				assist.andEq(ColumnsUsers.SUMMARY, "%" + keywords + "%");
+				assist.andLike(ColumnsUsers.NICKNAME, "%" + keywords + "%");
+				assist.andLike(ColumnsUsers.SUMMARY, "%" + keywords + "%");
 			}
 			if (!StringUtil.isNullOrEmpty(tid)) {
-				assist.andEq(ColumnsUsers.TAGS, "%\"" + tid + "\"%");
+				assist.andLike(ColumnsUsers.TAGS, "%\"" + tid + "\"%");
 			}
 			assist.setPage(page).setRowSize(size);
+			assist.setResultColumn(String.format("%s,%s,%s,%s,%s,%s,%s", ColumnsUsers.UID, ColumnsUsers.ROLE,
+					ColumnsUsers.TAGS, ColumnsUsers.NICKNAME, ColumnsUsers.CONTACT, ColumnsUsers.SUMMARY, ColumnsUsers.LASTTIME));
 			LimitResult<Users> result = usersMapper.limitAll(assist);
 			return ResultUtil.succeed(result);
 		} catch (Exception e) {
-			LOG.error("执行获取用户列表-->失败:" + e);
+			LOG.error("执行获取用户列表-->失败:", e);
 			return ResultUtil.failed(e == null ? "" : e.getMessage());
 		}
 	}
@@ -149,7 +160,7 @@ public class DefaultUsersServiceImpl implements UsersService {
 			}
 			return ResultUtil.succeed(users);
 		} catch (Exception e) {
-			LOG.error("执行获取指定用户-->失败:" + e);
+			LOG.error("执行获取指定用户-->失败:", e);
 			return ResultUtil.failed(e == null ? "" : e.getMessage());
 		}
 	}
@@ -157,7 +168,8 @@ public class DefaultUsersServiceImpl implements UsersService {
 	@Override
 	public Map<String, Object> postUser(String sessionId, Users user) {
 		try {
-			if (user == null || StringUtil.isNullOrEmpty(user.getUid(), user.getRole(), user.getPwd(), user.getNickname(), user.getContact())) {
+			if (user == null || StringUtil.isNullOrEmpty(sessionId, user.getUid(), user.getRole(), user.getPwd(),
+					user.getNickname(), user.getContact())) {
 				return ResultUtil.failed("请按要求填写所有必填项");
 			}
 			LoginRole userRole = getUserRole(sessionId);
@@ -187,7 +199,8 @@ public class DefaultUsersServiceImpl implements UsersService {
 	@Override
 	public Map<String, Object> putUser(String sessionId, Users user) {
 		try {
-			if (user == null || StringUtil.isNullOrEmpty(user.getUid(), user.getRole(), user.getNickname(), user.getContact())) {
+			if (user == null || StringUtil.isNullOrEmpty(sessionId, user.getUid(), user.getRole(), user.getNickname(),
+					user.getContact())) {
 				return ResultUtil.failed("请按要求填写所有必填项");
 			}
 			LoginRole userRole = getUserRole(sessionId);
@@ -200,10 +213,6 @@ public class DefaultUsersServiceImpl implements UsersService {
 				} else {
 					return ResultUtil.failed("无效的角色!");
 				}
-			}
-			Users checkUser = usersMapper.selectById(user.getUid());
-			if (checkUser != null && checkUser.getUid() != null) {
-				return ResultUtil.failed("该用户的账号已存在!");
 			}
 			if (!StringUtil.isNullOrEmpty(user.getPwd())) {
 				user.setPwd(MD5Util.encode(user.getPwd()));
@@ -220,6 +229,9 @@ public class DefaultUsersServiceImpl implements UsersService {
 	@Override
 	public Map<String, Object> deleteUser(String sessionId, String uid) {
 		try {
+			if (StringUtil.isNullOrEmpty(sessionId, uid)) {
+				return ResultUtil.failed("请按要求填写所有必填项");
+			}
 			LoginRole userRole = getUserRole(sessionId);
 			if (userRole == LoginRole.ROOT) {
 				int result = usersMapper.deleteById(uid);
@@ -245,11 +257,12 @@ public class DefaultUsersServiceImpl implements UsersService {
 	@Override
 	public Map<String, Object> findTags() {
 		try {
-			SqlAssist assist = new SqlAssist().setOrderBy(String.format("%s desc,%s desc", ColumnsTags.SORTS, ColumnsTags.CTIME));
+			SqlAssist assist = new SqlAssist()
+					.setOrderBy(String.format("%s asc,%s desc", ColumnsTags.SORTS, ColumnsTags.CTIME));
 			List<Tags> all = tagsMapper.selectAll(assist);
 			return ResultUtil.succeed(all);
 		} catch (Exception e) {
-			LOG.error("执行获取所有标签-->失败:" + e);
+			LOG.error("执行获取所有标签-->失败:", e);
 			return ResultUtil.failed(e == null ? "" : e.getMessage());
 		}
 	}
@@ -263,7 +276,7 @@ public class DefaultUsersServiceImpl implements UsersService {
 			Tags result = tagsMapper.selectById(tid);
 			return ResultUtil.succeed(result);
 		} catch (Exception e) {
-			LOG.error("执行获取指定标签->" + tid + "-->失败:" + e);
+			LOG.error("执行获取指定标签->" + tid + "-->失败:", e);
 			return ResultUtil.failed(e == null ? "" : e.getMessage());
 		}
 	}
@@ -292,6 +305,7 @@ public class DefaultUsersServiceImpl implements UsersService {
 	@Override
 	public Map<String, Object> putTag(Tags tag) {
 		try {
+			System.out.println(tag);
 			if (tag == null || StringUtil.isNullOrEmpty(tag.getTid())) {
 				return ResultUtil.failed("标签的id不能为空");
 			}
@@ -315,7 +329,7 @@ public class DefaultUsersServiceImpl implements UsersService {
 			}
 			SqlAssist uAssist = new SqlAssist();
 			uAssist.andLike(ColumnsUsers.TAGS, "%\"" + tid + "\"%");
-			long us = projectMapper.getCount(uAssist);
+			long us = usersMapper.getCount(uAssist);
 			if (us > 0) {
 				return ResultUtil.failed("该标签下有用户,无法进行删除");
 			}
