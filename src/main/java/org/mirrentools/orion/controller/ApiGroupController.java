@@ -34,7 +34,7 @@ public class ApiGroupController {
 	 * 
 	 * @return
 	 */
-	@GetMapping(value = "/private/project/apiGroup/{projectId}", produces = { "application/json;charset=UTF-8" })
+	@GetMapping(value = "/private/server/project/apiGroup/{projectId}", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> getGroupsByProjectId(@PathVariable(value = "projectId") String projectId) {
 		return proService.getApiGroupList(projectId);
 	}
@@ -45,7 +45,7 @@ public class ApiGroupController {
 	 * @param groupId
 	 * @return
 	 */
-	@GetMapping(value = "/private/apiGroup/{groupId}", produces = { "application/json;charset=UTF-8" })
+	@GetMapping(value = "/private/server/apiGroup/{groupId}", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> getGroupsById(@PathVariable(value = "groupId") String groupId) {
 		return proService.getApiGroup(groupId);
 	}
@@ -55,7 +55,7 @@ public class ApiGroupController {
 	 * 
 	 * @return
 	 */
-	@PostMapping(value = "/private/apiGroup", produces = { "application/json;charset=UTF-8" })
+	@PostMapping(value = "/private/server/apiGroup", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> saveApiGroup(@RequestBody ProjectApiGroup group) {
 		return proService.saveApiGroup(group);
 	}
@@ -66,7 +66,7 @@ public class ApiGroupController {
 	 * @param group
 	 * @return
 	 */
-	@PutMapping(value = "/private/apiGroup", produces = { "application/json;charset=UTF-8" })
+	@PutMapping(value = "/private/server/apiGroup", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> updateApiGroup(@RequestBody ProjectApiGroup group) {
 		return proService.updateApiGroup(group);
 	}
@@ -77,7 +77,7 @@ public class ApiGroupController {
 	 * @param group
 	 * @return
 	 */
-	@PutMapping(value = "/private/apiGroup/moveUp/{id}", produces = { "application/json;charset=UTF-8" })
+	@PutMapping(value = "/private/server/apiGroup/moveUp/{id}", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> moveUpApiGroup(@PathVariable(value = "id") String id) {
 		return proService.moveUpApiGroup(id);
 	}
@@ -88,7 +88,7 @@ public class ApiGroupController {
 	 * @param group
 	 * @return
 	 */
-	@PutMapping(value = "/private/apiGroup/moveDown/{id}", produces = { "application/json;charset=UTF-8" })
+	@PutMapping(value = "/private/server/apiGroup/moveDown/{id}", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> moveDownApiGroup(@PathVariable(value = "id") String id) {
 		return proService.moveDownApiGroup(id);
 	}
@@ -99,7 +99,7 @@ public class ApiGroupController {
 	 * @param groupId
 	 * @return
 	 */
-	@DeleteMapping(value = "/private/apiGroup/{groupId}", produces = { "application/json;charset=UTF-8" })
+	@DeleteMapping(value = "/private/server/apiGroup/{groupId}", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> daleteApiGroup(@PathVariable(value = "groupId") String groupId) {
 		return proService.deleteApiGroup(groupId);
 	}
@@ -110,7 +110,7 @@ public class ApiGroupController {
 	 * @param groupId
 	 * @return
 	 */
-	@GetMapping(value = "/private/apis/{groupId}", produces = { "application/json;charset=UTF-8" })
+	@GetMapping(value = "/private/server/apis/{groupId}", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> findApis(@PathVariable(value = "groupId") String groupId) {
 		return proService.findApis(groupId);
 	}
@@ -121,7 +121,7 @@ public class ApiGroupController {
 	 * @param groupId
 	 * @return
 	 */
-	@GetMapping(value = "/private/api/{apiId}", produces = { "application/json;charset=UTF-8" })
+	@GetMapping(value = "/private/server/api/{apiId}", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> getApiById(@PathVariable(value = "apiId") String apiId) {
 		return proService.getApi(apiId);
 	}
@@ -131,7 +131,7 @@ public class ApiGroupController {
 	 * 
 	 * @return
 	 */
-	@PostMapping(value = "/private/api", produces = { "application/json;charset=UTF-8" })
+	@PostMapping(value = "/private/server/api", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> saveApi(@RequestBody ProjectApi api) {
 		return proService.saveApi(api);
 	}
@@ -142,7 +142,7 @@ public class ApiGroupController {
 	 * @param group
 	 * @return
 	 */
-	@PutMapping(value = "/private/api", produces = { "application/json;charset=UTF-8" })
+	@PutMapping(value = "/private/server/api", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> updateApi(@RequestBody ProjectApi api) {
 		return proService.updateApi(api);
 	}
@@ -153,7 +153,7 @@ public class ApiGroupController {
 	 * @param group
 	 * @return
 	 */
-	@PutMapping(value = "/private/api/moveUp/{id}", produces = { "application/json;charset=UTF-8" })
+	@PutMapping(value = "/private/server/api/moveUp/{id}", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> moveUpApi(@PathVariable(value = "id") String id) {
 		return proService.moveUpApi(id);
 	}
@@ -164,12 +164,12 @@ public class ApiGroupController {
 	 * @param group
 	 * @return
 	 */
-	@PutMapping(value = "/private/api/moveDown/{id}", produces = { "application/json;charset=UTF-8" })
+	@PutMapping(value = "/private/server/api/moveDown/{id}", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> moveDownApi(@PathVariable(value = "id") String id) {
 		return proService.moveDownApi(id);
 	}
 
-	@DeleteMapping(value = "/private/api/{apiId}", produces = { "application/json;charset=UTF-8" })
+	@DeleteMapping(value = "/private/server/api/{apiId}", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> daleteApi(@PathVariable(value = "apiId") String apiId) {
 		return proService.deleteApi(apiId);
 	}

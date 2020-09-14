@@ -6,6 +6,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.mirrentools.orion.common.LoginRole;
 import org.mirrentools.orion.common.LoginSession;
 import org.mirrentools.orion.common.LoginSessionStore;
+import org.mirrentools.orion.common.ResultCode;
+import org.mirrentools.orion.common.ResultUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -29,19 +31,29 @@ public class LoginSessionAuthInterceptor implements HandlerInterceptor {
 			sessionId = request.getParameter("x-session");
 		}
 		LoginSession session = LoginSessionStore.get(sessionId);
-		if (session == null || session.getUid() == null) {
+		if (session == null || session.getUid() == null || session.getRole() == null) {
 			response.addHeader("Content-Type", "application/json;charset=UTF-8");
 			try {
-				response.getWriter().write("{\"code\":401,\"msg\":\"用户未登录或登录已超时!\"}");
+
+				response.getWriter().write(ResultUtil.formatAsString(ResultCode.R401));
 			} catch (Exception e) {
-				response.sendError(401, "用户未登录或登录已超时!");
+				response.sendError(401, ResultCode.R401.msg());
 			}
 			return false;
 		} else {
 			String uid = session.getUid();
+			String path = request.getServletPath();
 			LoginRole role = session.getRole();
-			LOG.info("\n请求记录-->User: " + uid + ", Role: " + role + ", Method: " + request.getMethod() + ", Path: "
-					+ request.getServletPath());
+			if (role == LoginRole.CLIENT && path.startsWith("/private/server")) {
+				response.addHeader("Content-Type", "application/json;charset=UTF-8");
+				try {
+					response.getWriter().write(ResultUtil.formatAsString(ResultCode.R403));
+				} catch (Exception e) {
+					response.sendError(403, ResultCode.R403.msg());
+				}
+				return false;
+			}
+			LOG.info("\n请求记录-->User: " + uid + ", Role: " + role + ", Method: " + request.getMethod() + ", Path: " + path);
 		}
 		return true;
 	}

@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
  * @author <a href="https://mirrentools.org">Mirren</a>
  *
  */
-@ServerEndpoint("/private/ws/project/fromJson/{sessionId}")
+@ServerEndpoint("/private/server/ws/project/fromJson/{sessionId}")
 @Component
 public class ImportWebSocketServer {
 	/** 项目服务接口 */

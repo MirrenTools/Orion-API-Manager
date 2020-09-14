@@ -21,39 +21,45 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
+import org.mirrentools.orion.common.ResultCode;
 import org.mirrentools.orion.common.ResultUtil;
 import org.mirrentools.orion.common.StringUtil;
 import org.mirrentools.orion.entity.OrionHttpRequest;
 import org.mirrentools.orion.entity.RequestData;
 import org.mirrentools.orion.service.HttpApiProxy;
 import org.springframework.stereotype.Service;
+
 /**
  * 代理的默认实现
+ * 
  * @author <a href="https://mirrentools.org">Mirren</a>
  *
  */
 @Service
 public class HttpApiProxyImpl implements HttpApiProxy {
+	private static final Logger LOG = LogManager.getLogger(HttpApiProxyImpl.class);
 
 	@Override
 	public Map<String, Object> getProxy(String url) {
 		try {
 			if (url == null) {
-				return ResultUtil.failed("project url is null");
+				return ResultUtil.format(ResultCode.R412, "project url is null");
 			}
 			HttpClient client = HttpClientBuilder.create().build();
 			HttpGet get = new HttpGet(url);
 			HttpResponse response = client.execute(get);
 			if (response.getStatusLine().getStatusCode() != 200) {
-				return ResultUtil.failed(response.getStatusLine());
+				return ResultUtil.format(ResultCode.R500, response.getStatusLine());
 			} else {
 				String result = EntityUtils.toString(response.getEntity());
-				return ResultUtil.succeed(result);
+				return ResultUtil.format(ResultCode.R200, result);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R500, e.getMessage());
 		}
 	}
 
@@ -62,6 +68,7 @@ public class HttpApiProxyImpl implements HttpApiProxy {
 		try {
 			OrionHttpRequest request = new OrionHttpRequest(data.getType(), data.getUrl() + data.getQueryParams());
 			System.out.println(data);
+			LOG.info("执行代理请求:" + data);
 			HttpClient client = HttpClientBuilder.create().build();
 			if (data.getHeaders() != null) {
 				JSONObject object = new JSONObject(data.getHeaders());
@@ -81,19 +88,19 @@ public class HttpApiProxyImpl implements HttpApiProxy {
 			}
 			HttpResponse response = client.execute(request);
 			if (response.getStatusLine().getStatusCode() != 200) {
-				return ResultUtil.failed(response.getStatusLine());
+				return ResultUtil.format(ResultCode.R500, response.getStatusLine());
 			} else {
 				String result = EntityUtils.toString(response.getEntity());
-				return ResultUtil.succeed(result);
+				return ResultUtil.format(ResultCode.R200, result);
 			}
 		} catch (Exception e) {
 			if (e instanceof URISyntaxException || e instanceof IllegalArgumentException) {
-				return ResultUtil.failed("\n无效的URL路径,如果有Path参数请填充Path参数\n" + e.getMessage());
+				return ResultUtil.format(ResultCode.R1501, "\n无效的URL路径,如果有Path参数请填充Path参数\n" + e.getMessage());
 			} else if (e instanceof UnknownHostException) {
-				return ResultUtil.failed("\n无法识别主机:" + e.getMessage());
+				return ResultUtil.format(ResultCode.R1502, "\n无法识别主机:" + e.getMessage());
 			}
-			e.printStackTrace();
-			return ResultUtil.failed(e.getMessage());
+			LOG.error("执行代理请求-->失败:", e);
+			return ResultUtil.format(ResultCode.R500, e.getMessage());
 		}
 	}
 
@@ -108,22 +115,21 @@ public class HttpApiProxyImpl implements HttpApiProxy {
 				response.setStatus(502);
 				JSONObject result = new JSONObject();
 				result.put("status", 500);
-				result.put("msg", "Proxy failed!");
+				result.put("msg", "Proxy format!");
 				result.put("err", "reuqest URL is null or empty");
 				try {
 					response.getOutputStream().write(result.toString().getBytes("utf-8"));
 					response.flushBuffer();
 				} catch (IOException e1) {
-					e1.printStackTrace();
 				}
 				return;
 			}
-			System.out.println("proxy-url: " + url + (query == null ? "" : "?" + query));
+			LOG.info("proxy-url: " + url + (query == null ? "" : "?" + query));
 			OrionHttpRequest req = new OrionHttpRequest(method, url + "?" + query);
 			HttpClient client = HttpClientBuilder.create().build();
 			String header = request.getHeader("x-header");
 			if (header != null) {
-				System.out.println("proxy-header: " + header);
+				LOG.info("proxy-header: " + header);
 				JSONObject hd = new JSONObject(header);
 				Set<String> set = hd.keySet();
 				for (String key : set) {
@@ -133,12 +139,12 @@ public class HttpApiProxyImpl implements HttpApiProxy {
 
 			String xtype = request.getHeader("x-type");
 			if (!StringUtil.isNullOrEmpty(xtype)) {
-				System.out.println("proxy-type: " + xtype);
+				LOG.info("proxy-type: " + xtype);
 				req.setHeader("Content-Type", xtype);
 			}
 			int length = request.getContentLength();
 			if (length > 0) {
-				System.out.println("body length:" + length);
+				LOG.info("body length:" + length);
 				req.setEntity(new ByteArrayEntity(readInputStream(request.getInputStream()).toByteArray()));
 			}
 			HttpResponse resp = client.execute(req);
@@ -155,7 +161,7 @@ public class HttpApiProxyImpl implements HttpApiProxy {
 			response.setStatus(502);
 			JSONObject result = new JSONObject();
 			result.put("status", 502);
-			result.put("msg", "Proxy failed!");
+			result.put("msg", "Proxy format!");
 			String message = e.getMessage();
 			if (message != null) {
 				result.put("err", message);
@@ -188,7 +194,7 @@ public class HttpApiProxyImpl implements HttpApiProxy {
 			outputStream.write(ch);
 			builder.append((char) ch);
 		}
-		System.out.println("proxy-body:\n" + builder);
+		LOG.info("proxy-body:\n" + builder);
 		return outputStream;
 	}
 }

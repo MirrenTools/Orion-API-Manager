@@ -103,7 +103,7 @@ public class ProjectController {
 	 * 
 	 * @return
 	 */
-	@PostMapping(value = "/private/project/fromJson", produces = { "application/json;charset=UTF-8" })
+	@PostMapping(value = "/private/server/project/fromJson", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> postProjectfromJson(String project) {
 		return proService.saveProjectfromJson(project);
 	}
@@ -113,7 +113,7 @@ public class ProjectController {
 	 * 
 	 * @return
 	 */
-	@PostMapping(value = "/private/project", produces = { "application/json;charset=UTF-8" })
+	@PostMapping(value = "/private/server/project", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> postProject(@RequestBody Project project) {
 		return proService.saveProject(project);
 	}
@@ -123,7 +123,7 @@ public class ProjectController {
 	 * 
 	 * @return
 	 */
-	@PutMapping(value = "/private/project", produces = { "application/json;charset=UTF-8" })
+	@PutMapping(value = "/private/server/project", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> updateProject(@RequestBody Project project) {
 		return proService.updateProject(project);
 	}
@@ -133,7 +133,7 @@ public class ProjectController {
 	 * 
 	 * @return
 	 */
-	@PutMapping(value = "/private/project/moveUp/{id}", produces = { "application/json;charset=UTF-8" })
+	@PutMapping(value = "/private/server/project/moveUp/{id}", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> projectMoveUp(@PathVariable(value = "id") String id) {
 		return proService.projectMoveUp(id);
 	}
@@ -143,7 +143,7 @@ public class ProjectController {
 	 * 
 	 * @return
 	 */
-	@PutMapping(value = "/private/project/moveDown/{id}", produces = { "application/json;charset=UTF-8" })
+	@PutMapping(value = "/private/server/project/moveDown/{id}", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> projectMoveDown(@PathVariable(value = "id") String id) {
 		return proService.projectMoveDown(id);
 	}
@@ -153,7 +153,7 @@ public class ProjectController {
 	 * 
 	 * @return
 	 */
-	@PostMapping(value = "/private/project/copy/{id}", produces = { "application/json;charset=UTF-8" })
+	@PostMapping(value = "/private/server/project/copy/{id}", produces = { "application/json;charset=UTF-8" })
 	public Map<String, Object> copyProject(@PathVariable(value = "id") String id) {
 		return proService.copyProject(id);
 	}
@@ -163,8 +163,8 @@ public class ProjectController {
 	 * 
 	 * @return
 	 */
-	@DeleteMapping(value = "/private/project/{id}", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> postProject(@PathVariable(value = "id") String id) {
+	@DeleteMapping(value = "/private/server/project/{id}", produces = { "application/json;charset=UTF-8" })
+	public Map<String, Object> deleteProject(@PathVariable(value = "id") String id) {
 		return proService.deleteProject(id);
 	}
 

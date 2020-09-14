@@ -19,6 +19,7 @@ import org.mirrentools.orion.common.ColumnsAPI;
 import org.mirrentools.orion.common.ColumnsApiGroup;
 import org.mirrentools.orion.common.ColumnsProject;
 import org.mirrentools.orion.common.OrionApiManager;
+import org.mirrentools.orion.common.ResultCode;
 import org.mirrentools.orion.common.ResultUtil;
 import org.mirrentools.orion.common.SqlAssist;
 import org.mirrentools.orion.common.StringUtil;
@@ -60,8 +61,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> getProjectList() {
 		try {
 			SqlAssist assist = new SqlAssist();
-			assist.setResultColumn(String.format("%s,%s,%s,%s,%s", ColumnsProject.KEY, ColumnsProject.NAME, ColumnsProject.VERSIONS,
-					ColumnsProject.LAST_TIME, ColumnsProject.SORTS));
+			assist.setResultColumn(String.format("%s,%s,%s,%s,%s", ColumnsProject.KEY, ColumnsProject.NAME,
+					ColumnsProject.VERSIONS, ColumnsProject.LAST_TIME, ColumnsProject.SORTS));
 			assist.setOrderBy(String.format("%s asc, %s desc", ColumnsProject.SORTS, ColumnsProject.LAST_TIME));
 			List<Project> all = projectMapper.selectAll(new SqlAssist());
 			List<ProjectInfo> result = new ArrayList<ProjectInfo>();
@@ -75,10 +76,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 				projectInfo.setSorts(project.getSorts());
 				result.add(projectInfo);
 			}
-			return ResultUtil.succeed(result);
+			return ResultUtil.format(ResultCode.R200, result);
 		} catch (Throwable e) {
 			LOG.error("执行获取项目列表-->失败:", e);
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}
 
@@ -86,10 +87,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> getProject(String id) {
 		try {
 			Project project = projectMapper.selectById(id);
-			return ResultUtil.succeed(project);
+			return ResultUtil.format(ResultCode.R200, project);
 		} catch (Throwable e) {
 			LOG.error("执行获取项目->" + id + "-->失败:", e);
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 
 	}
@@ -98,7 +99,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> saveProject(Project project) {
 		try {
 			if (StringUtil.isNullOrEmpty(project.getServers(), project.getName())) {
-				return ResultUtil.failed("存在空值,name与host都为必填");
+				return ResultUtil.format(ResultCode.R412, "存在空值,name与host都为必填");
 			}
 			if (StringUtil.isNullOrEmpty(project.getKey())) {
 				project.setKey(UUID.randomUUID().toString());
@@ -108,10 +109,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			}
 			project.setLastTime(System.currentTimeMillis());
 			int result = projectMapper.insertNotNull(project);
-			return ResultUtil.succeed(result);
+			return ResultUtil.format(ResultCode.R200, result);
 		} catch (Exception e) {
 			LOG.error("执行保存项目->\n" + project + "\n-->失败:", e);
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}
 
@@ -119,11 +120,11 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> saveProjectfromJson(String json) {
 		try {
 			if (StringUtil.isNullOrEmpty(json)) {
-				return ResultUtil.failed("project不能为空,应为项目的json字符串!");
+				return ResultUtil.format(ResultCode.R412, "project不能为空,应为项目的json字符串!");
 			}
 			JSONObject data = new JSONObject(json);
 			if (StringUtil.isNullOrEmpty(data.getString("name"), data.getString("servers"))) {
-				return ResultUtil.failed("项目名称,服务集不能为空!");
+				return ResultUtil.format(ResultCode.R412, "项目名称,服务集不能为空!");
 			}
 			Project project = convertProject(data);
 			if (StringUtil.isNullOrEmpty(project.getKey())) {
@@ -151,13 +152,13 @@ public class DefaultProjectServiceImpl implements ProjectService {
 						}
 					}
 				}
-				return ResultUtil.succeed(1);
+				return ResultUtil.format(ResultCode.R200, 1);
 			} else {
-				return ResultUtil.failed("请返回检查项目是否已经新增成功!");
+				return ResultUtil.format(ResultCode.R202, "操作成功,但需要你检查是否完成");
 			}
 		} catch (Exception e) {
 			LOG.error("执行通过导入json并保存项目->\n" + json + "\n-->失败:", e);
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}
 
@@ -198,8 +199,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 						ProjectApiGroup group = convertGroup(project.getKey(), gdata);
 						int saveGroup = groupMapper.insertNotNull(group);
 						if (session != null && session.isOpen()) {
-							session.getAsyncRemote().sendText(
-									WebSocket.success(WebSocket.GROUP_SAVED, WebSocket.progressModel(group.getName(), (i + 1), groups.length(), saveGroup)));
+							session.getAsyncRemote().sendText(WebSocket.success(WebSocket.GROUP_SAVED,
+									WebSocket.progressModel(group.getName(), (i + 1), groups.length(), saveGroup)));
 						}
 						if (saveGroup > 0 && gdata.has("apis")) {
 							JSONArray apis = gdata.getJSONArray("apis");
@@ -208,8 +209,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 								ProjectApi api = convertApi(group.getGroupId(), adata);
 								int saveApi = apiMapper.insertNotNull(api);
 								if (session != null && session.isOpen()) {
-									session.getAsyncRemote().sendText(
-											WebSocket.success(WebSocket.API_SAVED, WebSocket.progressModel(api.getTitle(), (j + 1), apis.length(), saveApi)));
+									session.getAsyncRemote().sendText(WebSocket.success(WebSocket.API_SAVED,
+											WebSocket.progressModel(api.getTitle(), (j + 1), apis.length(), saveApi)));
 								}
 							}
 						}
@@ -239,7 +240,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> copyProject(String key) {
 		try {
 			if (StringUtil.isNullOrEmpty(key)) {
-				return ResultUtil.failed("存在空值,项目的id为必填");
+				return ResultUtil.format(ResultCode.R412, "存在空值,项目的id为必填");
 			}
 			Project project = projectMapper.selectById(key);
 			project.setKey(UUID.randomUUID().toString());
@@ -266,10 +267,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 				}
 			}
 			int result = projectMapper.insertNotNull(project);
-			return ResultUtil.succeed(result);
+			return ResultUtil.format(ResultCode.R200, result);
 		} catch (Throwable e) {
 			LOG.error("执行复制项目->\n" + key + "\n-->失败:", e);
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}
 
@@ -277,7 +278,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> updateProject(Project project) {
 		try {
 			if (StringUtil.isNullOrEmpty(project.getKey(), project.getServers(), project.getName())) {
-				return ResultUtil.failed("存在空值,host,name,key都为必填");
+				return ResultUtil.format(ResultCode.R412, "存在空值,host,name,key都为必填");
 			}
 			if (project.getSorts() == null) {
 				project.setSorts(0);
@@ -285,10 +286,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			project.setLastTime(System.currentTimeMillis());
 			System.out.println(project);
 			int result = projectMapper.updateNotNullById(project);
-			return ResultUtil.succeed(result);
+			return ResultUtil.format(ResultCode.R200, result);
 		} catch (Exception e) {
 			LOG.error("执行更新项目->\n" + project + "\n-->失败:", e);
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}
 
@@ -296,13 +297,13 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> projectMoveUp(String key) {
 		try {
 			if (StringUtil.isNullOrEmpty(key)) {
-				return ResultUtil.failed("存在空值,项目的id不能为空");
+				return ResultUtil.format(ResultCode.R412, "存在空值,项目的id不能为空");
 			}
 			int result = projectMapper.updateProjectMoveUp(key);
-			return ResultUtil.succeed(result);
+			return ResultUtil.format(ResultCode.R200, result);
 		} catch (Throwable e) {
 			LOG.error("执行将项目上移动->" + key + "-->失败:", e);
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}
 
@@ -310,13 +311,13 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> projectMoveDown(String key) {
 		try {
 			if (StringUtil.isNullOrEmpty(key)) {
-				return ResultUtil.failed("存在空值,项目的id不能为空");
+				return ResultUtil.format(ResultCode.R412, "存在空值,项目的id不能为空");
 			}
 			int result = projectMapper.updateProjectMoveDown(key);
-			return ResultUtil.succeed(result);
+			return ResultUtil.format(ResultCode.R200, result);
 		} catch (Throwable e) {
 			LOG.error("执行将项目下移动->" + key + "-->失败:", e);
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}
 
@@ -324,7 +325,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> deleteProject(String key) {
 		try {
 			if (StringUtil.isNullOrEmpty(key)) {
-				return ResultUtil.failed("存在空值,项目的id不能为空");
+				return ResultUtil.format(ResultCode.R412, "存在空值,项目的id不能为空");
 			}
 			List<ProjectApiGroup> gids = groupMapper
 					.selectAll(new SqlAssist().setResultColumn(ColumnsApiGroup.GROUP_ID).andEq(ColumnsApiGroup.PROJECT_ID, key));
@@ -335,10 +336,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 				}
 			}
 			int result = projectMapper.deleteById(key);
-			return ResultUtil.succeed(result);
+			return ResultUtil.format(ResultCode.R200, result);
 		} catch (Throwable e) {
 			LOG.error("执行删除项目->" + key + "-->失败:", e);
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}
 
@@ -346,13 +347,13 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> getApiGroupList(String projectId) {
 		try {
 			if (StringUtil.isNullOrEmpty(projectId)) {
-				return ResultUtil.failed("存在空值,项目的id不能为空");
+				return ResultUtil.format(ResultCode.R412, "存在空值,项目的id不能为空");
 			}
 			List<ProjectApiGroup> result = getProjectApiGroupList(projectId);
-			return ResultUtil.succeed(result);
+			return ResultUtil.format(ResultCode.R200, result);
 		} catch (Exception e) {
 			LOG.error("执行获取接口分组列表包含分组信息->项目:" + projectId + "-->失败:", e);
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}
 
@@ -360,13 +361,13 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> getApiGroup(String groupId) {
 		try {
 			if (StringUtil.isNullOrEmpty(groupId)) {
-				return ResultUtil.failed("存在空值,项目的id不能为空");
+				return ResultUtil.format(ResultCode.R412, "存在空值,项目的id不能为空");
 			}
 			ProjectApiGroup result = groupMapper.selectById(groupId);
-			return ResultUtil.succeed(result);
+			return ResultUtil.format(ResultCode.R200, result);
 		} catch (Throwable e) {
 			LOG.error("执行获取指定接口分组信息->" + groupId + "-->失败:", e);
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}
 
@@ -374,7 +375,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> saveApiGroup(ProjectApiGroup group) {
 		try {
 			if (StringUtil.isNullOrEmpty(group.getName(), group.getSummary())) {
-				return ResultUtil.failed("存在空值,分组的名称与简介不能为空");
+				return ResultUtil.format(ResultCode.R412, "存在空值,分组的名称与简介不能为空");
 			}
 			if (StringUtil.isNullOrEmpty(group.getGroupId())) {
 				group.setGroupId(UUID.randomUUID().toString());
@@ -383,10 +384,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 				group.setSorts(0);
 			}
 			int result = groupMapper.insertNotNull(group);
-			return ResultUtil.succeed(result);
+			return ResultUtil.format(ResultCode.R200, result);
 		} catch (Exception e) {
 			LOG.error("执行保存接口分组->\n" + group + "\n-->失败:", e);
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}
 
@@ -394,16 +395,16 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> updateApiGroup(ProjectApiGroup group) {
 		try {
 			if (StringUtil.isNullOrEmpty(group.getGroupId())) {
-				return ResultUtil.failed("存在空值,分组的id不能为空");
+				return ResultUtil.format(ResultCode.R412, "存在空值,分组的id不能为空");
 			}
 			if (group.getSorts() == null) {
 				group.setSorts(0);
 			}
 			int result = groupMapper.updateNotNullById(group);
-			return ResultUtil.succeed(result);
+			return ResultUtil.format(ResultCode.R200, result);
 		} catch (Exception e) {
 			LOG.error("执行修改接口分组->\n" + group + "\n-->失败:", e);
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}
 
@@ -411,13 +412,13 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> moveUpApiGroup(String id) {
 		try {
 			if (StringUtil.isNullOrEmpty(id)) {
-				return ResultUtil.failed("存在空值,分组的id不能为空");
+				return ResultUtil.format(ResultCode.R412, "存在空值,分组的id不能为空");
 			}
 			int result = groupMapper.updateProjectApiGroupMoveUp(id);
-			return ResultUtil.succeed(result);
+			return ResultUtil.format(ResultCode.R200, result);
 		} catch (Throwable e) {
 			LOG.error("执行将接口分组下移动->" + id + "-->失败:", e);
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}
 
@@ -425,13 +426,13 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> moveDownApiGroup(String id) {
 		try {
 			if (StringUtil.isNullOrEmpty(id)) {
-				return ResultUtil.failed("存在空值,分组的id不能为空");
+				return ResultUtil.format(ResultCode.R412, "存在空值,分组的id不能为空");
 			}
 			int result = groupMapper.updateProjectApiGroupMoveDown(id);
-			return ResultUtil.succeed(result);
+			return ResultUtil.format(ResultCode.R200, result);
 		} catch (Throwable e) {
 			LOG.error("执行将接口分组上移动->" + id + "-->失败:", e);
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}
 
@@ -439,14 +440,14 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> deleteApiGroup(String groupId) {
 		try {
 			if (StringUtil.isNullOrEmpty(groupId)) {
-				return ResultUtil.failed("存在空值,分组的id不能为空");
+				return ResultUtil.format(ResultCode.R412, "存在空值,分组的id不能为空");
 			}
 			apiMapper.deleteByAssist(new SqlAssist().andEq(ColumnsAPI.GROUP_ID, groupId));
 			int result = groupMapper.deleteById(groupId);
-			return ResultUtil.succeed(result);
+			return ResultUtil.format(ResultCode.R200, result);
 		} catch (Exception e) {
 			LOG.error("执行删除接口分组->" + groupId + "-->失败:", e);
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}
 
@@ -454,7 +455,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> saveApi(ProjectApi api) {
 		try {
 			if (StringUtil.isNullOrEmpty(api.getGroupId())) {
-				return ResultUtil.failed("存在空值,分组的id不能为空");
+				return ResultUtil.format(ResultCode.R412, "存在空值,分组的id不能为空");
 			}
 			if (api.getDeprecated() == null) {
 				api.setDeprecated(Boolean.toString(false));
@@ -466,10 +467,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 				api.setSorts(0);
 			}
 			int result = apiMapper.insertNotNull(api);
-			return ResultUtil.succeed(result);
+			return ResultUtil.format(ResultCode.R200, result);
 		} catch (Throwable e) {
 			LOG.error("执行新增接口->\n" + api + "\n-->失败:", e);
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}
 
@@ -477,16 +478,16 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> findApis(String groupId) {
 		try {
 			if (StringUtil.isNullOrEmpty(groupId)) {
-				return ResultUtil.failed("存在空值,分组id不能为空");
+				return ResultUtil.format(ResultCode.R412, "存在空值,分组id不能为空");
 			}
 			SqlAssist assist = new SqlAssist();
 			assist.andEq(ColumnsAPI.GROUP_ID, groupId);
 			assist.setOrderBy(ColumnsAPI.SORTS);
 			List<ProjectApi> result = apiMapper.selectAll(assist);
-			return ResultUtil.succeed(result);
+			return ResultUtil.format(ResultCode.R200, result);
 		} catch (Throwable e) {
 			LOG.error("执行获取指定分组接口列表->" + groupId + "-->失败:", e);
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}
 
@@ -494,13 +495,13 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> getApi(String apiId) {
 		try {
 			if (StringUtil.isNullOrEmpty(apiId)) {
-				return ResultUtil.failed("存在空值,id不能为空");
+				return ResultUtil.format(ResultCode.R412, "存在空值,id不能为空");
 			}
 			ProjectApi result = apiMapper.selectById(apiId);
-			return ResultUtil.succeed(result);
+			return ResultUtil.format(ResultCode.R200, result);
 		} catch (Throwable e) {
 			LOG.error("执行获取指定接口->" + apiId + "-->失败:", e);
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}
 
@@ -508,13 +509,13 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> updateApi(ProjectApi api) {
 		try {
 			if (StringUtil.isNullOrEmpty(api.getApiId())) {
-				return ResultUtil.failed("存在空值,id不能为空");
+				return ResultUtil.format(ResultCode.R412, "存在空值,id不能为空");
 			}
 			int result = apiMapper.updateNotNullById(api);
-			return ResultUtil.succeed(result);
+			return ResultUtil.format(ResultCode.R200, result);
 		} catch (Throwable e) {
 			LOG.error("执行修改接口->\n" + api + "\n-->失败:", e);
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}
 
@@ -522,13 +523,13 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> moveUpApi(String id) {
 		try {
 			if (StringUtil.isNullOrEmpty(id)) {
-				return ResultUtil.failed("存在空值,分组的id不能为空");
+				return ResultUtil.format(ResultCode.R412, "存在空值,分组的id不能为空");
 			}
 			int result = apiMapper.updateProjectApiMoveUp(id);
-			return ResultUtil.succeed(result);
+			return ResultUtil.format(ResultCode.R200, result);
 		} catch (Throwable e) {
 			LOG.error("执行将接口上移动->" + id + "-->失败:", e);
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}
 
@@ -536,13 +537,13 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> moveDownApi(String id) {
 		try {
 			if (StringUtil.isNullOrEmpty(id)) {
-				return ResultUtil.failed("存在空值,分组的id不能为空");
+				return ResultUtil.format(ResultCode.R412, "存在空值,分组的id不能为空");
 			}
 			int result = apiMapper.updateProjectApiMoveDown(id);
-			return ResultUtil.succeed(result);
+			return ResultUtil.format(ResultCode.R200, result);
 		} catch (Throwable e) {
 			LOG.error("执行将接口下移动->" + id + "-->失败:", e);
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}
 
@@ -550,13 +551,13 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> deleteApi(String apiId) {
 		try {
 			if (StringUtil.isNullOrEmpty(apiId)) {
-				return ResultUtil.failed("存在空值,id不能为空");
+				return ResultUtil.format(ResultCode.R412, "存在空值,id不能为空");
 			}
 			int result = apiMapper.deleteById(apiId);
-			return ResultUtil.succeed(result);
+			return ResultUtil.format(ResultCode.R200, result);
 		} catch (Throwable e) {
 			LOG.error("执行删除接口->" + apiId + "-->失败:", e);
-			return ResultUtil.failed(e.getMessage());
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}
 
