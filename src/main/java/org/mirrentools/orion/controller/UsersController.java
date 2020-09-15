@@ -71,6 +71,17 @@ public class UsersController {
 	}
 
 	/**
+	 * 获取所有管理员用户
+	 * 
+	 * @return
+	 */
+	@GetMapping(value = "/private/server/find/server/users", produces = { "application/json;charset=UTF-8" })
+	public Map<String, Object> findServerUsers() {
+		Map<String, Object> result = userService.findServerUsers();
+		return result;
+	}
+
+	/**
 	 * 获取指定用户
 	 * 
 	 * @param uid

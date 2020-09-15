@@ -1,37 +1,40 @@
 package org.mirrentools.orion.entity;
 
-
 /**
  * 项目表
- * @author 
- */ 
+ * 
+ * @author
+ */
 public class Project {
 	/** 项目的id */
-	private String key; 
+	private String key;
 	/** 名称 */
-	private String name; 
+	private String name;
 	/** 版本号 */
-	private String versions; 
+	private String versions;
 	/** 描述 */
-	private String description; 
+	private String description;
 	/** 服务集 */
-	private String servers; 
+	private String servers;
 	/** 附加文档 */
-	private String externalDocs; 
+	private String externalDocs;
 	/** 联系人 */
-	private String contactName; 
+	private String contactName;
 	/** 联系人信息 */
-	private String contactInfo; 
+	private String contactInfo;
 	/** 拓展信息 */
-	private String extensions; 
-	/** 创建该项目的人 */
-	private String owner; 
+	private String extensions;
+	/** 项目的负责人,为空时则为超级管理员 */
+	private String owner;
+	/** 用户的信息 */
+	private Users ownerInfo;
 	/** 可以查看该项目的人 */
-	private String owners; 
+	private String owners;
 	/** 最后操作时间 */
-	private Long lastTime; 
+	private Long lastTime;
 	/** 项目排序 */
-	private Integer sorts; 
+	private Integer sorts;
+
 	/**
 	 * 获取项目的id
 	 * 
@@ -40,6 +43,7 @@ public class Project {
 	public String getKey() {
 		return key;
 	}
+
 	/**
 	 * 设置项目的id
 	 * 
@@ -48,6 +52,7 @@ public class Project {
 	public void setKey(String key) {
 		this.key = key;
 	}
+
 	/**
 	 * 获取名称
 	 * 
@@ -56,6 +61,7 @@ public class Project {
 	public String getName() {
 		return name;
 	}
+
 	/**
 	 * 设置名称
 	 * 
@@ -64,6 +70,7 @@ public class Project {
 	public void setName(String name) {
 		this.name = name;
 	}
+
 	/**
 	 * 获取版本号
 	 * 
@@ -72,6 +79,7 @@ public class Project {
 	public String getVersions() {
 		return versions;
 	}
+
 	/**
 	 * 设置版本号
 	 * 
@@ -80,6 +88,7 @@ public class Project {
 	public void setVersions(String versions) {
 		this.versions = versions;
 	}
+
 	/**
 	 * 获取描述
 	 * 
@@ -88,6 +97,7 @@ public class Project {
 	public String getDescription() {
 		return description;
 	}
+
 	/**
 	 * 设置描述
 	 * 
@@ -96,6 +106,7 @@ public class Project {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+
 	/**
 	 * 获取服务集
 	 * 
@@ -104,6 +115,7 @@ public class Project {
 	public String getServers() {
 		return servers;
 	}
+
 	/**
 	 * 设置服务集
 	 * 
@@ -112,6 +124,7 @@ public class Project {
 	public void setServers(String servers) {
 		this.servers = servers;
 	}
+
 	/**
 	 * 获取附加文档
 	 * 
@@ -120,6 +133,7 @@ public class Project {
 	public String getExternalDocs() {
 		return externalDocs;
 	}
+
 	/**
 	 * 设置附加文档
 	 * 
@@ -128,6 +142,7 @@ public class Project {
 	public void setExternalDocs(String externalDocs) {
 		this.externalDocs = externalDocs;
 	}
+
 	/**
 	 * 获取联系人
 	 * 
@@ -136,6 +151,7 @@ public class Project {
 	public String getContactName() {
 		return contactName;
 	}
+
 	/**
 	 * 设置联系人
 	 * 
@@ -144,6 +160,7 @@ public class Project {
 	public void setContactName(String contactName) {
 		this.contactName = contactName;
 	}
+
 	/**
 	 * 获取联系人信息
 	 * 
@@ -152,6 +169,7 @@ public class Project {
 	public String getContactInfo() {
 		return contactInfo;
 	}
+
 	/**
 	 * 设置联系人信息
 	 * 
@@ -160,6 +178,7 @@ public class Project {
 	public void setContactInfo(String contactInfo) {
 		this.contactInfo = contactInfo;
 	}
+
 	/**
 	 * 获取拓展信息
 	 * 
@@ -168,6 +187,7 @@ public class Project {
 	public String getExtensions() {
 		return extensions;
 	}
+
 	/**
 	 * 设置拓展信息
 	 * 
@@ -176,22 +196,43 @@ public class Project {
 	public void setExtensions(String extensions) {
 		this.extensions = extensions;
 	}
+
 	/**
-	 * 获取创建该项目的人
+	 * 获取项目负责人
 	 * 
 	 * @return
 	 */
 	public String getOwner() {
 		return owner;
 	}
+
 	/**
-	 * 设置创建该项目的人
+	 * 设置创建该项目的负责人
 	 * 
 	 * @param owner
 	 */
 	public void setOwner(String owner) {
 		this.owner = owner;
 	}
+
+	/**
+	 * 获取负责人信息
+	 * 
+	 * @return
+	 */
+	public Users getOwnerInfo() {
+		return ownerInfo;
+	}
+
+	/**
+	 * 设置负责人信息
+	 * 
+	 * @param ownerInfo
+	 */
+	public void setOwnerInfo(Users ownerInfo) {
+		this.ownerInfo = ownerInfo;
+	}
+
 	/**
 	 * 获取可以查看该项目的人
 	 * 
@@ -200,6 +241,7 @@ public class Project {
 	public String getOwners() {
 		return owners;
 	}
+
 	/**
 	 * 设置可以查看该项目的人
 	 * 
@@ -208,6 +250,7 @@ public class Project {
 	public void setOwners(String owners) {
 		this.owners = owners;
 	}
+
 	/**
 	 * 获取最后操作时间
 	 * 
@@ -216,6 +259,7 @@ public class Project {
 	public Long getLastTime() {
 		return lastTime;
 	}
+
 	/**
 	 * 设置最后操作时间
 	 * 
@@ -224,6 +268,7 @@ public class Project {
 	public void setLastTime(Long lastTime) {
 		this.lastTime = lastTime;
 	}
+
 	/**
 	 * 获取项目排序
 	 * 
@@ -232,6 +277,7 @@ public class Project {
 	public Integer getSorts() {
 		return sorts;
 	}
+
 	/**
 	 * 设置项目排序
 	 * 
@@ -243,6 +289,11 @@ public class Project {
 
 	@Override
 	public String toString() {
-		return "Project [key=" + key + " , name=" + name + " , versions=" + versions + " , description=" + description + " , servers=" + servers + " , externalDocs=" + externalDocs + " , contactName=" + contactName + " , contactInfo=" + contactInfo + " , extensions=" + extensions + " , owner=" + owner + " , owners=" + owners + " , lastTime=" + lastTime + " , sorts=" + sorts + "  ]";
+		return "Project [key=" + key + ", name=" + name + ", versions=" + versions + ", description=" + description
+				+ ", servers=" + servers + ", externalDocs=" + externalDocs + ", contactName=" + contactName + ", contactInfo="
+				+ contactInfo + ", extensions=" + extensions + ", owner=" + owner + ", ownerInfo=" + ownerInfo + ", owners="
+				+ owners + ", lastTime=" + lastTime + ", sorts=" + sorts + "]";
 	}
+
+	
 }

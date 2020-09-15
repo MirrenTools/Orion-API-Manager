@@ -7,10 +7,17 @@ package org.mirrentools.orion.entity;
  *
  */
 public class ProjectInfo {
+	/** 项目的id */
 	private String key;
+	/** 项目的负责人 */
+	private String owner;
+	/** 项目名称 */
 	private String name;
+	/** 项目版本 */
 	private String version;
+	/** 项目最后更新时间 */
 	private Long time;
+	/** 项目的排序 */
 	private Integer sorts;
 
 	public ProjectInfo() {
@@ -23,6 +30,14 @@ public class ProjectInfo {
 
 	public void setKey(String key) {
 		this.key = key;
+	}
+
+	public String getOwner() {
+		return owner;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
 	}
 
 	public String getName() {
@@ -59,8 +74,8 @@ public class ProjectInfo {
 
 	@Override
 	public String toString() {
-		return "ProjectInfo [key=" + key + ", name=" + name + ", version=" + version + ", time=" + time + ", sorts=" + sorts
-				+ "]";
+		return "ProjectInfo [key=" + key + ", owner=" + owner + ", name=" + name + ", version=" + version + ", time=" + time
+				+ ", sorts=" + sorts + "]";
 	}
 
 }

@@ -18,6 +18,8 @@ import org.json.JSONObject;
 import org.mirrentools.orion.common.ColumnsAPI;
 import org.mirrentools.orion.common.ColumnsApiGroup;
 import org.mirrentools.orion.common.ColumnsProject;
+import org.mirrentools.orion.common.LoginRole;
+import org.mirrentools.orion.common.LoginSession;
 import org.mirrentools.orion.common.OrionApiManager;
 import org.mirrentools.orion.common.ResultCode;
 import org.mirrentools.orion.common.ResultUtil;
@@ -28,9 +30,11 @@ import org.mirrentools.orion.entity.Project;
 import org.mirrentools.orion.entity.ProjectApi;
 import org.mirrentools.orion.entity.ProjectApiGroup;
 import org.mirrentools.orion.entity.ProjectInfo;
+import org.mirrentools.orion.entity.Users;
 import org.mirrentools.orion.mapper.ProjectApiGroupMapper;
 import org.mirrentools.orion.mapper.ProjectApiMapper;
 import org.mirrentools.orion.mapper.ProjectMapper;
+import org.mirrentools.orion.mapper.UsersMapper;
 import org.mirrentools.orion.service.ProjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,15 +58,19 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	/** 接口分组相关的数据库操作 */
 	@Autowired
 	private ProjectApiGroupMapper groupMapper;
+	/** 接口相关的数据库操作 */
 	@Autowired
 	private ProjectApiMapper apiMapper;
+	/** 用户相关的数据库操作 */
+	@Autowired
+	private UsersMapper usersMapper;
 
 	@Override
 	public Map<String, Object> getProjectList() {
 		try {
 			SqlAssist assist = new SqlAssist();
-			assist.setResultColumn(String.format("%s,%s,%s,%s,%s", ColumnsProject.KEY, ColumnsProject.NAME,
-					ColumnsProject.VERSIONS, ColumnsProject.LAST_TIME, ColumnsProject.SORTS));
+			assist.setResultColumn(String.format("%s,%s,%s,%s,%s,%s", ColumnsProject.KEY, ColumnsProject.OWNER,
+					ColumnsProject.NAME, ColumnsProject.VERSIONS, ColumnsProject.LAST_TIME, ColumnsProject.SORTS));
 			assist.setOrderBy(String.format("%s asc, %s desc", ColumnsProject.SORTS, ColumnsProject.LAST_TIME));
 			List<Project> all = projectMapper.selectAll(new SqlAssist());
 			List<ProjectInfo> result = new ArrayList<ProjectInfo>();
@@ -70,6 +78,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 				Project project = all.get(i);
 				ProjectInfo projectInfo = new ProjectInfo();
 				projectInfo.setKey(project.getKey());
+				projectInfo.setOwner(project.getOwner());
 				projectInfo.setName(project.getName());
 				projectInfo.setVersion(project.getVersions());
 				projectInfo.setTime(project.getLastTime());
@@ -87,6 +96,18 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	public Map<String, Object> getProject(String id) {
 		try {
 			Project project = projectMapper.selectById(id);
+			if (project != null && project.getOwner() != null) {
+				Users users = usersMapper.selectById(project.getOwner());
+				if (users != null) {
+					Users info = new Users();
+					info.setUid(users.getUid());
+					info.setNickname(users.getNickname());
+					info.setContact(users.getContact());
+					info.setSummary(users.getSummary());
+					info.setLasttime(users.getLasttime());
+					project.setOwnerInfo(info);
+				}
+			}
 			return ResultUtil.format(ResultCode.R200, project);
 		} catch (Throwable e) {
 			LOG.error("执行获取项目->" + id + "-->失败:", e);
@@ -96,8 +117,11 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	public Map<String, Object> saveProject(Project project) {
+	public Map<String, Object> saveProject(LoginSession session, Project project) {
 		try {
+			if (session == null || (session.getRole() != LoginRole.ROOT && session.getRole() != LoginRole.SERVER)) {
+				return ResultUtil.format(ResultCode.R401);
+			}
 			if (StringUtil.isNullOrEmpty(project.getServers(), project.getName())) {
 				return ResultUtil.format(ResultCode.R412, "存在空值,name与host都为必填");
 			}
@@ -106,6 +130,9 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			}
 			if (project.getSorts() == null) {
 				project.setSorts(0);
+			}
+			if (session.getRole() == LoginRole.SERVER) {
+				project.setOwner(session.getUid());
 			}
 			project.setLastTime(System.currentTimeMillis());
 			int result = projectMapper.insertNotNull(project);

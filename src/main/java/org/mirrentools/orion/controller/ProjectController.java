@@ -5,6 +5,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mirrentools.orion.common.LoginSession;
+import org.mirrentools.orion.common.LoginSessionStore;
 import org.mirrentools.orion.common.OrionApiManager;
 import org.mirrentools.orion.entity.Project;
 import org.mirrentools.orion.entity.RequestData;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -114,8 +117,9 @@ public class ProjectController {
 	 * @return
 	 */
 	@PostMapping(value = "/private/server/project", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> postProject(@RequestBody Project project) {
-		return proService.saveProject(project);
+	public Map<String, Object> postProject(@RequestHeader("x-session") String sessionId, @RequestBody Project project) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.saveProject(session, project);
 	}
 
 	/**

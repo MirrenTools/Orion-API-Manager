@@ -2,6 +2,7 @@ package org.mirrentools.orion.service.impl;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,7 +95,7 @@ public class DefaultUsersServiceImpl implements UsersService {
 				} else {
 					if (MD5Util.compare(pwd, users.getPwd())) {
 						String sessionId = MD5Util.encode(UUID.randomUUID().toString(), 3);
-						LoginSessionStore.save(sessionId, id, LoginRole.ROOT);
+						LoginSessionStore.save(sessionId, id, LoginRole.valueOf(users.getRole()));
 						Map<String, String> result = new HashMap<>();
 						result.put("uid", id);
 						result.put("sessionId", sessionId);
@@ -132,6 +133,7 @@ public class DefaultUsersServiceImpl implements UsersService {
 		try {
 			SqlAssist assist = new SqlAssist();
 			if (!StringUtil.isNullOrEmpty(keywords)) {
+				assist.andLike(ColumnsUsers.UID, "%" + keywords + "%");
 				assist.andLike(ColumnsUsers.NICKNAME, "%" + keywords + "%");
 				assist.andLike(ColumnsUsers.SUMMARY, "%" + keywords + "%");
 			}
@@ -147,6 +149,24 @@ public class DefaultUsersServiceImpl implements UsersService {
 			LOG.error("执行获取用户列表-->失败:", e);
 			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
+	}
+
+	@Override
+	public Map<String, Object> findServerUsers() {
+		SqlAssist assist = new SqlAssist();
+		assist.andEq(ColumnsUsers.ROLE, LoginRole.SERVER.name());
+		assist.setResultColumn(String.format("%s,%s", ColumnsUsers.UID, ColumnsUsers.NICKNAME));
+		List<Users> all = usersMapper.selectAll(assist);
+		List<Map<String, String>> result = new ArrayList<>();
+		if (all != null) {
+			for (Users user : all) {
+				Map<String, String> map = new HashMap<>();
+				map.put("uid", user.getUid());
+				map.put("nickname", user.getNickname());
+				result.add(map);
+			}
+		}
+		return ResultUtil.format(ResultCode.R200, result);
 	}
 
 	@Override

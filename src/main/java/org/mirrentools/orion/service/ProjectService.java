@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import javax.websocket.Session;
 
+import org.mirrentools.orion.common.LoginSession;
 import org.mirrentools.orion.entity.Project;
 import org.mirrentools.orion.entity.ProjectApi;
 import org.mirrentools.orion.entity.ProjectApiGroup;
@@ -38,7 +39,7 @@ public interface ProjectService {
 	 * @param project
 	 * @return
 	 */
-	Map<String, Object> saveProject(Project project);
+	Map<String, Object> saveProject(LoginSession session, Project project);
 
 	/**
 	 * 保存一个项目,这个项目可能包含分组与API
