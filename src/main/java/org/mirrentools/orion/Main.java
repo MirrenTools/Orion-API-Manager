@@ -1,11 +1,13 @@
 package org.mirrentools.orion;
 
+import org.mirrentools.orion.controller.ImportWebSocketServer;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.web.servlet.ServletComponentScan;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.socket.server.standard.ServerEndpointExporter;
@@ -43,7 +45,8 @@ import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 @MapperScan("org.mirrentools.orion.mapper")
 public class Main {
 	public static void main(String[] args) {
-		SpringApplication.run(Main.class, args);
+		ConfigurableApplicationContext content = SpringApplication.run(Main.class, args);
+		ImportWebSocketServer.setApplicationContext(content);
 	}
 
 	@Bean

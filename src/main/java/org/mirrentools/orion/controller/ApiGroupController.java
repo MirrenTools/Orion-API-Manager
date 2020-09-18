@@ -2,6 +2,8 @@ package org.mirrentools.orion.controller;
 
 import java.util.Map;
 
+import org.mirrentools.orion.common.LoginSession;
+import org.mirrentools.orion.common.LoginSessionStore;
 import org.mirrentools.orion.entity.ProjectApi;
 import org.mirrentools.orion.entity.ProjectApiGroup;
 import org.mirrentools.orion.service.ProjectService;
@@ -13,11 +15,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  * API分组与API管理的控制器
+ * 
  * @author <a href="https://mirrentools.org">Mirren</a>
  *
  */
@@ -35,8 +39,10 @@ public class ApiGroupController {
 	 * @return
 	 */
 	@GetMapping(value = "/private/server/project/apiGroup/{projectId}", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> getGroupsByProjectId(@PathVariable(value = "projectId") String projectId) {
-		return proService.getApiGroupList(projectId);
+	public Map<String, Object> getGroupsByProjectId(@RequestHeader(value = "x-session", required = false) String sessionId,
+			@PathVariable(value = "projectId") String projectId) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.getApiGroupList(session, projectId);
 	}
 
 	/**
@@ -46,8 +52,10 @@ public class ApiGroupController {
 	 * @return
 	 */
 	@GetMapping(value = "/private/server/apiGroup/{groupId}", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> getGroupsById(@PathVariable(value = "groupId") String groupId) {
-		return proService.getApiGroup(groupId);
+	public Map<String, Object> getGroupsById(@RequestHeader(value = "x-session", required = false) String sessionId,
+			@PathVariable(value = "groupId") String groupId) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.getApiGroup(session, groupId);
 	}
 
 	/**
@@ -56,8 +64,10 @@ public class ApiGroupController {
 	 * @return
 	 */
 	@PostMapping(value = "/private/server/apiGroup", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> saveApiGroup(@RequestBody ProjectApiGroup group) {
-		return proService.saveApiGroup(group);
+	public Map<String, Object> saveApiGroup(@RequestHeader(value = "x-session", required = false) String sessionId,
+			@RequestBody ProjectApiGroup group) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.saveApiGroup(session, group);
 	}
 
 	/**
@@ -67,8 +77,10 @@ public class ApiGroupController {
 	 * @return
 	 */
 	@PutMapping(value = "/private/server/apiGroup", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> updateApiGroup(@RequestBody ProjectApiGroup group) {
-		return proService.updateApiGroup(group);
+	public Map<String, Object> updateApiGroup(@RequestHeader(value = "x-session", required = false) String sessionId,
+			@RequestBody ProjectApiGroup group) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.updateApiGroup(session, group);
 	}
 
 	/**
@@ -100,10 +112,12 @@ public class ApiGroupController {
 	 * @return
 	 */
 	@DeleteMapping(value = "/private/server/apiGroup/{groupId}", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> daleteApiGroup(@PathVariable(value = "groupId") String groupId) {
-		return proService.deleteApiGroup(groupId);
+	public Map<String, Object> daleteApiGroup(@RequestHeader(value = "x-session", required = false) String sessionId,
+			@PathVariable(value = "groupId") String groupId) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.deleteApiGroup(session, groupId);
 	}
-	
+
 	/**
 	 * 获取分组的所有接口数据
 	 * 
@@ -111,8 +125,10 @@ public class ApiGroupController {
 	 * @return
 	 */
 	@GetMapping(value = "/private/server/apis/{groupId}", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> findApis(@PathVariable(value = "groupId") String groupId) {
-		return proService.findApis(groupId);
+	public Map<String, Object> findApis(@RequestHeader(value = "x-session", required = false) String sessionId,
+			@PathVariable(value = "groupId") String groupId) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.findApis(session, groupId);
 	}
 
 	/**
@@ -122,8 +138,10 @@ public class ApiGroupController {
 	 * @return
 	 */
 	@GetMapping(value = "/private/server/api/{apiId}", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> getApiById(@PathVariable(value = "apiId") String apiId) {
-		return proService.getApi(apiId);
+	public Map<String, Object> getApiById(@RequestHeader(value = "x-session", required = false) String sessionId,
+			@PathVariable(value = "apiId") String apiId) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.getApi(session, apiId);
 	}
 
 	/**
@@ -132,8 +150,9 @@ public class ApiGroupController {
 	 * @return
 	 */
 	@PostMapping(value = "/private/server/api", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> saveApi(@RequestBody ProjectApi api) {
-		return proService.saveApi(api);
+	public Map<String, Object> saveApi(@RequestHeader(value = "x-session", required = false) String sessionId, @RequestBody ProjectApi api) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.saveApi(session, api);
 	}
 
 	/**
@@ -143,8 +162,9 @@ public class ApiGroupController {
 	 * @return
 	 */
 	@PutMapping(value = "/private/server/api", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> updateApi(@RequestBody ProjectApi api) {
-		return proService.updateApi(api);
+	public Map<String, Object> updateApi(@RequestHeader(value = "x-session", required = false) String sessionId, @RequestBody ProjectApi api) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.updateApi(session, api);
 	}
 
 	/**
@@ -170,8 +190,10 @@ public class ApiGroupController {
 	}
 
 	@DeleteMapping(value = "/private/server/api/{apiId}", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> daleteApi(@PathVariable(value = "apiId") String apiId) {
-		return proService.deleteApi(apiId);
+	public Map<String, Object> daleteApi(@RequestHeader(value = "x-session", required = false) String sessionId,
+			@PathVariable(value = "apiId") String apiId) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.deleteApi(session, apiId);
 	}
 
 }

@@ -6,5 +6,6 @@ spring:
     driver-class-name: org.sqlite.JDBC
 mybatis:
   mapper-locations: classpath:mappers/*Mapper.xml
-logging:  file:    path: ./logs
+logging:
+  level:    org.mirrentools.orion.mapper: debug  file:    path: ./logs
     

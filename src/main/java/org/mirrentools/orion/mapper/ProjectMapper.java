@@ -4,7 +4,11 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
+import org.mirrentools.orion.common.ColumnsAPI;
+import org.mirrentools.orion.common.ColumnsApiGroup;
+import org.mirrentools.orion.common.ColumnsProject;
 import org.mirrentools.orion.common.SqlAssist;
 import org.mirrentools.orion.common.SqlAssist.LimitResult;
 import org.mirrentools.orion.entity.Project;
@@ -172,12 +176,24 @@ public interface ProjectMapper {
 	int updateNotNullById(Project data);
 
 	/**
+	 * 通过api的id获取项目的负责人uid
+	 * 
+	 * @param apiId
+	 * @return
+	 */
+	@Select(" select p.* from project p" 
+			+ " inner join project_api_group g on p." + ColumnsProject.KEY + "=g."+ ColumnsApiGroup.PROJECT_ID 
+			+ " inner join project_api a on a." + ColumnsAPI.GROUP_ID + "=g."+ ColumnsApiGroup.GROUP_ID
+			+ " where a."+ColumnsAPI.API_ID+"=#{apiId}")
+	Project getProjectOwnerByApiId(@Param("apiId") String apiId);
+
+	/**
 	 * 将项目上移动
 	 * 
 	 * @param pid 项目的id
 	 * @return
 	 */
-	@Update("UPDATE project SET sorts=sorts-1 WHERE key=#{pid}")
+	@Update("UPDATE project SET "+ColumnsProject.SORTS+"="+ColumnsProject.SORTS+"-1 WHERE key=#{pid}")
 	int updateProjectMoveUp(@Param("pid") String pid);
 
 	/**
@@ -186,6 +202,6 @@ public interface ProjectMapper {
 	 * @param pid 项目的id
 	 * @return
 	 */
-	@Update("UPDATE project SET sorts=sorts+1 WHERE key=#{pid}")
+	@Update("UPDATE project SET "+ColumnsProject.SORTS+"="+ColumnsProject.SORTS+"+1 WHERE key=#{pid}")
 	int updateProjectMoveDown(@Param("pid") String pid);
 }

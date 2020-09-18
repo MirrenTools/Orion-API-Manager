@@ -55,7 +55,7 @@ public class HttpApiProxyImpl implements HttpApiProxy {
 				return ResultUtil.format(ResultCode.R500, response.getStatusLine());
 			} else {
 				String result = EntityUtils.toString(response.getEntity());
-				return ResultUtil.format(ResultCode.R200, result);
+				return ResultUtil.format200(result);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -91,7 +91,7 @@ public class HttpApiProxyImpl implements HttpApiProxy {
 				return ResultUtil.format(ResultCode.R500, response.getStatusLine());
 			} else {
 				String result = EntityUtils.toString(response.getEntity());
-				return ResultUtil.format(ResultCode.R200, result);
+				return ResultUtil.format200(result);
 			}
 		} catch (Exception e) {
 			if (e instanceof URISyntaxException || e instanceof IllegalArgumentException) {

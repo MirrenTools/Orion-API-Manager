@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mirrentools.orion.common.ColumnsProject;
 import org.mirrentools.orion.common.ColumnsTags;
@@ -76,7 +77,7 @@ public class DefaultUsersServiceImpl implements UsersService {
 						result.put("uid", id);
 						result.put("sessionId", sessionId);
 						result.put("role", LoginRole.ROOT.name());
-						return ResultUtil.format(ResultCode.R200, result);
+						return ResultUtil.format200(result);
 					} else {
 						return ResultUtil.format(ResultCode.R402);
 					}
@@ -95,17 +96,28 @@ public class DefaultUsersServiceImpl implements UsersService {
 				} else {
 					if (MD5Util.compare(pwd, users.getPwd())) {
 						String sessionId = MD5Util.encode(UUID.randomUUID().toString(), 3);
-						LoginSessionStore.save(sessionId, id, LoginRole.valueOf(users.getRole()));
+						List<String> tags = new ArrayList<>();
+						if (users.getTags() != null) {
+							JSONArray array = new JSONArray(users.getTags());
+							for (int i = 0; i < array.length(); i++) {
+								tags.add(array.getString(i));
+							}
+						}
+						LoginSessionStore.save(sessionId, id, LoginRole.valueOf(users.getRole()), tags);
 						Map<String, String> result = new HashMap<>();
 						result.put("uid", id);
 						result.put("sessionId", sessionId);
-						result.put("role", LoginRole.valueOf(users.getRole()).name());
+						if (LoginRole.SERVER == LoginRole.valueOf(users.getRole())) {
+							result.put("role", LoginRole.SERVER.name());
+						} else {
+							result.put("role", LoginRole.CLIENT.name());
+						}
 						// 更新最后登录时间
 						Users user = new Users();
 						user.setUid(id);
 						user.setLasttime(System.currentTimeMillis());
 						usersMapper.updateNotNullById(user);
-						return ResultUtil.format(ResultCode.R200, result);
+						return ResultUtil.format200(result);
 					} else {
 						return ResultUtil.format(ResultCode.R402);
 					}
@@ -133,22 +145,23 @@ public class DefaultUsersServiceImpl implements UsersService {
 		try {
 			SqlAssist assist = new SqlAssist();
 			if (!StringUtil.isNullOrEmpty(keywords)) {
-				assist.andLike(ColumnsUsers.UID, "%" + keywords + "%");
-				assist.andLike(ColumnsUsers.NICKNAME, "%" + keywords + "%");
-				assist.andLike(ColumnsUsers.SUMMARY, "%" + keywords + "%");
+				assist.orLike(ColumnsUsers.UID, "%" + keywords + "%");
+				assist.orLike(ColumnsUsers.NICKNAME, "%" + keywords + "%");
+				assist.orLike(ColumnsUsers.SUMMARY, "%" + keywords + "%");
 			}
 			if (!StringUtil.isNullOrEmpty(tid)) {
-				assist.andLike(ColumnsUsers.TAGS, "%\"" + tid + "\"%");
+				assist.orLike(ColumnsUsers.TAGS, "%\"" + tid + "\"%");
 			}
 			assist.setPage(page).setRowSize(size);
 			assist.setResultColumn(String.format("%s,%s,%s,%s,%s,%s,%s", ColumnsUsers.UID, ColumnsUsers.ROLE,
 					ColumnsUsers.TAGS, ColumnsUsers.NICKNAME, ColumnsUsers.CONTACT, ColumnsUsers.SUMMARY, ColumnsUsers.LASTTIME));
 			LimitResult<Users> result = usersMapper.limitAll(assist);
-			return ResultUtil.format(ResultCode.R200, result);
+			return ResultUtil.format200(result);
 		} catch (Exception e) {
 			LOG.error("执行获取用户列表-->失败:", e);
 			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
+
 	}
 
 	@Override
@@ -166,7 +179,7 @@ public class DefaultUsersServiceImpl implements UsersService {
 				result.add(map);
 			}
 		}
-		return ResultUtil.format(ResultCode.R200, result);
+		return ResultUtil.format200(result);
 	}
 
 	@Override
@@ -179,7 +192,7 @@ public class DefaultUsersServiceImpl implements UsersService {
 			if (users != null) {
 				users.setPwd(null);
 			}
-			return ResultUtil.format(ResultCode.R200, users);
+			return ResultUtil.format200(users);
 		} catch (Exception e) {
 			LOG.error("执行获取指定用户-->失败:", e);
 			return ResultUtil.format(ResultCode.R555, e.getMessage());
@@ -216,7 +229,7 @@ public class DefaultUsersServiceImpl implements UsersService {
 			}
 			user.setPwd(MD5Util.encode(user.getPwd()));
 			int result = usersMapper.insertNotNull(user);
-			return ResultUtil.format(ResultCode.R200, result);
+			return ResultUtil.format200(result);
 		} catch (Exception e) {
 			LOG.error("执行新增用户->\n" + user + "\n-->失败:", e);
 			return ResultUtil.format(ResultCode.R555, e.getMessage());
@@ -245,7 +258,7 @@ public class DefaultUsersServiceImpl implements UsersService {
 				user.setPwd(MD5Util.encode(user.getPwd()));
 			}
 			int result = usersMapper.updateNotNullById(user);
-			return ResultUtil.format(ResultCode.R200, result);
+			return ResultUtil.format200(result);
 		} catch (Exception e) {
 			LOG.error("执行修改用户->\n" + user + "\n-->失败:", e);
 			return ResultUtil.format(ResultCode.R555, e.getMessage());
@@ -262,7 +275,7 @@ public class DefaultUsersServiceImpl implements UsersService {
 			LoginRole userRole = getUserRole(sessionId);
 			if (userRole == LoginRole.ROOT) {
 				int result = usersMapper.deleteById(uid);
-				return ResultUtil.format(ResultCode.R200, result);
+				return ResultUtil.format200(result);
 			} else if (userRole == LoginRole.SERVER) {
 				SqlAssist assist = new SqlAssist();
 				assist.andEq(ColumnsUsers.ROLE, LoginRole.CLIENT.name());
@@ -271,7 +284,7 @@ public class DefaultUsersServiceImpl implements UsersService {
 				if (result == 0) {
 					return ResultUtil.format(ResultCode.R1010, "删除失败,管理员只能删除普通用户");
 				}
-				return ResultUtil.format(ResultCode.R200, result);
+				return ResultUtil.format200(result);
 			} else {
 				return ResultUtil.format(ResultCode.R1011, "只有管理员可以删除用户");
 			}
@@ -287,7 +300,7 @@ public class DefaultUsersServiceImpl implements UsersService {
 			SqlAssist assist = new SqlAssist()
 					.setOrderBy(String.format("%s asc,%s desc", ColumnsTags.SORTS, ColumnsTags.CTIME));
 			List<Tags> all = tagsMapper.selectAll(assist);
-			return ResultUtil.format(ResultCode.R200, all);
+			return ResultUtil.format200(all);
 		} catch (Exception e) {
 			LOG.error("执行获取所有标签-->失败:", e);
 			return ResultUtil.format(ResultCode.R555, e.getMessage());
@@ -301,7 +314,7 @@ public class DefaultUsersServiceImpl implements UsersService {
 				return ResultUtil.format(ResultCode.R412, "标签的id不能为空");
 			}
 			Tags result = tagsMapper.selectById(tid);
-			return ResultUtil.format(ResultCode.R200, result);
+			return ResultUtil.format200(result);
 		} catch (Exception e) {
 			LOG.error("执行获取指定标签->" + tid + "-->失败:", e);
 			return ResultUtil.format(ResultCode.R555, e.getMessage());
@@ -322,7 +335,7 @@ public class DefaultUsersServiceImpl implements UsersService {
 			}
 			tag.setCtime(System.currentTimeMillis());
 			int result = tagsMapper.insertNotNull(tag);
-			return ResultUtil.format(ResultCode.R200, result);
+			return ResultUtil.format200(result);
 		} catch (Exception e) {
 			LOG.error("执行新增标签->\n" + tag + "\n-->失败:", e);
 			return ResultUtil.format(ResultCode.R555, e.getMessage());
@@ -338,7 +351,7 @@ public class DefaultUsersServiceImpl implements UsersService {
 			}
 			tag.setCtime(System.currentTimeMillis());
 			int result = tagsMapper.updateNotNullById(tag);
-			return ResultUtil.format(ResultCode.R200, result);
+			return ResultUtil.format200(result);
 		} catch (Exception e) {
 			LOG.error("执行修改标签->\n" + tag + "\n-->失败:", e);
 			return ResultUtil.format(ResultCode.R555, e.getMessage());
@@ -361,7 +374,7 @@ public class DefaultUsersServiceImpl implements UsersService {
 				return ResultUtil.format(ResultCode.R1101, "该标签下有用户,无法进行删除");
 			}
 			int result = tagsMapper.deleteById(tid);
-			return ResultUtil.format(ResultCode.R200, result);
+			return ResultUtil.format200(result);
 		} catch (Exception e) {
 			LOG.error("执行删除标签->" + tid + "-->失败:", e);
 			return ResultUtil.format(ResultCode.R555, e.getMessage());

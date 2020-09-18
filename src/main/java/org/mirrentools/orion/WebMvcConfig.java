@@ -17,8 +17,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebMvcConfig implements WebMvcConfigurer {
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		registry.addResourceHandler("/Server-UI/**").addResourceLocations("file:" + System.getProperty("user.dir") + "/Server-UI/");
-		registry.addResourceHandler("/Client-UI/**").addResourceLocations("file:" + System.getProperty("user.dir") + "/Client-UI/");
+		registry.addResourceHandler("/console/**")
+				.addResourceLocations("file:" + System.getProperty("user.dir") + "/Server-UI/");
+		registry.addResourceHandler("/client/**")
+				.addResourceLocations("file:" + System.getProperty("user.dir") + "/Client-UI/");
 		WebMvcConfigurer.super.addResourceHandlers(registry);
 	}
 

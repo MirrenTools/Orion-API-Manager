@@ -1,5 +1,6 @@
 package org.mirrentools.orion.controller;
 
+import java.io.IOException;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -7,7 +8,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.mirrentools.orion.common.LoginSession;
 import org.mirrentools.orion.common.LoginSessionStore;
-import org.mirrentools.orion.common.OrionApiManager;
 import org.mirrentools.orion.entity.Project;
 import org.mirrentools.orion.entity.RequestData;
 import org.mirrentools.orion.service.HttpApiProxy;
@@ -42,11 +42,12 @@ public class ProjectController {
 	private HttpApiProxy apiProxy;
 
 	@RequestMapping(value = { "/", "/index.html" }, produces = { "text/html;charset=UTF-8" })
-	public String index(HttpServletResponse response) {
-		response.addHeader("title", OrionApiManager.NAME);
-		return "<h1 style='text-align: center;'>欢迎使用" + OrionApiManager.MIN_NAME + "</h1>"
-				+ "	<h1 style='text-align: center;'>" + OrionApiManager.NAME_VERSION + "</h1>"
-				+ "	<h2 style='text-align: center;'><a href='/Server-UI/index.html'>服务端UI</a> <a style='margin-left:10px' href='/Client-UI/index.html'>客户端UI</a></h2>";
+	public void index(HttpServletResponse response) {
+		try {
+			response.sendRedirect("/console/index.html");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -87,8 +88,9 @@ public class ProjectController {
 	 * @return
 	 */
 	@GetMapping(value = { "/private/project", "/project" }, produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> getProjectList() {
-		return proService.getProjectList();
+	public Map<String, Object> getProjectList(@RequestHeader(value = "x-session", required = false) String sessionId) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.getProjectList(session);
 	}
 
 	/**
@@ -97,8 +99,10 @@ public class ProjectController {
 	 * @return
 	 */
 	@GetMapping(value = "/private/project/{id}", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> getProject(@PathVariable(value = "id") String id) {
-		return proService.getProject(id);
+	public Map<String, Object> getProject(@RequestHeader(value = "x-session", required = false) String sessionId,
+			@PathVariable(value = "id") String id) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.getProject(session, id);
 	}
 
 	/**
@@ -107,8 +111,10 @@ public class ProjectController {
 	 * @return
 	 */
 	@PostMapping(value = "/private/server/project/fromJson", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> postProjectfromJson(String project) {
-		return proService.saveProjectfromJson(project);
+	public Map<String, Object> postProjectfromJson(@RequestHeader(value = "x-session", required = false) String sessionId,
+			String project) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.saveProjectfromJson(session, project);
 	}
 
 	/**
@@ -117,7 +123,8 @@ public class ProjectController {
 	 * @return
 	 */
 	@PostMapping(value = "/private/server/project", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> postProject(@RequestHeader("x-session") String sessionId, @RequestBody Project project) {
+	public Map<String, Object> postProject(@RequestHeader(value = "x-session", required = false) String sessionId,
+			@RequestBody Project project) {
 		LoginSession session = LoginSessionStore.get(sessionId);
 		return proService.saveProject(session, project);
 	}
@@ -128,8 +135,10 @@ public class ProjectController {
 	 * @return
 	 */
 	@PutMapping(value = "/private/server/project", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> updateProject(@RequestBody Project project) {
-		return proService.updateProject(project);
+	public Map<String, Object> updateProject(@RequestHeader(value = "x-session", required = false) String sessionId,
+			@RequestBody Project project) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.updateProject(session, project);
 	}
 
 	/**
@@ -158,8 +167,10 @@ public class ProjectController {
 	 * @return
 	 */
 	@PostMapping(value = "/private/server/project/copy/{id}", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> copyProject(@PathVariable(value = "id") String id) {
-		return proService.copyProject(id);
+	public Map<String, Object> copyProject(@RequestHeader(value = "x-session", required = false) String sessionId,
+			@PathVariable(value = "id") String id) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.copyProject(session, id);
 	}
 
 	/**
@@ -168,8 +179,10 @@ public class ProjectController {
 	 * @return
 	 */
 	@DeleteMapping(value = "/private/server/project/{id}", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> deleteProject(@PathVariable(value = "id") String id) {
-		return proService.deleteProject(id);
+	public Map<String, Object> deleteProject(@RequestHeader(value = "x-session", required = false) String sessionId,
+			@PathVariable(value = "id") String id) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.deleteProject(session, id);
 	}
 
 	/**
@@ -178,9 +191,16 @@ public class ProjectController {
 	 * @param response
 	 * @param id
 	 */
-	@GetMapping(value = "/project/downJson/{id}")
-	public void downProject(HttpServletResponse response, @PathVariable(value = "id") String id) {
-		proService.downJson(response, id);
+	@GetMapping(value = "/private/download/{id}")
+	public void downProject(HttpServletResponse response,
+			@RequestHeader(value = "x-session", required = false) String sessionId, String token,
+			@PathVariable(value = "id") String id) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		if (session == null) {
+			session = LoginSessionStore.get(token);
+		}
+		proService.downJson(response, session, id);
+
 	}
 
 	/**
@@ -189,9 +209,14 @@ public class ProjectController {
 	 * @param id
 	 * @return
 	 */
-	@GetMapping(value = "/project/getJson/{id}", produces = { "application/json;charset=UTF-8" })
-	public String getProjectJson(@PathVariable(value = "id") String id) {
-		return proService.getJson(id);
+	@GetMapping(value = "/private/json/{id}", produces = { "application/json;charset=UTF-8" })
+	public String getProjectJson(@RequestHeader(value = "x-session", required = false) String sessionId, String token,
+			@PathVariable(value = "id") String id) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		if (session == null) {
+			session = LoginSessionStore.get(token);
+		}
+		return proService.getJson(session, id);
 	}
 
 }

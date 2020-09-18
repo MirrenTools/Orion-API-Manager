@@ -10,6 +10,7 @@ import org.mirrentools.orion.common.ResultCode;
 import org.mirrentools.orion.common.ResultUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
@@ -23,18 +24,22 @@ public class LoginSessionAuthInterceptor implements HandlerInterceptor {
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+		System.out.println(request.getMethod());
+		System.out.println(request.getRequestURI());
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE");
 		response.setHeader("Access-Control-Allow-Headers", "x-session,content-type");
+		if (HttpMethod.valueOf(request.getMethod()) == HttpMethod.OPTIONS) {
+			return true;
+		}
 		String sessionId = request.getHeader("x-session");
 		if (sessionId == null) {
-			sessionId = request.getParameter("x-session");
+			sessionId = request.getParameter("token");
 		}
 		LoginSession session = LoginSessionStore.get(sessionId);
 		if (session == null || session.getUid() == null || session.getRole() == null) {
 			response.addHeader("Content-Type", "application/json;charset=UTF-8");
 			try {
-
 				response.getWriter().write(ResultUtil.formatAsString(ResultCode.R401));
 			} catch (Exception e) {
 				response.sendError(401, ResultCode.R401.msg());

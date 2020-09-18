@@ -100,7 +100,7 @@ public class UsersController {
 	 * @return
 	 */
 	@PostMapping(value = "/private/server/user", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> postUser(@RequestHeader("x-session") String sessionId, @RequestBody Users user) {
+	public Map<String, Object> postUser(@RequestHeader(value = "x-session", required = false) String sessionId, @RequestBody Users user) {
 		Map<String, Object> result = userService.postUser(sessionId, user);
 		return result;
 	}
@@ -112,7 +112,7 @@ public class UsersController {
 	 * @return
 	 */
 	@PutMapping(value = "/private/server/user", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> putUser(@RequestHeader("x-session") String sessionId, @RequestBody Users user) {
+	public Map<String, Object> putUser(@RequestHeader(value = "x-session", required = false) String sessionId, @RequestBody Users user) {
 		Map<String, Object> result = userService.putUser(sessionId, user);
 		return result;
 	}
@@ -124,7 +124,7 @@ public class UsersController {
 	 * @return
 	 */
 	@DeleteMapping(value = "/private/server/user/{uid}", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> deleteUser(@RequestHeader("x-session") String sessionId, @PathVariable("uid") String uid) {
+	public Map<String, Object> deleteUser(@RequestHeader(value = "x-session", required = false) String sessionId, @PathVariable("uid") String uid) {
 		Map<String, Object> result = userService.deleteUser(sessionId, uid);
 		return result;
 	}

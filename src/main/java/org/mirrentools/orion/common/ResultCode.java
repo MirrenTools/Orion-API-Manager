@@ -38,6 +38,12 @@ public enum ResultCode {
 	R403(403, "Illegal operation or no permission,if you have the permission, please login again",
 			"非法操作或者没有权限,如果你有该权限请重新登录"),
 	/**
+	 * 状态码:404,<br>
+	 * "The resource does not exist", <br>
+	 * "资源不存在"
+	 */
+	R404(404, "The resource does not exist", "资源不存在"),
+	/**
 	 * 状态码:412, <br>
 	 * "Please fill in all required parameters", <br>
 	 * "请按要求填写所有必填项"
@@ -114,7 +120,8 @@ public enum ResultCode {
 	R1101(1101, "The tags is referenced by the users and cannot be deleted", "该标签下有用户,无法进行删除"),
 	/**
 	 * 状态码: 1501, <br>
-	 * "Invalid URL path. If there is a path parameter, please fill in the path parameter", <br>
+	 * "Invalid URL path. If there is a path parameter, please fill in the path
+	 * parameter", <br>
 	 * "无效的URL路径,如果有Path参数请填充Path参数"
 	 */
 	R1501(1501, "Invalid URL path. If there is a path parameter, please fill in the path parameter",

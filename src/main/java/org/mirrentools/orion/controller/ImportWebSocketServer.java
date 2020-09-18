@@ -12,13 +12,15 @@ import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import org.mirrentools.orion.common.LoginRole;
 import org.mirrentools.orion.common.LoginSession;
 import org.mirrentools.orion.common.LoginSessionStore;
 import org.mirrentools.orion.common.WebSocket;
 import org.mirrentools.orion.service.ProjectService;
-import org.mirrentools.orion.service.impl.DefaultProjectServiceImpl;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 /**
@@ -30,12 +32,19 @@ import org.springframework.stereotype.Component;
 @ServerEndpoint("/private/server/ws/project/fromJson/{sessionId}")
 @Component
 public class ImportWebSocketServer {
+	private static final Logger LOG = LogManager.getLogger(ImportWebSocketServer.class);
+	/** Spring的上下文 */
+	private static ApplicationContext applicationContext;
 	/** 项目服务接口 */
-	private ProjectService proService = new DefaultProjectServiceImpl();
+	private ProjectService proService;
 	/**
 	 * 存放所有在线的客户端
 	 */
 	private static Map<String, Session> clients = new ConcurrentHashMap<>();
+
+	public static void setApplicationContext(ApplicationContext applicationContext) {
+		ImportWebSocketServer.applicationContext = applicationContext;
+	}
 
 	@OnOpen
 	public void onOpen(Session session, @PathParam(value = "sessionId") String sessionId) {
@@ -45,10 +54,11 @@ public class ImportWebSocketServer {
 			try {
 				session.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				LOG.error("执行打开Websocket->关闭会话-->失败:", e);
 			}
 			return;
 		}
+		this.proService = applicationContext.getBean(ProjectService.class);
 		session.setMaxTextMessageBufferSize(10 * 1024 * 1024);
 		clients.put(sessionId, session);
 	}
@@ -74,9 +84,9 @@ public class ImportWebSocketServer {
 		try {
 			session.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOG.error("执行Websocket发生异常->关闭会话-->失败:", e);
 		}
-		throwable.printStackTrace();
+		LOG.error("执行Websocket发生异常:", throwable);
 	}
 
 	/**
@@ -86,6 +96,7 @@ public class ImportWebSocketServer {
 	 */
 	@OnMessage
 	public void onMessage(String message, @PathParam(value = "sessionId") String sessionId) {
+		LoginSession login = LoginSessionStore.get(sessionId);
 		Session session = clients.get(sessionId);
 		if (session == null) {
 			return;
@@ -99,11 +110,11 @@ public class ImportWebSocketServer {
 			}
 			return;
 		}
-		proService.saveProjectfromJsonWebSocket(msg.getString("data"), session);
+		proService.saveProjectfromJsonWebSocket(login, msg.getString("data"), session);
 		try {
 			session.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOG.error("执行Websocket消息事件->关闭会话-->失败:", e);
 		}
 	}
 }
