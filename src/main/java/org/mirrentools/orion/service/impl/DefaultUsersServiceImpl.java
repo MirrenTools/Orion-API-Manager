@@ -141,6 +141,25 @@ public class DefaultUsersServiceImpl implements UsersService {
 	}
 
 	@Override
+	public Map<String, Object> putPassword(String id, String pwd) {
+		System.out.println(id);
+		System.out.println(pwd);
+		if (StringUtil.isNullOrEmpty(id, pwd)) {
+			return ResultUtil.format(ResultCode.R412, "请按要求填写所有必填项");
+		}
+		try {
+			Users user = new Users();
+			user.setUid(id);
+			user.setPwd(MD5Util.encode(pwd));
+			int result = usersMapper.updateNotNullById(user);
+			return ResultUtil.format200(result);
+		} catch (Exception e) {
+			LOG.error("执行修改密码->\n" + id + "-->" + pwd + "\n-->失败:", e);
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
+		}
+	}
+
+	@Override
 	public Map<String, Object> findUsers(String keywords, String tid, Integer page, Integer size) {
 		try {
 			SqlAssist assist = new SqlAssist();

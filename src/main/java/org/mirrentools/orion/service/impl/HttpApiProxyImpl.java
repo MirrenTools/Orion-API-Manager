@@ -3,9 +3,6 @@ package org.mirrentools.orion.service.impl;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.net.UnknownHostException;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,12 +21,13 @@ import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
+import org.mirrentools.orion.common.LoginSession;
 import org.mirrentools.orion.common.ResultCode;
 import org.mirrentools.orion.common.ResultUtil;
 import org.mirrentools.orion.common.StringUtil;
 import org.mirrentools.orion.entity.OrionHttpRequest;
-import org.mirrentools.orion.entity.RequestData;
 import org.mirrentools.orion.service.HttpApiProxy;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -41,10 +39,19 @@ import org.springframework.stereotype.Service;
 @Service
 public class HttpApiProxyImpl implements HttpApiProxy {
 	private static final Logger LOG = LogManager.getLogger(HttpApiProxyImpl.class);
+	/** 配置文件是否允许未登录的用户使用代理 */
+	@Value("${proxyAllowUnauthorized}")
+	private String proxyAllowUnauthorized;
 
 	@Override
-	public Map<String, Object> getProxy(String url) {
+	public Map<String, Object> getProxy(LoginSession loginSession, String url) {
 		try {
+			if (!"true".equalsIgnoreCase(proxyAllowUnauthorized)) {
+				if (checkSession(loginSession)) {
+					LOG.info("\n未登录用户请求使用代理-->检查不通过!");
+					return ResultUtil.format403();
+				}
+			}
 			if (url == null) {
 				return ResultUtil.format(ResultCode.R412, "project url is null");
 			}
@@ -63,49 +70,66 @@ public class HttpApiProxyImpl implements HttpApiProxy {
 		}
 	}
 
-	@Override
-	public Map<String, Object> executeProxy(RequestData data) {
-		try {
-			OrionHttpRequest request = new OrionHttpRequest(data.getType(), data.getUrl() + data.getQueryParams());
-			System.out.println(data);
-			LOG.info("执行代理请求:" + data);
-			HttpClient client = HttpClientBuilder.create().build();
-			if (data.getHeaders() != null) {
-				JSONObject object = new JSONObject(data.getHeaders());
-				Iterator<?> keys = object.keys();
-				while (keys.hasNext()) {
-					String key = (String) keys.next();
-					if (object.has(key)) {
-						request.setHeader(key, object.getString(key));
-					}
-				}
-			}
-			if (data.getContentType() != null) {
-				request.setHeader("Content-Type", data.getContentType());
-			}
-			if (data.getData() != null) {
-				request.setEntity(new ByteArrayEntity(new JSONObject(data.getData()).toString().getBytes()));
-			}
-			HttpResponse response = client.execute(request);
-			if (response.getStatusLine().getStatusCode() != 200) {
-				return ResultUtil.format(ResultCode.R500, response.getStatusLine());
-			} else {
-				String result = EntityUtils.toString(response.getEntity());
-				return ResultUtil.format200(result);
-			}
-		} catch (Exception e) {
-			if (e instanceof URISyntaxException || e instanceof IllegalArgumentException) {
-				return ResultUtil.format(ResultCode.R1501, "\n无效的URL路径,如果有Path参数请填充Path参数\n" + e.getMessage());
-			} else if (e instanceof UnknownHostException) {
-				return ResultUtil.format(ResultCode.R1502, "\n无法识别主机:" + e.getMessage());
-			}
-			LOG.error("执行代理请求-->失败:", e);
-			return ResultUtil.format(ResultCode.R500, e.getMessage());
-		}
-	}
+//	@Override
+//	public Map<String, Object> executeProxy(RequestData data) {
+//		try {
+//			OrionHttpRequest request = new OrionHttpRequest(data.getType(), data.getUrl() + data.getQueryParams());
+//			System.out.println(data);
+//			LOG.info("执行代理请求:" + data);
+//			HttpClient client = HttpClientBuilder.create().build();
+//			if (data.getHeaders() != null) {
+//				JSONObject object = new JSONObject(data.getHeaders());
+//				Iterator<?> keys = object.keys();
+//				while (keys.hasNext()) {
+//					String key = (String) keys.next();
+//					if (object.has(key)) {
+//						request.setHeader(key, object.getString(key));
+//					}
+//				}
+//			}
+//			if (data.getContentType() != null) {
+//				request.setHeader("Content-Type", data.getContentType());
+//			}
+//			if (data.getData() != null) {
+//				request.setEntity(new ByteArrayEntity(new JSONObject(data.getData()).toString().getBytes()));
+//			}
+//			HttpResponse response = client.execute(request);
+//			if (response.getStatusLine().getStatusCode() != 200) {
+//				return ResultUtil.format(ResultCode.R500, response.getStatusLine());
+//			} else {
+//				String result = EntityUtils.toString(response.getEntity());
+//				return ResultUtil.format200(result);
+//			}
+//		} catch (Exception e) {
+//			if (e instanceof URISyntaxException || e instanceof IllegalArgumentException) {
+//				return ResultUtil.format(ResultCode.R1501, "\n无效的URL路径,如果有Path参数请填充Path参数\n" + e.getMessage());
+//			} else if (e instanceof UnknownHostException) {
+//				return ResultUtil.format(ResultCode.R1502, "\n无法识别主机:" + e.getMessage());
+//			}
+//			LOG.error("执行代理请求-->失败:", e);
+//			return ResultUtil.format(ResultCode.R500, e.getMessage());
+//		}
+//	}
 
 	@Override
-	public void executeProxy(HttpServletRequest request, HttpServletResponse response) {
+	public void executeProxy(LoginSession loginSession, HttpServletRequest request, HttpServletResponse response) {
+		if (!"true".equalsIgnoreCase(proxyAllowUnauthorized)) {
+			if (checkSession(loginSession)) {
+				response.setStatus(403);
+				JSONObject result = new JSONObject();
+				result.put("status", 403);
+				result.put("type", "Proxy format!");
+				result.put("msg", ResultCode.R403.msg());
+				result.put("explain", ResultCode.R403.explain());
+				try {
+					response.getOutputStream().write(result.toString().getBytes("utf-8"));
+					response.flushBuffer();
+				} catch (IOException e1) {
+				}
+				LOG.info("\n未登录用户请求使用代理-->检查不通过!");
+				return;
+			}
+		}
 		try {
 			response.setHeader("Content-Type", "application/json");
 			String method = request.getMethod();
@@ -115,8 +139,9 @@ public class HttpApiProxyImpl implements HttpApiProxy {
 				response.setStatus(502);
 				JSONObject result = new JSONObject();
 				result.put("status", 500);
-				result.put("msg", "Proxy format!");
-				result.put("err", "reuqest URL is null or empty");
+				result.put("type", "Proxy format!");
+				result.put("msg", "reuqest URL is null or empty");
+				result.put("explain", "请求的URL为null或者为空");
 				try {
 					response.getOutputStream().write(result.toString().getBytes("utf-8"));
 					response.flushBuffer();
@@ -196,5 +221,15 @@ public class HttpApiProxyImpl implements HttpApiProxy {
 		}
 		LOG.info("proxy-body:\n" + builder);
 		return outputStream;
+	}
+
+	/**
+	 * 检查用户是否不满足条件
+	 * 
+	 * @param loginSession
+	 * @return
+	 */
+	private boolean checkSession(LoginSession loginSession) {
+		return loginSession == null || loginSession.getUid() == null || loginSession.getRole() == null;
 	}
 }

@@ -25,6 +25,15 @@ public interface UsersService {
 	 * @return
 	 */
 	Map<String, Object> logout(String sessionId);
+	
+	/**
+	 * 修改密码
+	 * @param id 用户的id
+	 * @param pwd 新的密码
+	 * @return
+	 */
+	Map<String, Object> putPassword(String id, String pwd);
+	
 
 	/**
 	 * 获取用户

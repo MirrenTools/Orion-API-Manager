@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.mirrentools.orion.common.LoginSession;
 import org.mirrentools.orion.common.LoginSessionStore;
 import org.mirrentools.orion.entity.Project;
-import org.mirrentools.orion.entity.RequestData;
 import org.mirrentools.orion.service.HttpApiProxy;
 import org.mirrentools.orion.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,11 +54,11 @@ public class ProjectController {
 	 * 
 	 * @return
 	 */
-	@PostMapping(value = "/proxy", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> proxy(@RequestBody RequestData data) {
-		Map<String, Object> result = apiProxy.executeProxy(data);
-		return result;
-	}
+//	@PostMapping(value = "/proxy", produces = { "application/json;charset=UTF-8" })
+//	public Map<String, Object> proxy(@RequestBody RequestData data) {
+//		Map<String, Object> result = apiProxy.executeProxy(data);
+//		return result;
+//	}
 
 	/**
 	 * 代理执行
@@ -67,8 +66,10 @@ public class ProjectController {
 	 * @return
 	 */
 	@RequestMapping(value = "/proxy/server")
-	public void proxy(HttpServletRequest request, HttpServletResponse response) {
-		apiProxy.executeProxy(request, response);
+	public void proxy(@RequestHeader(value = "x-session", required = false) String sessionId, HttpServletRequest request,
+			HttpServletResponse response) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		apiProxy.executeProxy(session, request, response);
 	}
 
 	/**
@@ -77,8 +78,10 @@ public class ProjectController {
 	 * @return
 	 */
 	@GetMapping(value = "/proxy/project", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> proxyGetProject(String url) {
-		Map<String, Object> result = apiProxy.getProxy(url);
+	public Map<String, Object> proxyGetProject(@RequestHeader(value = "x-session", required = false) String sessionId,
+			String token, String url) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		Map<String, Object> result = apiProxy.getProxy(session, url);
 		return result;
 	}
 

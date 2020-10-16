@@ -1,7 +1,12 @@
 package org.mirrentools.orion;
 
+import java.util.concurrent.TimeUnit;
+
+import org.mirrentools.orion.interceptor.ClientAllowsInterceptor;
 import org.mirrentools.orion.interceptor.LoginSessionAuthInterceptor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.CacheControl;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -15,19 +20,28 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
+	/** 配置文件是否允许未登录的用户访问客户端 */
+	@Value("${clientAllowUnauthorized}")
+	private String clientAllowUnauthorized;
+
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/console/**")
-				.addResourceLocations("file:" + System.getProperty("user.dir") + "/Server-UI/");
+				.addResourceLocations("file:" + System.getProperty("user.dir") + "/Server-UI/")
+				.setCacheControl(CacheControl.maxAge(7, TimeUnit.DAYS));
 		registry.addResourceHandler("/client/**")
-				.addResourceLocations("file:" + System.getProperty("user.dir") + "/Client-UI/");
+				.addResourceLocations("file:" + System.getProperty("user.dir") + "/Client-UI/")
+				.setCacheControl(CacheControl.maxAge(7, TimeUnit.DAYS));
 		WebMvcConfigurer.super.addResourceHandlers(registry);
 	}
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		InterceptorRegistration interceptor = registry.addInterceptor(new LoginSessionAuthInterceptor());
-		interceptor.addPathPatterns("/private/**");
+		InterceptorRegistration privateServers = registry.addInterceptor(new LoginSessionAuthInterceptor());
+		privateServers.addPathPatterns("/private/**");
+		InterceptorRegistration client = registry
+				.addInterceptor(new ClientAllowsInterceptor("true".equalsIgnoreCase(clientAllowUnauthorized)));
+		client.addPathPatterns("/client/index.html");
 		WebMvcConfigurer.super.addInterceptors(registry);
 	}
 

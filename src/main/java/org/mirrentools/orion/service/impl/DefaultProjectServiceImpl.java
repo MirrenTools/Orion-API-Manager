@@ -1018,7 +1018,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	}
 
 	/**
-	 * 检查用户是否满足条件
+	 * 检查用户是否不满足条件
 	 * 
 	 * @param loginSession
 	 * @return

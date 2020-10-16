@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "clientAllowUnauthorized",
+    "type": "java.lang.String",
+    "description": "Allow unauthorized users to access the client"
+  },
+  {
+    "name": "proxyAllowUnauthorized",
+    "type": "java.lang.String",
+    "description": "Allow unauthorized users to use proxy requests"
+  }
+]}

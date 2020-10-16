@@ -11,7 +11,7 @@ import org.json.JSONObject;
 import org.mirrentools.orion.common.OrionApiManager;
 import org.springframework.web.servlet.HandlerInterceptor;
 /**
- * 普通认证的拦截器
+ * 普通认证的拦截器,暂时没有使用
  * 
  * @author <a href="https://mirrentools.org">Mirren</a>
  *
