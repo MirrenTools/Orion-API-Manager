@@ -17,7 +17,7 @@ public class CreateTable {
 		String driver = "org.sqlite.JDBC";
 		// 数据库的连接地址
 		String url = "jdbc:sqlite:" + System.getProperty("user.dir") + "/config/ConfigDB.db";
-		
+
 		SdDatabaseOptions databaseOptions = new SdDatabaseOptions(driver, url);
 
 		ScrewDriver screwDriver = ScrewDriver.instance(new ScrewDriverOptions(databaseOptions));
@@ -27,6 +27,8 @@ public class CreateTable {
 		screwDriver.createTable(Constant.getProjectApiGroupBean());
 		// 创建接口表
 		screwDriver.createTable(Constant.getProjectApiBean());
+		// 创建接口模板表
+		screwDriver.createTable(Constant.getProjectApiTemplateBean());
 		// 创建用户表
 		screwDriver.createTable(Constant.getUsersBean());
 		// 创建标签表

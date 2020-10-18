@@ -68,6 +68,27 @@ public class Constant {
 	}
 
 	/**
+	 * 获取API模板的bean
+	 * 
+	 * @return
+	 */
+	public static SdBean getProjectApiTemplateBean() {
+		SdBean bean = new SdBean();
+		bean.setName("project_api_template").setRemark("API接口模板");
+		bean.addColumn(
+				new SdColumn().setName("tid").setType(SdType.STRING).setLength(32).setPrimary(true).setRemark("模板的id"));
+		bean.addColumn(
+				new SdColumn().setName("uid").setType(SdType.STRING).setLength(250).setRemark("模板所属用户的id"));
+		bean.addColumn(
+				new SdColumn().setName("name").setType(SdType.STRING).setLength(255).setNullable(false).setRemark("模板的名称"));
+		bean.addColumn(new SdColumn().setName("api").setType(SdType.NTEXT).setRemark("API基本信息"));
+		bean.addColumn(new SdColumn().setName("parameters").setType(SdType.NTEXT).setRemark("API中的请求参数"));
+		bean.addColumn(new SdColumn().setName("responses").setType(SdType.NTEXT).setRemark("API中的响应参数"));
+		bean.addColumn(new SdColumn().setName("ctime").setType(SdType.LONG).setRemark("模板创建的时间"));
+		return bean;
+	}
+
+	/**
 	 * 获取分组的bean
 	 * 
 	 * @return
@@ -83,9 +104,9 @@ public class Constant {
 				new SdColumn().setName("name").setType(SdType.STRING).setLength(255).setNullable(false).setRemark("分组的名称"));
 		bean.addColumn(
 				new SdColumn().setName("summary").setType(SdType.STRING).setLength(255).setNullable(false).setRemark("分组的简介"));
-		bean.addColumn(new SdColumn().setName("description").setType(SdType.TEXT).setRemark("分组的描述"));
-		bean.addColumn(new SdColumn().setName("external_docs").setType(SdType.TEXT).setRemark("附加文档"));
-		bean.addColumn(new SdColumn().setName("extensions").setType(SdType.TEXT).setRemark("拓展信息"));
+		bean.addColumn(new SdColumn().setName("description").setType(SdType.NTEXT).setRemark("分组的描述"));
+		bean.addColumn(new SdColumn().setName("external_docs").setType(SdType.NTEXT).setRemark("附加文档"));
+		bean.addColumn(new SdColumn().setName("extensions").setType(SdType.NTEXT).setRemark("拓展信息"));
 		bean.addColumn(new SdColumn().setName("sorts").setType(SdType.INTEGER).setDefaults("0").setRemark("项目排序"));
 		return bean;
 	}
@@ -100,7 +121,7 @@ public class Constant {
 		bean.setName("tags").setRemark("标签表");
 		bean.addColumn(
 				new SdColumn().setName("tid").setType(SdType.STRING).setLength(255).setPrimary(true).setRemark("标签的id"));
-		bean.addColumn(new SdColumn().setName("tname").setType(SdType.TEXT).setNullable(false).setRemark("标签的名称"));
+		bean.addColumn(new SdColumn().setName("tname").setType(SdType.NTEXT).setNullable(false).setRemark("标签的名称"));
 		bean.addColumn(new SdColumn().setName("sorts").setType(SdType.INTEGER).setDefaults("0").setRemark("项目排序"));
 		bean.addColumn(new SdColumn().setName("ctime").setType(SdType.LONG).setRemark("创建的时间"));
 		return bean;
@@ -118,12 +139,12 @@ public class Constant {
 				new SdColumn().setName("uid").setType(SdType.STRING).setLength(255).setPrimary(true).setRemark("用户的账号"));
 		bean.addColumn(
 				new SdColumn().setName("role").setType(SdType.STRING).setLength(10).setNullable(false).setRemark("用户的角色"));
-		bean.addColumn(new SdColumn().setName("tags").setType(SdType.TEXT).setRemark("用户的标签"));
-		bean.addColumn(new SdColumn().setName("pwd").setType(SdType.TEXT).setNullable(false).setRemark("用户的密码"));
+		bean.addColumn(new SdColumn().setName("tags").setType(SdType.NTEXT).setRemark("用户的标签"));
+		bean.addColumn(new SdColumn().setName("pwd").setType(SdType.NTEXT).setNullable(false).setRemark("用户的密码"));
 		bean.addColumn(
 				new SdColumn().setName("nickname").setType(SdType.STRING).setLength(255).setNullable(false).setRemark("用户的昵称"));
-		bean.addColumn(new SdColumn().setName("contact").setType(SdType.TEXT).setNullable(false).setRemark("用户的联系信息"));
-		bean.addColumn(new SdColumn().setName("summary").setType(SdType.TEXT).setRemark("用户的简介"));
+		bean.addColumn(new SdColumn().setName("contact").setType(SdType.NTEXT).setNullable(false).setRemark("用户的联系信息"));
+		bean.addColumn(new SdColumn().setName("summary").setType(SdType.NTEXT).setRemark("用户的简介"));
 		bean.addColumn(new SdColumn().setName("ctime").setType(SdType.LONG).setRemark("创建的时间"));
 		bean.addColumn(new SdColumn().setName("lasttime").setType(SdType.LONG).setRemark("最后访问时间"));
 		return bean;

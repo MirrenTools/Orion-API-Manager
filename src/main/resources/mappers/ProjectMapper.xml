@@ -221,7 +221,7 @@
 	<delete id="deleteByAssist" parameterType="org.mirrentools.orion.common.SqlAssist">
 		delete from
 		project
-		<if test="distinct != null">
+		<if test="condition != null">
 			<include refid="assist" />
 		</if>
 	</delete>

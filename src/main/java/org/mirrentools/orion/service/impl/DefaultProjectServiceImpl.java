@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
@@ -29,10 +30,12 @@ import org.mirrentools.orion.common.WebSocket;
 import org.mirrentools.orion.entity.Project;
 import org.mirrentools.orion.entity.ProjectApi;
 import org.mirrentools.orion.entity.ProjectApiGroup;
+import org.mirrentools.orion.entity.ProjectApiTemplate;
 import org.mirrentools.orion.entity.ProjectInfo;
 import org.mirrentools.orion.entity.Users;
 import org.mirrentools.orion.mapper.ProjectApiGroupMapper;
 import org.mirrentools.orion.mapper.ProjectApiMapper;
+import org.mirrentools.orion.mapper.ProjectApiTemplateMapper;
 import org.mirrentools.orion.mapper.ProjectMapper;
 import org.mirrentools.orion.mapper.UsersMapper;
 import org.mirrentools.orion.service.ProjectService;
@@ -61,6 +64,9 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	/** 接口相关的数据库操作 */
 	@Autowired
 	private ProjectApiMapper apiMapper;
+	/** 接口模板的数据库操作 */
+	@Autowired
+	private ProjectApiTemplateMapper templateMapper;
 	/** 用户相关的数据库操作 */
 	@Autowired
 	private UsersMapper usersMapper;
@@ -747,6 +753,79 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			return ResultUtil.format200(result);
 		} catch (Throwable e) {
 			LOG.error("执行删除接口->" + apiId + "-->失败:", e);
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
+		}
+	}
+
+	@Override
+	public Map<String, Object> findApiTemplateList(LoginSession loginSession) {
+		try {
+			if (checkSession(loginSession)) {
+				return ResultUtil.format403();
+			}
+			SqlAssist assist = new SqlAssist();
+			assist.andEq("uid", loginSession.getUid());
+			assist.setOrderBy("ctime desc");
+			assist.setResultColumn("tid,name");
+			List<ProjectApiTemplate> result = templateMapper.selectAll(assist);
+			return ResultUtil.format200(result);
+		} catch (Exception e) {
+			LOG.error("执行获取接口模板列表-->失败:", e);
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
+		}
+	}
+
+	@Override
+	public Map<String, Object> getApiTemplate(LoginSession loginSession, String tid) {
+		try {
+			if (StringUtil.isNullOrEmpty(tid)) {
+				return ResultUtil.format(ResultCode.R412);
+			}
+			ProjectApiTemplate result = templateMapper.selectById(tid);
+			return ResultUtil.format200(result);
+		} catch (Exception e) {
+			LOG.error("执行获取接口模板->" + tid + "-->失败:", e);
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
+		}
+	}
+
+	@Override
+	public Map<String, Object> postApiTemplate(LoginSession loginSession, ProjectApiTemplate template) {
+		try {
+			if (checkSession(loginSession)) {
+				return ResultUtil.format403();
+			}
+			if (template == null || StringUtil.isNullOrEmpty(template.getName())) {
+				return ResultUtil.format(ResultCode.R412);
+			}
+			template.setTid(System.currentTimeMillis() + "-" + new Random().nextInt(1000));
+			template.setUid(loginSession.getUid());
+			template.setCtime(System.currentTimeMillis());
+			int result = templateMapper.insertNotNull(template);
+			return ResultUtil.format200(result);
+		} catch (Exception e) {
+			LOG.error("执行新增接口模板->" + template + "-->失败:", e);
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
+		}
+	}
+
+	@Override
+	public Map<String, Object> deleteApiTemplate(LoginSession loginSession, String tid) {
+		try {
+			if (checkSession(loginSession)) {
+				return ResultUtil.format403();
+			}
+			if (StringUtil.isNullOrEmpty(tid)) {
+				return ResultUtil.format(ResultCode.R412);
+			}
+			SqlAssist assist = new SqlAssist()
+					.andEq("uid", loginSession.getUid())
+					.andEq("tid", tid);
+			System.out.println(assist);
+			int result = templateMapper.deleteByAssist(assist);
+			return ResultUtil.format200(result);
+		} catch (Exception e) {
+			LOG.error("执行删除接口模板->" + tid + "-->失败:", e);
 			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}

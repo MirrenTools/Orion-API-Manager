@@ -9,6 +9,7 @@ import org.mirrentools.orion.common.LoginSession;
 import org.mirrentools.orion.entity.Project;
 import org.mirrentools.orion.entity.ProjectApi;
 import org.mirrentools.orion.entity.ProjectApiGroup;
+import org.mirrentools.orion.entity.ProjectApiTemplate;
 
 /**
  * 项目的服务接口
@@ -225,13 +226,47 @@ public interface ProjectService {
 	 */
 	Map<String, Object> deleteApi(LoginSession loginSession, String apiId);
 
+	/***
+	 * 获取API模板的列表,返回模板的id与名称
+	 * 
+	 * @param loginSession
+	 * @return
+	 */
+	Map<String, Object> findApiTemplateList(LoginSession loginSession);
+
+	/***
+	 * 获取模板详情
+	 * 
+	 * @param loginSession
+	 * @param tid
+	 * @return
+	 */
+	Map<String, Object> getApiTemplate(LoginSession loginSession, String tid);
+
+	/**
+	 * 新增模板
+	 * 
+	 * @param loginSession
+	 * @param template
+	 * @return
+	 */
+	Map<String, Object> postApiTemplate(LoginSession loginSession, ProjectApiTemplate template);
+
+	/**
+	 * 删除指定模板
+	 * 
+	 * @param loginSession
+	 * @return
+	 */
+	Map<String, Object> deleteApiTemplate(LoginSession loginSession, String tid);
+
 	/**
 	 * 获得的JSON字符串
 	 * 
 	 * @param projectId
 	 * @return
 	 */
-	String getJson(LoginSession loginSession,String projectId);
+	String getJson(LoginSession loginSession, String projectId);
 
 	/**
 	 * 下载JSON文件
@@ -239,6 +274,6 @@ public interface ProjectService {
 	 * @param response
 	 * @param projectId 项目的id
 	 */
-	void downJson(HttpServletResponse response,LoginSession loginSession, String projectId);
+	void downJson(HttpServletResponse response, LoginSession loginSession, String projectId);
 
 }

@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.mirrentools.orion.mapper.TagsMapper">
-	<!-- 实体类的返回map-->
-	<resultMap id="result_entity_map" type="org.mirrentools.orion.entity.Tags">
+<mapper
+	namespace="org.mirrentools.orion.mapper.ProjectApiTemplateMapper">
+	<!-- 实体类的返回map -->
+	<resultMap id="result_entity_map"
+		type="org.mirrentools.orion.entity.ProjectApiTemplate">
 		<id column="tid" property="tid" />
-		<result column="tname" property="tname" />
-		<result column="sorts" property="sorts" />
+		<result column="uid" property="uid" />
+		<result column="name" property="name" />
+		<result column="api" property="api" />
+		<result column="parameters" property="parameters" />
+		<result column="responses" property="responses" />
 		<result column="ctime" property="ctime" />
 	</resultMap>
 	<!-- assist是 SQL查询帮助类添加条件, ${req.condition}表示列名或前缀,#{req.value}表示值它是防SQL注入的 -->
@@ -61,12 +66,14 @@
 
 	<!-- 数据库中表的列名 -->
 	<sql id="table_column">
-		tid,tname,sorts,ctime
+		tid,uid,name,api,parameters,responses,ctime
 	</sql>
 
 	<!--获取数据总行数 -->
-	<select id="getCount" parameterType="org.mirrentools.orion.common.SqlAssist" resultType="java.lang.Long">
-		select count(*) from tags
+	<select id="getCount"
+		parameterType="org.mirrentools.orion.common.SqlAssist"
+		resultType="java.lang.Long">
+		select count(*) from project_api_template
 		<if test="condition != null">
 			<include refid="assist" />
 		</if>
@@ -77,7 +84,9 @@
 	</select>
 
 	<!-- 获取所有数据 -->
-	<select id="selectAll" parameterType="org.mirrentools.orion.common.SqlAssist" resultMap="result_entity_map">
+	<select id="selectAll"
+		parameterType="org.mirrentools.orion.common.SqlAssist"
+		resultMap="result_entity_map">
 		select
 		<if test="distinct != null">${distinct}</if>
 		<choose>
@@ -86,7 +95,7 @@
 				<include refid="table_column" />
 			</otherwise>
 		</choose>
-		from tags
+		from project_api_template
 		<if test="condition != null ">
 			<include refid="assist" />
 		</if>
@@ -102,13 +111,18 @@
 	</select>
 
 	<!-- 通过对象中不为空的属性为条件获取数据,只返回一条结果 -->
-	<select id="selectSingleByObj" parameterType="org.mirrentools.orion.entity.Tags" resultMap="result_entity_map">
+	<select id="selectSingleByObj"
+		parameterType="org.mirrentools.orion.entity.ProjectApiTemplate"
+		resultMap="result_entity_map">
 		select
 		<include refid="table_column" />
-		from tags
+		from project_api_template
 		<where>
-			<if test="tname != null"> and tname = #{tname}</if>
-			<if test="sorts != null"> and sorts = #{sorts}</if>
+			<if test="uid != null"> and uid = #{uid}</if>
+			<if test="name != null"> and name = #{name}</if>
+			<if test="api != null"> and api = #{api}</if>
+			<if test="parameters != null"> and parameters = #{parameters}</if>
+			<if test="responses != null"> and responses = #{responses}</if>
 			<if test="ctime != null"> and ctime = #{ctime}</if>
 			<if test="tid != null"> and tid = #{tid}</if>
 		</where>
@@ -116,39 +130,52 @@
 	</select>
 
 	<!-- 通过对象中不为空的属性作为条件获取数据 -->
-	<select id="selectByObj" parameterType="org.mirrentools.orion.entity.Tags" resultMap="result_entity_map">
+	<select id="selectByObj"
+		parameterType="org.mirrentools.orion.entity.ProjectApiTemplate"
+		resultMap="result_entity_map">
 		select
 		<include refid="table_column" />
-		from tags
+		from project_api_template
 		<where>
-			<if test="tname != null"> and tname = #{tname}</if>
-			<if test="sorts != null"> and sorts = #{sorts}</if>
+			<if test="uid != null"> and uid = #{uid}</if>
+			<if test="name != null"> and name = #{name}</if>
+			<if test="api != null"> and api = #{api}</if>
+			<if test="parameters != null"> and parameters = #{parameters}</if>
+			<if test="responses != null"> and responses = #{responses}</if>
 			<if test="ctime != null"> and ctime = #{ctime}</if>
 			<if test="tid != null"> and tid = #{tid}</if>
 		</where>
 	</select>
 
 	<!-- 插入一个对象包括属性值为null的值 -->
-	<insert id="insertAll" parameterType="org.mirrentools.orion.entity.Tags">
+	<insert id="insertAll"
+		parameterType="org.mirrentools.orion.entity.ProjectApiTemplate">
 		insert into
-		tags
-		(tid,tname,sorts,ctime)
-		values(#{tid},#{tname},#{sorts},#{ctime})
+		project_api_template
+		(tid,uid,name,api,parameters,responses,ctime)
+		values(#{tid},#{uid},#{name},#{api},#{parameters},#{responses},#{ctime})
 	</insert>
 
 	<!-- 插入一个对象,只插入对象中值不为null的属性 -->
-	<insert id="insertNotNull" parameterType="org.mirrentools.orion.entity.Tags">
-		insert into tags
+	<insert id="insertNotNull"
+		parameterType="org.mirrentools.orion.entity.ProjectApiTemplate">
+		insert into project_api_template
 		<trim prefix="(" suffix=")" suffixOverrides=",">
 			<if test="tid != null">tid,</if>
-			<if test="tname != null">tname,</if>
-			<if test="sorts != null">sorts,</if>
+			<if test="uid != null">uid,</if>
+			<if test="name != null">name,</if>
+			<if test="api != null">api,</if>
+			<if test="parameters != null">parameters,</if>
+			<if test="responses != null">responses,</if>
 			<if test="ctime != null">ctime,</if>
 		</trim>
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="tid != null">#{tid},</if>
-			<if test="tname != null">#{tname},</if>
-			<if test="sorts != null">#{sorts},</if>
+			<if test="uid != null">#{uid},</if>
+			<if test="name != null">#{name},</if>
+			<if test="api != null">#{api},</if>
+			<if test="parameters != null">#{parameters},</if>
+			<if test="responses != null">#{responses},</if>
 			<if test="ctime != null">#{ctime},</if>
 		</trim>
 	</insert>
@@ -156,26 +183,29 @@
 	<!-- 批量添加全部所有字段 -->
 	<insert id="insertBatch" parameterType="ArrayList">
 		insert into
-		tags
-		(tid,tname,sorts,ctime)
+		project_api_template
+		(tid,uid,name,api,parameters,responses,ctime)
 		values
-		<foreach collection="list" item="item" index="index" separator=",">
-			(#{item.tid},#{item.tname},#{item.sorts},#{item.ctime})
+		<foreach collection="list" item="item" index="index"
+			separator=",">
+			(#{item.tid},#{item.uid},#{item.name},#{item.api},#{item.parameters},#{item.responses},#{item.ctime})
 		</foreach>
 	</insert>
 
 	<!-- 插入一个对象,如果该对象不存在就新建如果该对象已经存在就更新 -->
-	<insert id="replace" parameterType="org.mirrentools.orion.entity.Tags">
+	<insert id="replace"
+		parameterType="org.mirrentools.orion.entity.ProjectApiTemplate">
 		replace into
-		tags
-		(tid,tname,sorts,ctime)
-		values(#{tid},#{tname},#{sorts},#{ctime})
+		project_api_template
+		(tid,uid,name,api,parameters,responses,ctime)
+		values(#{tid},#{uid},#{name},#{api},#{parameters},#{responses},#{ctime})
 	</insert>
 
 	<!-- 通过查询帮助类删除数据 -->
-	<delete id="deleteByAssist" parameterType="org.mirrentools.orion.common.SqlAssist">
+	<delete id="deleteByAssist"
+		parameterType="org.mirrentools.orion.common.SqlAssist">
 		delete from
-		tags
+		project_api_template
 		<if test="condition != null">
 			<include refid="assist" />
 		</if>
@@ -183,11 +213,15 @@
 
 	<!-- 更新一个对象中所有的属性包括null值,条件为SqlAssist查询帮助类 ,data=对象,assist=查询帮助类 -->
 	<update id="updateAllByAssist" parameterType="map">
-		update tags
+		update project_api_template
 		<set>
 			tid = #{tid},
-			tname = #{tname},
-			sorts = #{sorts},
+			uid = #{uid},
+			name = #{name},
+			api = #{api},
+			parameters
+			= #{parameters},
+			responses = #{responses},
 			ctime = #{ctime}
 		</set>
 		<if test="assist !=null">
@@ -199,11 +233,14 @@
 
 	<!--更新一个对象中属性不为null值,条件为SqlAssist查询帮助类,data=对象,assist=查询帮助类 -->
 	<update id="updateNotNullByAssist" parameterType="map">
-		update tags
+		update project_api_template
 		<set>
 			<if test="data.tid != null">tid = #{tid},</if>
-			<if test="data.tname != null">tname = #{tname},</if>
-			<if test="data.sorts != null">sorts = #{sorts},</if>
+			<if test="data.uid != null">uid = #{uid},</if>
+			<if test="data.name != null">name = #{name},</if>
+			<if test="data.api != null">api = #{api},</if>
+			<if test="data.parameters != null">parameters = #{parameters},</if>
+			<if test="data.responses != null">responses = #{responses},</if>
 			<if test="data.ctime != null">ctime = #{ctime}</if>
 		</set>
 		<if test="assist !=null">
@@ -213,36 +250,47 @@
 		</if>
 	</update>
 	<!-- 通过id获取数据 -->
-	<select id="selectById" parameterType="String" resultMap="result_entity_map">
+	<select id="selectById" parameterType="String"
+		resultMap="result_entity_map">
 		select
 		<include refid="table_column" />
-		from tags
+		from project_api_template
 		where tid = #{id}
 	</select>
-	
+
 	<!-- 通过id删除数据 -->
 	<delete id="deleteById" parameterType="String">
-		delete from tags
+		delete from
+		project_api_template
 		where tid = #{id}
 	</delete>
-	
+
 	<!-- 更新一个对象中所有的属性包括null值,条件为对象中的id -->
-	<update id="updateAllById" parameterType="org.mirrentools.orion.entity.Tags">
-		update tags set
+	<update id="updateAllById"
+		parameterType="org.mirrentools.orion.entity.ProjectApiTemplate">
+		update project_api_template set
 		<set>
-			tname = #{tname},
-			sorts = #{sorts},
+			uid = #{uid},
+			name = #{name},
+			api = #{api},
+			parameters =
+			#{parameters},
+			responses = #{responses},
 			ctime = #{ctime}
 		</set>
 		where tid = #{tid}
 	</update>
 
 	<!-- 更新一个对象中属性不为null值,条件为对象中的id -->
-	<update id="updateNotNullById" parameterType="org.mirrentools.orion.entity.Tags">
-		update tags
+	<update id="updateNotNullById"
+		parameterType="org.mirrentools.orion.entity.ProjectApiTemplate">
+		update project_api_template
 		<set>
-			<if test="tname != null">tname = #{tname},</if>
-			<if test="sorts != null">sorts = #{sorts},</if>
+			<if test="uid != null">uid = #{uid},</if>
+			<if test="name != null">name = #{name},</if>
+			<if test="api != null">api = #{api},</if>
+			<if test="parameters != null">parameters = #{parameters},</if>
+			<if test="responses != null">responses = #{responses},</if>
 			<if test="ctime != null">ctime = #{ctime}</if>
 		</set>
 		where tid = #{tid}
