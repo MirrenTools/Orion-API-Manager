@@ -85,10 +85,12 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (loginSession.getRole() == LoginRole.ROOT) {
 				all = projectMapper.selectAll(assist);
 			} else {
-				if (loginSession.getTags() != null) {
+				if (loginSession.getTags() != null && !loginSession.getTags().isEmpty()) {
 					for (String tag : loginSession.getTags()) {
 						assist.orLike(ColumnsProject.OWNERS, "%" + tag + "%");
 					}
+				} else if (loginSession.getRole() == LoginRole.CLIENT) {
+					return ResultUtil.format200(new ArrayList<>());
 				}
 				if (loginSession.getRole() == LoginRole.SERVER) {
 					assist.orEq(ColumnsProject.OWNER, loginSession.getUid());
@@ -818,9 +820,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(tid)) {
 				return ResultUtil.format(ResultCode.R412);
 			}
-			SqlAssist assist = new SqlAssist()
-					.andEq("uid", loginSession.getUid())
-					.andEq("tid", tid);
+			SqlAssist assist = new SqlAssist().andEq("uid", loginSession.getUid()).andEq("tid", tid);
 			System.out.println(assist);
 			int result = templateMapper.deleteByAssist(assist);
 			return ResultUtil.format200(result);
