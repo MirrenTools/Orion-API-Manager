@@ -13,13 +13,17 @@ import org.mirrentools.sd.options.SdDatabaseOptions;
  */
 public class CreateTable {
 	public static void main(String[] args) {
-		// 数据库的驱动
+		// 数据库的驱动类
 		String driver = "org.sqlite.JDBC";
 		// 数据库的连接地址
 		String url = "jdbc:sqlite:" + System.getProperty("user.dir") + "/config/ConfigDB.db";
-
+		// 数据库的登录用户
+		String username=null; 
+		// 数据库的登录密码
+		String password=null; 
 		SdDatabaseOptions databaseOptions = new SdDatabaseOptions(driver, url);
-
+		databaseOptions.setUser(username).setPassword(password);
+		
 		ScrewDriver screwDriver = ScrewDriver.instance(new ScrewDriverOptions(databaseOptions));
 		// 创建项目表
 		screwDriver.createTable(Constant.getProjectBean());

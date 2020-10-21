@@ -14,9 +14,14 @@ public class Project {
 	private String versions;
 	/** 描述 */
 	private String description;
-	/** 服务集 */
+	/** 服务集(JsonArray(JsonObject)):
+	 * 	[{url(String):"服务地址",description(String):描述简介}]
+	 *  */
 	private String servers;
-	/** 附加文档 */
+	/** 附加文档(JsonObject):<br>
+	 * description(String):附加文档说明<br>
+	 * url(String): 附加文档路径
+	 *  */
 	private String externalDocs;
 	/** 联系人 */
 	private String contactName;

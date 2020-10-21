@@ -1,0 +1,19 @@
+{
+  "name": "Orion-API-Manager-Docs",
+  "version": "1.0.0",
+  "description": "Orion-API-Manager的帮助文档",
+  "scripts": {
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MirrenTools/Orion-API-Manager.git"
+  },
+  "keywords": [
+    "Orion-API-Manager",
+    "API文档管理器"
+  ],
+  "author": "Mirren",
+  "license": "MIT"
+}

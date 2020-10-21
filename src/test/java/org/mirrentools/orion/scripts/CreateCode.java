@@ -16,7 +16,7 @@ import org.mirrentools.sd.options.ScrewDriverOptions;
  */
 public class CreateCode {
 	/**
-	 * 不同数据库只需要修改这个变量后重新支持生成
+	 * 不同数据库只需要修改这个变量后重新启动执行
 	 * MySQL = MySqlMapper.ftl
 	 * PostgreSQL = PostgreSqlMapper.ftl
 	 * SQLite = SqliteMapper.ftl

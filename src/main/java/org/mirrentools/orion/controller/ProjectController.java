@@ -78,9 +78,13 @@ public class ProjectController {
 	 * @return
 	 */
 	@GetMapping(value = "/proxy/project", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> proxyGetProject(@RequestHeader(value = "x-session", required = false) String sessionId,
+	public Map<String, Object> proxyGetProject(
+			@RequestHeader(value = "x-session", required = false) String sessionId,
 			String token, String url) {
 		LoginSession session = LoginSessionStore.get(sessionId);
+		if (session == null) {
+			session = LoginSessionStore.get(token);
+		}
 		Map<String, Object> result = apiProxy.getProxy(session, url);
 		return result;
 	}
