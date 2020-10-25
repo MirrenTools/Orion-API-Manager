@@ -3,6 +3,10 @@ Orion-API-Manager(以下简称: OAM)是一个API文档管理器，为后端开�
 
 QQ交流群:796665306 <a target="_blank" href="//qm.qq.com/cgi-bin/qm/qr?k=d6kTExBscrndpdI5nhGDSbNedO0IJeHd&jump_from=webapi"><img border="0" src="//pub.idqqimg.com/wpa/images/group.png" alt="QQ交流群" title="QQ交流群"></a>
 
+如果不能观看你可以在 [哔哩哔哩中查看视频](https://www.bilibili.com/video/av76507691/)
+
+<iframe src="//player.bilibili.com/player.html?aid=76507691&cid=130869495&page=1" width='100%' height='600px' scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
+
 ## 启动服务
 - 项目你可以通过Releases(发行版)中下载最新已经打包的项目或者clone代码后执行**mvn clean package**
 - 项目的开发环境为java 1.8.0_121,理论上java1.8以上都可以运行
@@ -18,7 +22,10 @@ QQ交流群:796665306 <a target="_blank" href="//qm.qq.com/cgi-bin/qm/qr?k=d6kTE
 - mybatis相关的为操作数据库的mapper一般不需要操作
 - logging相关的为日志操作
 
-
+## 如何查看API文档
+- **方式一:** 在用户管理中创建普通用户,普通用户登录后既可以看到项目列表
+- **方式二:** 在项目详情中导出接口数据(得到一个.json文件),用户访问客户端(/client/index.html)并选择右上角的 **本地加载** 打开接口数据
+- **方式三:** 在项目详情中导出接口数据(得到一个.json文件),同时复制项目中的Client-UI,一起给打包给用户,用户打开Client-UI中的index.html并选择右上角的 **本地加载** 打开接口数据
 ## 用户与角色权限
 - OAM有3中身份角色:<br>
 - root=超级管理员(管理所有项目)<br>
@@ -121,23 +128,27 @@ QQ交流群:796665306 <a target="_blank" href="//qm.qq.com/cgi-bin/qm/qr?k=d6kTE
 |long	|lasttime	|lasttime	|最后登录时间,选填	|
 |long	|ctime	|ctime	|创建时间,选填	|
 
-## 二次开发
-
-
 ## 关于我们
 QQ交流群:796665306 <a target="_blank" href="//qm.qq.com/cgi-bin/qm/qr?k=d6kTExBscrndpdI5nhGDSbNedO0IJeHd&jump_from=webapi"><img border="0" src="//pub.idqqimg.com/wpa/images/group.png" alt="QQ交流群" title="QQ交流群"></a><br>
 联系邮箱: <a href="mailto:mirrentools@vip.qq.com">mirrentools@vip.qq.com</a><br>
-github : [https://github.com/MirrenTools/Orion-API-Manager](https://github.com/MirrenTools/Orion-API-Manager)<br>
-码云  : [https://gitee.com/MirrenTools/Orion-API-Manager](https://gitee.com/MirrenTools/Orion-API-Manager)<br>
-
+github: [https://github.com/MirrenTools/Orion-API-Manager](https://github.com/MirrenTools/Orion-API-Manager)<br>
+码云: [https://gitee.com/MirrenTools/Orion-API-Manager](https://gitee.com/MirrenTools/Orion-API-Manager)<br>
+管理端UI: [https://github.com/MirrenTools/Orion-Api-Manager-Server](https://github.com/MirrenTools/Orion-Api-Manager-Server)<br>
+客户端UI: [https://github.com/MirrenTools/Orion-API-Manager-Client](https://github.com/MirrenTools/Orion-API-Manager-Client)<br>
+文档管理框架使用[vuepress](https://www.vuepress.cn/),文档静态网页由[码云Pages](https://gitee.com/)提供服务
 ### 维护者
 [<img width='60px' src='//avatars3.githubusercontent.com/u/24805209?s=96&v=4' alt='Mirren'/>](https://github.com/shenzhenMirren)
 
-### 文档框架
-[vuepress](https://www.vuepress.cn/)
+### 赞助与打赏
+本项目完全开源免费,如果你有感动你可以赞助或打赏我,你的赞助我们将在首页展示,你可以打赏后发送邮件给我!
 
-### 文档网页服务
-[码云](https://gitee.com/)
+**我的paypal** [https://www.paypal.com/paypalme/mirrentools](https://www.paypal.com/paypalme/mirrentools)
+
+**微信收款码**<br>
+<img width="400" src="/orion-api-manager-docs/weixin.png"><br>
+
+**支付宝收款码**<br>
+<img width="400" src="/orion-api-manager-docs/alipay.jpg"><br>
 
 ### License
 ```
