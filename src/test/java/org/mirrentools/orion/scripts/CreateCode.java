@@ -9,7 +9,7 @@ import org.mirrentools.sd.models.SdTemplate;
 import org.mirrentools.sd.options.ScrewDriverOptions;
 
 /**
- * 创建代码
+ * 创建代码,该脚本依赖 <a href="https://github.com/MirrenTools/screw-driver">ScrewDriver</a>
  * 
  * @author <a href="https://mirrentools.org/">Mirren</a>
  *

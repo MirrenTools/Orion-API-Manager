@@ -6,7 +6,7 @@ import org.mirrentools.sd.options.ScrewDriverOptions;
 import org.mirrentools.sd.options.SdDatabaseOptions;
 
 /**
- * 创建项目需要用到的数据库表
+ * 创建项目需要用到的数据库表,该脚本依赖 <a href="https://github.com/MirrenTools/screw-driver">ScrewDriver</a>
  * 
  * @author <a href="https://mirrentools.org/">Mirren</a>
  *
