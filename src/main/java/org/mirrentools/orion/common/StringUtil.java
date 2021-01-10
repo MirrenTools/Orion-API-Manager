@@ -6,6 +6,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 /**
@@ -212,6 +213,26 @@ public class StringUtil {
 		}
 		return pattern.replace("$h", Long.toString(hour)).replace("$m", Long.toString(minute)).replace("$s", Long.toString(second));
 	}
+	
+	/** 字符串数组大小写字母与数字,该数组的规则为0-9,a-z,A-Z */
+	public final static char[] ALPHANUMERIC = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
+
+	/**
+	 * 生成指定程度随机字符串
+	 * 
+	 * @param len
+	 *          字符串长度
+	 * @return
+	 */
+	public static String randomString(int len) {
+		StringBuilder result = new StringBuilder(len);
+		Random random = new Random();
+		for (int i = 0; i < len; i++) {
+			result.append(ALPHANUMERIC[random.nextInt(62)]);
+		}
+		return result.toString();
+	}
+	
 	/**
 	 * 获得随机UUID,true=带下划线,false不带下划线
 	 * 

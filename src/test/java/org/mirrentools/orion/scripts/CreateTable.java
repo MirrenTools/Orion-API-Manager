@@ -27,6 +27,8 @@ public class CreateTable {
 		ScrewDriver screwDriver = ScrewDriver.instance(new ScrewDriverOptions(databaseOptions));
 		// 创建项目表
 		screwDriver.createTable(Constant.getProjectBean());
+		// 创建项目分享记录表
+		screwDriver.createTable(Constant.getProjectShareBean());
 		// 创建接口分组表
 		screwDriver.createTable(Constant.getProjectApiGroupBean());
 		// 创建接口表

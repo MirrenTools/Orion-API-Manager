@@ -36,6 +36,22 @@ public class Constant {
 		bean.addColumn(new SdColumn().setName("sorts").setType(SdType.INTEGER).setDefaults("0").setRemark("项目排序"));
 		return bean;
 	}
+	/**
+	 * 获取项目分享的Bean
+	 * @return
+	 */
+	public static SdBean getProjectShareBean() {
+		SdBean bean = new SdBean();
+		bean.setName("project_share").setRemark("项目记录表");
+		bean.addColumn(
+				new SdColumn().setName("sid").setType(SdType.STRING).setLength(32).setPrimary(true).setRemark("分享的id"));
+		bean.addColumn(
+				new SdColumn().setName("pid").setType(SdType.STRING).setLength(255).setNullable(false).setRemark("项目的id"));
+		bean.addColumn(
+				new SdColumn().setName("pwd").setType(SdType.STRING).setLength(32).setNullable(false).setRemark("查看密码"));
+		bean.addColumn(new SdColumn().setName("share_time").setType(SdType.LONG).setRemark("分享的时间"));
+		return bean;
+	}
 
 	/**
 	 * 获取接口的bean
@@ -77,8 +93,7 @@ public class Constant {
 		bean.setName("project_api_template").setRemark("API接口模板");
 		bean.addColumn(
 				new SdColumn().setName("tid").setType(SdType.STRING).setLength(32).setPrimary(true).setRemark("模板的id"));
-		bean.addColumn(
-				new SdColumn().setName("uid").setType(SdType.STRING).setLength(250).setRemark("模板所属用户的id"));
+		bean.addColumn(new SdColumn().setName("uid").setType(SdType.STRING).setLength(250).setRemark("模板所属用户的id"));
 		bean.addColumn(
 				new SdColumn().setName("name").setType(SdType.STRING).setLength(255).setNullable(false).setRemark("模板的名称"));
 		bean.addColumn(new SdColumn().setName("api").setType(SdType.NTEXT).setRemark("API基本信息"));

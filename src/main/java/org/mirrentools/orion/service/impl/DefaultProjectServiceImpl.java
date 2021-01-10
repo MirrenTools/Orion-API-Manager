@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 
@@ -19,6 +20,7 @@ import org.json.JSONObject;
 import org.mirrentools.orion.common.ColumnsAPI;
 import org.mirrentools.orion.common.ColumnsApiGroup;
 import org.mirrentools.orion.common.ColumnsProject;
+import org.mirrentools.orion.common.ColumnsProjectShare;
 import org.mirrentools.orion.common.LoginRole;
 import org.mirrentools.orion.common.LoginSession;
 import org.mirrentools.orion.common.OrionApiManager;
@@ -32,11 +34,13 @@ import org.mirrentools.orion.entity.ProjectApi;
 import org.mirrentools.orion.entity.ProjectApiGroup;
 import org.mirrentools.orion.entity.ProjectApiTemplate;
 import org.mirrentools.orion.entity.ProjectInfo;
+import org.mirrentools.orion.entity.ProjectShare;
 import org.mirrentools.orion.entity.Users;
 import org.mirrentools.orion.mapper.ProjectApiGroupMapper;
 import org.mirrentools.orion.mapper.ProjectApiMapper;
 import org.mirrentools.orion.mapper.ProjectApiTemplateMapper;
 import org.mirrentools.orion.mapper.ProjectMapper;
+import org.mirrentools.orion.mapper.ProjectShareMapper;
 import org.mirrentools.orion.mapper.UsersMapper;
 import org.mirrentools.orion.service.ProjectService;
 import org.slf4j.Logger;
@@ -58,6 +62,9 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	/** 项目相关的数据库操作 */
 	@Autowired
 	private ProjectMapper projectMapper;
+	/** 项目分享相关的数据库操作 */
+	@Autowired
+	private ProjectShareMapper shareMapper;
 	/** 接口分组相关的数据库操作 */
 	@Autowired
 	private ProjectApiGroupMapper groupMapper;
@@ -436,6 +443,89 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			LOG.error("执行删除项目->" + key + "-->失败:", e);
 			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
+	}
+
+	@Override
+	public Map<String, Object> findProjectShare(LoginSession loginSession, String key) {
+		try {
+			if (StringUtil.isNullOrEmpty(key)) {
+				return ResultUtil.format(ResultCode.R412, "存在空值,项目的id不能为空");
+			}
+			SqlAssist assist = new SqlAssist().andEq(ColumnsProjectShare.PID, key);
+			assist.setOrderBy(ColumnsProjectShare.SHARE_TIME + " DESC ");
+			List<ProjectShare> result = shareMapper.selectAll(assist);
+			return ResultUtil.format200(result);
+		} catch (Throwable e) {
+			LOG.error("执行获取项目分享记录->" + key + "-->失败:", e);
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
+		}
+	}
+
+	@Override
+	public Map<String, Object> saveProjectShare(LoginSession loginSession, ProjectShare share) {
+		try {
+			if (share == null || StringUtil.isNullOrEmpty(share.getPid(), share.getPwd())) {
+				return ResultUtil.format(ResultCode.R412, "存在空值,pid,pwd不能为空");
+			}
+			if (checkSession(loginSession)) {
+				return ResultUtil.format403();
+			}
+			if (!isProjectOwner(loginSession, share.getPid())) {
+				return ResultUtil.format403();
+			}
+			String pwd = share.getPwd();
+			if (pwd.length() < 4 || pwd.length() > 32) {
+				return ResultUtil.format(ResultCode.R413, "无效参数,分享密码长度无效");
+			}
+			String sid = System.currentTimeMillis() + StringUtil.randomString(4);
+			share.setSid(sid);
+			share.setShareTime(System.currentTimeMillis());
+			int result = shareMapper.insertNotNull(share);
+			return ResultUtil.format200(result);
+		} catch (Throwable e) {
+			LOG.error("执行新增项目分享->" + share + "-->失败:", e);
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
+		}
+	}
+
+	@Override
+	public Map<String, Object> updateProjectShare(LoginSession loginSession, ProjectShare share) {
+		try {
+			if (share == null || StringUtil.isNullOrEmpty(share.getSid(),  share.getPwd())) {
+				return ResultUtil.format(ResultCode.R412, "存在空值,sid,pid,pwd不能为空");
+			}
+			if (checkSession(loginSession)) {
+				return ResultUtil.format403();
+			}
+			if (!isProjectOwner(loginSession, share.getPid())) {
+				return ResultUtil.format403();
+			}
+			String pwd = share.getPwd();
+			if (pwd.length() < 4 || pwd.length() > 32) {
+				return ResultUtil.format(ResultCode.R413, "无效参数,分享密码长度无效");
+			}
+			share.setShareTime(null);
+			int result = shareMapper.updateNotNullById(share);
+			return ResultUtil.format200(result);
+		} catch (Throwable e) {
+			LOG.error("执行修改项目分享->" + share + "-->失败:", e);
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
+		}
+	}
+
+	@Override
+	public Map<String, Object> deleteProjectShare(LoginSession loginSession, String sid) {
+		try {
+			if (StringUtil.isNullOrEmpty(sid)) {
+				return ResultUtil.format(ResultCode.R412, "存在空值,项目分享的id不能为空");
+			}
+			int result = shareMapper.deleteById(sid);
+			return ResultUtil.format200(result);
+		} catch (Throwable e) {
+			LOG.error("执行删除项目分享->" + sid + "-->失败:", e);
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
+		}
+
 	}
 
 	@Override
@@ -831,6 +921,28 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
+	public Map<String, Object> getJsonByShare(String sid, String pwd) {
+		try {
+			ProjectShare share = shareMapper.selectById(sid);
+			if (share == null || StringUtil.isNullOrEmpty(share.getPid())) {
+				return ResultUtil.format(ResultCode.R404);
+			}
+			if (!Objects.equals(pwd, share.getPwd())) {
+				return ResultUtil.format(ResultCode.R405);
+			}
+			Project project = projectMapper.selectById(share.getPid());
+			if (project == null) {
+				return ResultUtil.format(ResultCode.R404);
+			}
+			JSONObject result = convertProjectToJson(project);
+			return ResultUtil.format200(result.toString());
+		} catch (Throwable e) {
+			LOG.error("执行获取项目分享记录-->失败:", e);
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
+		}
+	}
+
+	@Override
 	public String getJson(LoginSession loginSession, String projectId) {
 		try {
 			if (checkSession(loginSession) || StringUtil.isNullOrEmpty(projectId)) {
@@ -843,148 +955,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (!isProjectOwners(loginSession, project)) {
 				return ResultUtil.formatAsString(ResultCode.R403);
 			}
-			JSONObject result = new JSONObject();
-			result.put("orionApi", OrionApiManager.VERSION);
-			result.put("key", project.getKey());
-			result.put("name", project.getName());
-			result.put("versions", project.getVersions());
-			result.put("description", project.getDescription());
-			try {
-				result.put("servers", new JSONArray(project.getServers()));
-			} catch (Exception e) {
-				result.put("servers", project.getServers());
-			}
-			result.put("contactName", project.getContactName());
-			result.put("contactInfo", project.getContactInfo());
-			if (project.getLastTime() != null) {
-				result.put("lastTime", new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date(project.getLastTime())));
-			}
-			if (project.getExternalDocs() != null) {
-				try {
-					result.put("externalDocs", new JSONObject(project.getExternalDocs()));
-				} catch (Exception e) {
-					result.put("externalDocs", project.getExternalDocs());
-					e.printStackTrace();
-				}
-			}
-			if (project.getExtensions() != null) {
-				try {
-					result.put("extensions", new JSONObject(project.getExtensions()));
-				} catch (Exception e) {
-					try {
-						result.put("extensions", new JSONArray(project.getExtensions()));
-					} catch (Exception e1) {
-						result.put("extensions", project.getExtensions());
-					}
-				}
-			}
-			List<ProjectApiGroup> list = getProjectApiGroupList(projectId, true);
-			if (list != null && !list.isEmpty()) {
-				JSONArray content = new JSONArray();
-				for (ProjectApiGroup pag : list) {
-					JSONObject group = new JSONObject();
-					group.put("groupId", pag.getGroupId());
-					group.put("projectId", pag.getProjectId());
-					group.put("name", pag.getName());
-					group.put("summary", pag.getSummary());
-					group.put("description", pag.getDescription());
-					if (pag.getExternalDocs() != null) {
-						try {
-							group.put("externalDocs", new JSONObject(pag.getExternalDocs()));
-						} catch (Exception e) {
-							group.put("externalDocs", pag.getExternalDocs());
-							e.printStackTrace();
-						}
-					}
-					if (pag.getExtensions() != null) {
-						try {
-							group.put("extensions", new JSONObject(pag.getExtensions()));
-						} catch (Exception e) {
-							group.put("extensions", pag.getExtensions());
-							e.printStackTrace();
-						}
-					}
-					JSONArray apis = new JSONArray();
-					if (pag.getApis() != null) {
-						for (ProjectApi pa : pag.getApis()) {
-							JSONObject api = new JSONObject();
-							api.put("apiId", pa.getApiId());
-							api.put("groupId", pa.getGroupId());
-							api.put("method", pa.getMethod());
-							api.put("path", pa.getPath());
-							api.put("title", pa.getTitle());
-							api.put("description", pa.getDescription());
-							api.put("deprecated", "true".equals(pa.getDeprecated()) ? true : false);
-							if (pa.getConsumes() != null) {
-								try {
-									api.put("consumes", new JSONArray(pa.getConsumes()));
-								} catch (Exception e) {
-									api.put("consumes", pa.getConsumes());
-									e.printStackTrace();
-								}
-							}
-							if (pa.getParameters() != null) {
-								try {
-									api.put("parameters", new JSONArray(pa.getParameters()));
-								} catch (Exception e) {
-									api.put("parameters", pa.getParameters());
-									e.printStackTrace();
-								}
-							}
-							api.put("body", pa.getBody());
-							if (pa.getProduces() != null) {
-								try {
-									api.put("produces", new JSONArray(pa.getProduces()));
-								} catch (Exception e) {
-									api.put("produces", pa.getProduces());
-									e.printStackTrace();
-								}
-							}
-
-							if (pa.getResponses() != null) {
-								try {
-									api.put("responses", new JSONArray(pa.getResponses()));
-								} catch (Exception e) {
-									api.put("responses", pa.getResponses());
-									e.printStackTrace();
-								}
-							}
-							if (pa.getAdditional() != null) {
-								try {
-									api.put("additional", new JSONArray(pa.getAdditional()));
-								} catch (Exception e) {
-									api.put("additional", pa.getAdditional());
-									e.printStackTrace();
-								}
-							}
-							if (pa.getExternalDocs() != null) {
-								try {
-									api.put("externalDocs", new JSONObject(pa.getExternalDocs()));
-								} catch (Exception e) {
-									api.put("externalDocs", pa.getExternalDocs());
-									e.printStackTrace();
-								}
-							}
-							if (pa.getExtensions() != null) {
-								try {
-									api.put("extensions", new JSONObject(pa.getExtensions()));
-								} catch (Exception e) {
-									try {
-										api.put("extensions", new JSONArray(pa.getExtensions()));
-									} catch (Exception e1) {
-										api.put("extensions", pa.getExtensions());
-										e1.printStackTrace();
-									}
-								}
-							}
-							apis.put(api);
-						}
-					}
-					group.put("apis", apis);
-					content.put(group);
-				}
-				result.put("content", content);
-			}
+			JSONObject result = convertProjectToJson(project);
 			return result.toString(2);
 		} catch (Throwable e) {
 			LOG.error("执行获取项目并转化为JSON->" + projectId + "-->失败:", e);
@@ -1051,6 +1022,158 @@ public class DefaultProjectServiceImpl implements ProjectService {
 		project.setContactInfo(data.has("contactInfo") ? data.getString("contactInfo") : null);
 		project.setLastTime(System.currentTimeMillis());
 		return project;
+	}
+
+	/**
+	 * 将项目转换为JSON
+	 * 
+	 * @param project
+	 * @return
+	 */
+	private JSONObject convertProjectToJson(Project project) {
+		JSONObject result = new JSONObject();
+		result.put("orionApi", OrionApiManager.VERSION);
+		result.put("key", project.getKey());
+		result.put("name", project.getName());
+		result.put("versions", project.getVersions());
+		result.put("description", project.getDescription());
+		try {
+			result.put("servers", new JSONArray(project.getServers()));
+		} catch (Exception e) {
+			result.put("servers", project.getServers());
+		}
+		result.put("contactName", project.getContactName());
+		result.put("contactInfo", project.getContactInfo());
+		if (project.getLastTime() != null) {
+			result.put("lastTime", new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date(project.getLastTime())));
+		}
+		if (project.getExternalDocs() != null) {
+			try {
+				result.put("externalDocs", new JSONObject(project.getExternalDocs()));
+			} catch (Exception e) {
+				result.put("externalDocs", project.getExternalDocs());
+				e.printStackTrace();
+			}
+		}
+		if (project.getExtensions() != null) {
+			try {
+				result.put("extensions", new JSONObject(project.getExtensions()));
+			} catch (Exception e) {
+				try {
+					result.put("extensions", new JSONArray(project.getExtensions()));
+				} catch (Exception e1) {
+					result.put("extensions", project.getExtensions());
+				}
+			}
+		}
+		List<ProjectApiGroup> list = getProjectApiGroupList(project.getKey(), true);
+		if (list != null && !list.isEmpty()) {
+			JSONArray content = new JSONArray();
+			for (ProjectApiGroup pag : list) {
+				JSONObject group = new JSONObject();
+				group.put("groupId", pag.getGroupId());
+				group.put("projectId", pag.getProjectId());
+				group.put("name", pag.getName());
+				group.put("summary", pag.getSummary());
+				group.put("description", pag.getDescription());
+				if (pag.getExternalDocs() != null) {
+					try {
+						group.put("externalDocs", new JSONObject(pag.getExternalDocs()));
+					} catch (Exception e) {
+						group.put("externalDocs", pag.getExternalDocs());
+						e.printStackTrace();
+					}
+				}
+				if (pag.getExtensions() != null) {
+					try {
+						group.put("extensions", new JSONObject(pag.getExtensions()));
+					} catch (Exception e) {
+						group.put("extensions", pag.getExtensions());
+						e.printStackTrace();
+					}
+				}
+				JSONArray apis = new JSONArray();
+				if (pag.getApis() != null) {
+					for (ProjectApi pa : pag.getApis()) {
+						JSONObject api = new JSONObject();
+						api.put("apiId", pa.getApiId());
+						api.put("groupId", pa.getGroupId());
+						api.put("method", pa.getMethod());
+						api.put("path", pa.getPath());
+						api.put("title", pa.getTitle());
+						api.put("description", pa.getDescription());
+						api.put("deprecated", "true".equals(pa.getDeprecated()) ? true : false);
+						if (pa.getConsumes() != null) {
+							try {
+								api.put("consumes", new JSONArray(pa.getConsumes()));
+							} catch (Exception e) {
+								api.put("consumes", pa.getConsumes());
+								e.printStackTrace();
+							}
+						}
+						if (pa.getParameters() != null) {
+							try {
+								api.put("parameters", new JSONArray(pa.getParameters()));
+							} catch (Exception e) {
+								api.put("parameters", pa.getParameters());
+								e.printStackTrace();
+							}
+						}
+						api.put("body", pa.getBody());
+						if (pa.getProduces() != null) {
+							try {
+								api.put("produces", new JSONArray(pa.getProduces()));
+							} catch (Exception e) {
+								api.put("produces", pa.getProduces());
+								e.printStackTrace();
+							}
+						}
+
+						if (pa.getResponses() != null) {
+							try {
+								api.put("responses", new JSONArray(pa.getResponses()));
+							} catch (Exception e) {
+								api.put("responses", pa.getResponses());
+								e.printStackTrace();
+							}
+						}
+						if (pa.getAdditional() != null) {
+							try {
+								api.put("additional", new JSONArray(pa.getAdditional()));
+							} catch (Exception e) {
+								api.put("additional", pa.getAdditional());
+								e.printStackTrace();
+							}
+						}
+						if (pa.getExternalDocs() != null) {
+							try {
+								api.put("externalDocs", new JSONObject(pa.getExternalDocs()));
+							} catch (Exception e) {
+								api.put("externalDocs", pa.getExternalDocs());
+								e.printStackTrace();
+							}
+						}
+						if (pa.getExtensions() != null) {
+							try {
+								api.put("extensions", new JSONObject(pa.getExtensions()));
+							} catch (Exception e) {
+								try {
+									api.put("extensions", new JSONArray(pa.getExtensions()));
+								} catch (Exception e1) {
+									api.put("extensions", pa.getExtensions());
+									e1.printStackTrace();
+								}
+							}
+						}
+						apis.put(api);
+					}
+				}
+				group.put("apis", apis);
+				content.put(group);
+			}
+			result.put("content", content);
+		}
+		return result;
 	}
 
 	/**

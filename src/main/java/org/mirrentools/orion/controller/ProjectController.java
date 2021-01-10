@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.mirrentools.orion.common.LoginSession;
 import org.mirrentools.orion.common.LoginSessionStore;
 import org.mirrentools.orion.entity.Project;
+import org.mirrentools.orion.entity.ProjectShare;
 import org.mirrentools.orion.service.HttpApiProxy;
 import org.mirrentools.orion.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,8 +79,7 @@ public class ProjectController {
 	 * @return
 	 */
 	@GetMapping(value = "/proxy/project", produces = { "application/json;charset=UTF-8" })
-	public Map<String, Object> proxyGetProject(
-			@RequestHeader(value = "x-session", required = false) String sessionId,
+	public Map<String, Object> proxyGetProject(@RequestHeader(value = "x-session", required = false) String sessionId,
 			String token, String url) {
 		LoginSession session = LoginSessionStore.get(sessionId);
 		if (session == null) {
@@ -193,6 +193,54 @@ public class ProjectController {
 	}
 
 	/**
+	 * 获取指定项目的分享记录
+	 * 
+	 * @return
+	 */
+	@GetMapping(value = "/private/projectShare/{id}", produces = { "application/json;charset=UTF-8" })
+	public Map<String, Object> findProjectShare(@RequestHeader(value = "x-session", required = false) String sessionId,
+			@PathVariable(value = "id") String id) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.findProjectShare(session, id);
+	}
+
+	/**
+	 * 添加项目分享
+	 * 
+	 * @return
+	 */
+	@PostMapping(value = "/private/server/projectShare", produces = { "application/json;charset=UTF-8" })
+	public Map<String, Object> postProjectShare(@RequestHeader(value = "x-session", required = false) String sessionId,
+			@RequestBody ProjectShare share) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.saveProjectShare(session, share);
+	}
+
+	/**
+	 * 修改项目分享
+	 * 
+	 * @return
+	 */
+	@PutMapping(value = "/private/server/projectShare", produces = { "application/json;charset=UTF-8" })
+	public Map<String, Object> updateProjectShare(@RequestHeader(value = "x-session", required = false) String sessionId,
+			@RequestBody ProjectShare share) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.updateProjectShare(session, share);
+	}
+
+	/**
+	 * 删除项目分享
+	 * 
+	 * @return
+	 */
+	@DeleteMapping(value = "/private/server/projectShare/{id}", produces = { "application/json;charset=UTF-8" })
+	public Map<String, Object> deleteProjectShare(@RequestHeader(value = "x-session", required = false) String sessionId,
+			@PathVariable(value = "id") String id) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.deleteProjectShare(session, id);
+	}
+
+	/**
 	 * 下载项目Json文件
 	 * 
 	 * @param response
@@ -224,6 +272,16 @@ public class ProjectController {
 			session = LoginSessionStore.get(token);
 		}
 		return proService.getJson(session, id);
+	}
+
+	/**
+	 * 获取分享项目
+	 * 
+	 * @return
+	 */
+	@GetMapping(value = "/project/share", produces = { "application/json;charset=UTF-8" })
+	public Map<String, Object> getProjectByShare(String sid, String pwd) {
+		return proService.getJsonByShare(sid, pwd);
 	}
 
 }

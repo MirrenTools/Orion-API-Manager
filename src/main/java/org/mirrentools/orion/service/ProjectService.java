@@ -10,6 +10,7 @@ import org.mirrentools.orion.entity.Project;
 import org.mirrentools.orion.entity.ProjectApi;
 import org.mirrentools.orion.entity.ProjectApiGroup;
 import org.mirrentools.orion.entity.ProjectApiTemplate;
+import org.mirrentools.orion.entity.ProjectShare;
 
 /**
  * 项目的服务接口
@@ -106,6 +107,42 @@ public interface ProjectService {
 	 * @return
 	 */
 	Map<String, Object> deleteProject(LoginSession loginSession, String key);
+
+	/**
+	 * 获取项目分享记录
+	 * 
+	 * @param loginSession 用户的会话
+	 * @param key          项目的id
+	 * @return
+	 */
+	Map<String, Object> findProjectShare(LoginSession loginSession, String key);
+
+	/**
+	 * 创建项目分享
+	 * 
+	 * @param loginSession 用户的会话
+	 * @param share        项目分享信息
+	 * @return
+	 */
+	Map<String, Object> saveProjectShare(LoginSession loginSession, ProjectShare share);
+
+	/**
+	 * 修改项目分享
+	 * 
+	 * @param loginSession 用户的会话
+	 * @param share        项目分享信息
+	 * @return
+	 */
+	Map<String, Object> updateProjectShare(LoginSession loginSession, ProjectShare share);
+
+	/**
+	 * 删除项目分享
+	 * 
+	 * @param loginSession 用户的会话
+	 * @param sid          项目分享信息
+	 * @return
+	 */
+	Map<String, Object> deleteProjectShare(LoginSession loginSession, String sid);
 
 	/**
 	 * 获取指定Project的接口分组
@@ -261,7 +298,16 @@ public interface ProjectService {
 	Map<String, Object> deleteApiTemplate(LoginSession loginSession, String tid);
 
 	/**
-	 * 获得的JSON字符串
+	 * 获取分享记录中的项目JSON字符串
+	 * 
+	 * @param sid 分享的id
+	 * @param pwd 查看的密码
+	 * @return
+	 */
+	Map<String, Object> getJsonByShare(String sid, String pwd);
+
+	/**
+	 * 获取项目的JSON字符串
 	 * 
 	 * @param projectId
 	 * @return

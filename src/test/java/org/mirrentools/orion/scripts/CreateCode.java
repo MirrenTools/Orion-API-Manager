@@ -30,6 +30,8 @@ public class CreateCode {
 
 		// 创建项目的代码
 		screwDriver.createCode(Constant.getProjectBean(), getTemplates("Project"));
+		// 创建项目分享记录的代码
+		screwDriver.createCode(Constant.getProjectShareBean(), getTemplates("ProjectShare"));
 		// 创建接口分组的代码
 		screwDriver.createCode(Constant.getProjectApiGroupBean(), getTemplates("ProjectApiGroup"));
 		// 创建接口的代码

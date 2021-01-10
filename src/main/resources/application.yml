@@ -8,7 +8,7 @@ server:
 spring:
   datasource:
     url: jdbc:sqlite:${user.dir}/config/ConfigDB.db
-    driver-class-name: org.sqlite.JDBC
+    driver-class-name: org.sqlite.JDBC    druid:      validation-query: SELECT 1
     #username: 登录账号
     #password: 登录密码
 mybatis:

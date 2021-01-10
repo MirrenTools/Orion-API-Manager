@@ -44,11 +44,23 @@ public enum ResultCode {
 	 */
 	R404(404, "The resource does not exist", "资源不存在"),
 	/**
+	 * 状态码:405,<br>
+	 * "View password is incorrect or invalid, please re-enter", <br>
+	 * "查看密码错误,或查看密码无效,请重新输入"
+	 */
+	R405(405, "View password is incorrect or invalid, please re-enter", "查看密码错误,或查看密码无效,请重新输入"),
+	/**
 	 * 状态码:412, <br>
 	 * "Please fill in all required parameters", <br>
 	 * "请按要求填写所有必填项"
 	 */
 	R412(412, "Please fill in all required parameters", "请按要求填写所有必填项"),
+	/**
+	 * 状态码:413, <br>
+	 * "Invalid request parameter", <br>
+	 * "无效的请求参数"
+	 */
+	R413(413, "Invalid request parameter", "无效的请求参数"),
 	/** 状态码:500, "failed", "失败" */
 	R500(500, "Failed", "失败"),
 	/**
