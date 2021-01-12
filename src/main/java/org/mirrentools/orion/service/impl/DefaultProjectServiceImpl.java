@@ -85,8 +85,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 				return ResultUtil.format403();
 			}
 			SqlAssist assist = new SqlAssist();
-			assist.setResultColumn(String.format("%s,%s,%s,%s,%s,%s", ColumnsProject.KEY, ColumnsProject.OWNER,
-					ColumnsProject.NAME, ColumnsProject.VERSIONS, ColumnsProject.LAST_TIME, ColumnsProject.SORTS));
+			assist.setResultColumn(String.format("%s,%s,%s,%s,%s,%s", ColumnsProject.KEY, ColumnsProject.OWNER, ColumnsProject.NAME,
+					ColumnsProject.VERSIONS, ColumnsProject.LAST_TIME, ColumnsProject.SORTS));
 			assist.setOrderBy(String.format("%s asc, %s desc", ColumnsProject.SORTS, ColumnsProject.LAST_TIME));
 			List<Project> all;
 			if (loginSession.getRole() == LoginRole.ROOT) {
@@ -102,6 +102,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 				if (loginSession.getRole() == LoginRole.SERVER) {
 					assist.orEq(ColumnsProject.OWNER, loginSession.getUid());
 				}
+				assist.orEq(ColumnsProject.OWNERS, "[]");
 				all = projectMapper.selectAll(assist);
 			}
 			if (all == null) {
@@ -281,8 +282,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 						ProjectApiGroup group = convertGroup(project.getKey(), gdata);
 						int saveGroup = groupMapper.insertNotNull(group);
 						if (session != null && session.isOpen()) {
-							session.getAsyncRemote().sendText(WebSocket.success(WebSocket.GROUP_SAVED,
-									WebSocket.progressModel(group.getName(), (i + 1), groups.length(), saveGroup)));
+							session.getAsyncRemote().sendText(
+									WebSocket.success(WebSocket.GROUP_SAVED, WebSocket.progressModel(group.getName(), (i + 1), groups.length(), saveGroup)));
 						}
 						if (saveGroup > 0 && gdata.has("apis")) {
 							JSONArray apis = gdata.getJSONArray("apis");
@@ -291,8 +292,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 								ProjectApi api = convertApi(group.getGroupId(), adata);
 								int saveApi = apiMapper.insertNotNull(api);
 								if (session != null && session.isOpen()) {
-									session.getAsyncRemote().sendText(WebSocket.success(WebSocket.API_SAVED,
-											WebSocket.progressModel(api.getTitle(), (j + 1), apis.length(), saveApi)));
+									session.getAsyncRemote().sendText(
+											WebSocket.success(WebSocket.API_SAVED, WebSocket.progressModel(api.getTitle(), (j + 1), apis.length(), saveApi)));
 								}
 							}
 						}
@@ -491,7 +492,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	@Override
 	public Map<String, Object> updateProjectShare(LoginSession loginSession, ProjectShare share) {
 		try {
-			if (share == null || StringUtil.isNullOrEmpty(share.getSid(),  share.getPwd())) {
+			if (share == null || StringUtil.isNullOrEmpty(share.getSid(), share.getPwd())) {
 				return ResultUtil.format(ResultCode.R412, "存在空值,sid,pid,pwd不能为空");
 			}
 			if (checkSession(loginSession)) {
@@ -952,8 +953,10 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (project == null) {
 				return ResultUtil.formatAsString(ResultCode.R404);
 			}
-			if (!isProjectOwners(loginSession, project)) {
-				return ResultUtil.formatAsString(ResultCode.R403);
+			if (!Objects.equals("[]", project.getOwners())) {
+				if (!isProjectOwners(loginSession, project)) {
+					return ResultUtil.formatAsString(ResultCode.R403);
+				}
 			}
 			JSONObject result = convertProjectToJson(project);
 			return result.toString(2);
@@ -983,7 +986,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	 * 获取指定项目的所有分组
 	 * 
 	 * @param projectId
-	 * @param getApis   是否包括分组的接口,true包括,false不包括
+	 * @param getApis
+	 *          是否包括分组的接口,true包括,false不包括
 	 * @return
 	 */
 	private List<ProjectApiGroup> getProjectApiGroupList(String projectId, boolean getApis) {
