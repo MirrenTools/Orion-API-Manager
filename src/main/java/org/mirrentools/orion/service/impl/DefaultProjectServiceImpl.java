@@ -13,6 +13,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.websocket.RemoteEndpoint.Async;
 import javax.websocket.Session;
 
 import org.json.JSONArray;
@@ -86,8 +87,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 				return ResultUtil.format403();
 			}
 			SqlAssist assist = new SqlAssist();
-			assist.setResultColumn(String.format("%s,%s,%s,%s,%s,%s", ColumnsProject.KEY, ColumnsProject.OWNER, ColumnsProject.NAME,
-					ColumnsProject.VERSIONS, ColumnsProject.LAST_TIME, ColumnsProject.SORTS));
+			assist.setResultColumn(String.format("%s,%s,%s,%s,%s,%s", ColumnsProject.KEY, ColumnsProject.OWNER,
+					ColumnsProject.NAME, ColumnsProject.VERSIONS, ColumnsProject.LAST_TIME, ColumnsProject.SORTS));
 			assist.setOrderBy(String.format("%s asc, %s desc", ColumnsProject.SORTS, ColumnsProject.LAST_TIME));
 			List<Project> all;
 			if (loginSession.getRole() == LoginRole.ROOT) {
@@ -241,25 +242,27 @@ public class DefaultProjectServiceImpl implements ProjectService {
 
 	@Override
 	public void saveProjectfromJsonWebSocket(LoginSession loginSession, String json, Session session) {
+		Async remote = session.getAsyncRemote();
+
 		try {
 			if (StringUtil.isNullOrEmpty(json)) {
-				session.getAsyncRemote().sendText(WebSocket.failed(WebSocket.CHECK_PROJECT_JSON));
+				remote.sendText(WebSocket.failed(WebSocket.CHECK_PROJECT_JSON));
 				return;
 			}
 			if (checkSession(loginSession)) {
-				session.getAsyncRemote().sendText(WebSocket.failed401());
+				remote.sendText(WebSocket.failed401());
 				return;
 			}
 			JSONObject data = new JSONObject(json);
 			if (StringUtil.isNullOrEmpty(data.getString("name"), data.getString("servers"))) {
 				if (session != null && session.isOpen()) {
-					session.getAsyncRemote().sendText(WebSocket.failed(WebSocket.CHECK_PROJECT_NAME_SERVERS));
+					remote.sendText(WebSocket.failed(WebSocket.CHECK_PROJECT_NAME_SERVERS));
 				}
 				return;
 			}
 			Project project = convertProject(data);
 			if (session != null && session.isOpen()) {
-				session.getAsyncRemote().sendText(WebSocket.success(WebSocket.PROJECT_SAVEING, project.getName()));
+				remote.sendText(WebSocket.success(WebSocket.PROJECT_SAVEING, project.getName()));
 			}
 			if (StringUtil.isNullOrEmpty(project.getKey())) {
 				project.setKey(UUID.randomUUID().toString());
@@ -274,7 +277,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			int saveProject = projectMapper.insertNotNull(project);
 			if (saveProject > 0) {
 				if (session != null && session.isOpen()) {
-					session.getAsyncRemote().sendText(WebSocket.success(WebSocket.PROJECT_SAVED, project.getName()));
+					remote.sendText(WebSocket.success(WebSocket.PROJECT_SAVED, project.getName()));
 				}
 				if (data.has("content")) {
 					JSONArray groups = data.getJSONArray("content");
@@ -283,8 +286,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 						ProjectApiGroup group = convertGroup(project.getKey(), gdata);
 						int saveGroup = groupMapper.insertNotNull(group);
 						if (session != null && session.isOpen()) {
-							session.getAsyncRemote().sendText(
-									WebSocket.success(WebSocket.GROUP_SAVED, WebSocket.progressModel(group.getName(), (i + 1), groups.length(), saveGroup)));
+							remote.sendText(WebSocket.success(WebSocket.GROUP_SAVED,
+									WebSocket.progressModel(group.getName(), (i + 1), groups.length(), saveGroup)));
 						}
 						if (saveGroup > 0 && gdata.has("apis")) {
 							JSONArray apis = gdata.getJSONArray("apis");
@@ -293,8 +296,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 								ProjectApi api = convertApi(group.getGroupId(), adata);
 								int saveApi = apiMapper.insertNotNull(api);
 								if (session != null && session.isOpen()) {
-									session.getAsyncRemote().sendText(
-											WebSocket.success(WebSocket.API_SAVED, WebSocket.progressModel(api.getTitle(), (j + 1), apis.length(), saveApi)));
+									remote.sendText(WebSocket.success(WebSocket.API_SAVED,
+											WebSocket.progressModel(api.getTitle(), (j + 1), apis.length(), saveApi)));
 								}
 							}
 						}
@@ -302,20 +305,26 @@ public class DefaultProjectServiceImpl implements ProjectService {
 				}
 			} else {
 				if (session != null && session.isOpen()) {
-					session.getAsyncRemote().sendText(WebSocket.success(WebSocket.PROJECT_SAVE_EXCEPTION, project.getName()));
+					remote.sendText(WebSocket.success(WebSocket.PROJECT_SAVE_EXCEPTION, project.getName()));
 				}
-			}
-			try {
-				if (session != null && session.isOpen()) {
-					session.getAsyncRemote().sendText(WebSocket.end());
-				}
-			} catch (Exception e) {
-				session.getAsyncRemote().sendText(WebSocket.end());
 			}
 		} catch (Exception e) {
 			LOG.error("执行通过Websocket导入json并保存项目->\n" + json + "\n-->失败:", e);
 			if (session != null && session.isOpen()) {
-				session.getAsyncRemote().sendText(WebSocket.failed(e.getMessage()));
+				remote.sendText(WebSocket.failed(e.getMessage()));
+			}
+		}
+		try {
+			synchronized (remote) {
+				if (session != null && session.isOpen()) {
+					remote.sendText(WebSocket.end());
+				}
+			}
+		} catch (Exception e) {
+			synchronized (remote) {
+				if (session != null && session.isOpen()) {
+					remote.sendText(WebSocket.end());
+				}
 			}
 		}
 	}
@@ -912,7 +921,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(tid)) {
 				return ResultUtil.format(ResultCode.R412);
 			}
-			SqlAssist assist = new SqlAssist().andEq(ColumnsApiTemplate.UID, loginSession.getUid()).andEq(ColumnsApiTemplate.TID, tid);
+			SqlAssist assist = new SqlAssist().andEq(ColumnsApiTemplate.UID, loginSession.getUid())
+					.andEq(ColumnsApiTemplate.TID, tid);
 			System.out.println(assist);
 			int result = templateMapper.deleteByAssist(assist);
 			return ResultUtil.format200(result);
@@ -987,8 +997,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	 * 获取指定项目的所有分组
 	 * 
 	 * @param projectId
-	 * @param getApis
-	 *          是否包括分组的接口,true包括,false不包括
+	 * @param getApis   是否包括分组的接口,true包括,false不包括
 	 * @return
 	 */
 	private List<ProjectApiGroup> getProjectApiGroupList(String projectId, boolean getApis) {
@@ -1233,6 +1242,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	private boolean checkSession(LoginSession loginSession) {
 		return loginSession == null || loginSession.getUid() == null || loginSession.getRole() == null;
 	}
+
 	/**
 	 * 通过API的id获取项目信息
 	 * 
@@ -1241,9 +1251,9 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	 */
 	private Project getProjectByApiId(String aid) {
 		SqlAssist assist = new SqlAssist();
-		String in = String.format(" %s IN (SELECT g.%s FROM %s g INNER JOIN %s a ON g.%s=a.%s WHERE a.%s=", ColumnsProject.KEY,
-				ColumnsApiGroup.PROJECT_ID, ColumnsApiGroup.TABLE_NAME, ColumnsAPI.TABLE_NAME, ColumnsApiGroup.GROUP_ID, ColumnsAPI.GROUP_ID,
-				ColumnsAPI.API_ID);
+		String in = String.format(" %s IN (SELECT g.%s FROM %s g INNER JOIN %s a ON g.%s=a.%s WHERE a.%s=",
+				ColumnsProject.KEY, ColumnsApiGroup.PROJECT_ID, ColumnsApiGroup.TABLE_NAME, ColumnsAPI.TABLE_NAME,
+				ColumnsApiGroup.GROUP_ID, ColumnsAPI.GROUP_ID, ColumnsAPI.API_ID);
 		assist.setCondition(SqlAssist.whereCondition(in, aid, ")"));
 		List<Project> all = projectMapper.selectAll(assist);
 		if (all != null && all.size() >= 1) {
@@ -1251,6 +1261,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 		}
 		return null;
 	}
+
 	/**
 	 * 检查用户是否是项目的负责人
 	 * 
