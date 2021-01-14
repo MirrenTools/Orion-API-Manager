@@ -3,22 +3,22 @@
 <mapper namespace="org.mirrentools.orion.mapper.ProjectApiMapper">
 	<!-- 实体类的返回map-->
 	<resultMap id="result_entity_map" type="org.mirrentools.orion.entity.ProjectApi">
-		<id column="api_id" property="apiId" />
-		<result column="group_id" property="groupId" />
-		<result column="method" property="method" />
-		<result column="path" property="path" />
-		<result column="title" property="title" />
-		<result column="description" property="description" />
-		<result column="consumes" property="consumes" />
-		<result column="parameters" property="parameters" />
-		<result column="body" property="body" />
-		<result column="produces" property="produces" />
-		<result column="responses" property="responses" />
-		<result column="deprecated" property="deprecated" />
-		<result column="additional" property="additional" />
-		<result column="external_docs" property="externalDocs" />
-		<result column="extensions" property="extensions" />
-		<result column="sorts" property="sorts" />
+		<id column="oam_api_id" property="apiId" />
+		<result column="oam_group_id" property="groupId" />
+		<result column="oam_method" property="method" />
+		<result column="oam_path" property="path" />
+		<result column="oam_title" property="title" />
+		<result column="oam_description" property="description" />
+		<result column="oam_consumes" property="consumes" />
+		<result column="oam_parameters" property="parameters" />
+		<result column="oam_body" property="body" />
+		<result column="oam_produces" property="produces" />
+		<result column="oam_responses" property="responses" />
+		<result column="oam_deprecated" property="deprecated" />
+		<result column="oam_additional" property="additional" />
+		<result column="oam_external_docs" property="externalDocs" />
+		<result column="oam_extensions" property="extensions" />
+		<result column="oam_sorts" property="sorts" />
 	</resultMap>
 	<!-- assist是 SQL查询帮助类添加条件, ${req.condition}表示列名或前缀,#{req.value}表示值它是防SQL注入的 -->
 	<sql id="assist">
@@ -73,12 +73,12 @@
 
 	<!-- 数据库中表的列名 -->
 	<sql id="table_column">
-		api_id,group_id,method,path,title,description,consumes,parameters,body,produces,responses,deprecated,additional,external_docs,extensions,sorts
+		oam_api_id,oam_group_id,oam_method,oam_path,oam_title,oam_description,oam_consumes,oam_parameters,oam_body,oam_produces,oam_responses,oam_deprecated,oam_additional,oam_external_docs,oam_extensions,oam_sorts
 	</sql>
 
 	<!--获取数据总行数 -->
 	<select id="getCount" parameterType="org.mirrentools.orion.common.SqlAssist" resultType="java.lang.Long">
-		select count(*) from project_api
+		select count(*) from oam_project_api
 		<if test="condition != null">
 			<include refid="assist" />
 		</if>
@@ -98,7 +98,7 @@
 				<include refid="table_column" />
 			</otherwise>
 		</choose>
-		from project_api
+		from oam_project_api
 		<if test="condition != null ">
 			<include refid="assist" />
 		</if>
@@ -117,24 +117,24 @@
 	<select id="selectSingleByObj" parameterType="org.mirrentools.orion.entity.ProjectApi" resultMap="result_entity_map">
 		select
 		<include refid="table_column" />
-		from project_api
+		from oam_project_api
 		<where>
-			<if test="groupId != null"> and group_id = #{groupId}</if>
-			<if test="method != null"> and method = #{method}</if>
-			<if test="path != null"> and path = #{path}</if>
-			<if test="title != null"> and title = #{title}</if>
-			<if test="description != null"> and description = #{description}</if>
-			<if test="consumes != null"> and consumes = #{consumes}</if>
-			<if test="parameters != null"> and parameters = #{parameters}</if>
-			<if test="body != null"> and body = #{body}</if>
-			<if test="produces != null"> and produces = #{produces}</if>
-			<if test="responses != null"> and responses = #{responses}</if>
-			<if test="deprecated != null"> and deprecated = #{deprecated}</if>
-			<if test="additional != null"> and additional = #{additional}</if>
-			<if test="externalDocs != null"> and external_docs = #{externalDocs}</if>
-			<if test="extensions != null"> and extensions = #{extensions}</if>
-			<if test="sorts != null"> and sorts = #{sorts}</if>
-			<if test="apiId != null"> and api_id = #{apiId}</if>
+			<if test="groupId != null"> and oam_group_id = #{groupId}</if>
+			<if test="method != null"> and oam_method = #{method}</if>
+			<if test="path != null"> and oam_path = #{path}</if>
+			<if test="title != null"> and oam_title = #{title}</if>
+			<if test="description != null"> and oam_description = #{description}</if>
+			<if test="consumes != null"> and oam_consumes = #{consumes}</if>
+			<if test="parameters != null"> and oam_parameters = #{parameters}</if>
+			<if test="body != null"> and oam_body = #{body}</if>
+			<if test="produces != null"> and oam_produces = #{produces}</if>
+			<if test="responses != null"> and oam_responses = #{responses}</if>
+			<if test="deprecated != null"> and oam_deprecated = #{deprecated}</if>
+			<if test="additional != null"> and oam_additional = #{additional}</if>
+			<if test="externalDocs != null"> and oam_external_docs = #{externalDocs}</if>
+			<if test="extensions != null"> and oam_extensions = #{extensions}</if>
+			<if test="sorts != null"> and oam_sorts = #{sorts}</if>
+			<if test="apiId != null"> and oam_api_id = #{apiId}</if>
 		</where>
 		LIMIT 1
 	</select>
@@ -143,55 +143,55 @@
 	<select id="selectByObj" parameterType="org.mirrentools.orion.entity.ProjectApi" resultMap="result_entity_map">
 		select
 		<include refid="table_column" />
-		from project_api
+		from oam_project_api
 		<where>
-			<if test="groupId != null"> and group_id = #{groupId}</if>
-			<if test="method != null"> and method = #{method}</if>
-			<if test="path != null"> and path = #{path}</if>
-			<if test="title != null"> and title = #{title}</if>
-			<if test="description != null"> and description = #{description}</if>
-			<if test="consumes != null"> and consumes = #{consumes}</if>
-			<if test="parameters != null"> and parameters = #{parameters}</if>
-			<if test="body != null"> and body = #{body}</if>
-			<if test="produces != null"> and produces = #{produces}</if>
-			<if test="responses != null"> and responses = #{responses}</if>
-			<if test="deprecated != null"> and deprecated = #{deprecated}</if>
-			<if test="additional != null"> and additional = #{additional}</if>
-			<if test="externalDocs != null"> and external_docs = #{externalDocs}</if>
-			<if test="extensions != null"> and extensions = #{extensions}</if>
-			<if test="sorts != null"> and sorts = #{sorts}</if>
-			<if test="apiId != null"> and api_id = #{apiId}</if>
+			<if test="groupId != null"> and oam_group_id = #{groupId}</if>
+			<if test="method != null"> and oam_method = #{method}</if>
+			<if test="path != null"> and oam_path = #{path}</if>
+			<if test="title != null"> and oam_title = #{title}</if>
+			<if test="description != null"> and oam_description = #{description}</if>
+			<if test="consumes != null"> and oam_consumes = #{consumes}</if>
+			<if test="parameters != null"> and oam_parameters = #{parameters}</if>
+			<if test="body != null"> and oam_body = #{body}</if>
+			<if test="produces != null"> and oam_produces = #{produces}</if>
+			<if test="responses != null"> and oam_responses = #{responses}</if>
+			<if test="deprecated != null"> and oam_deprecated = #{deprecated}</if>
+			<if test="additional != null"> and oam_additional = #{additional}</if>
+			<if test="externalDocs != null"> and oam_external_docs = #{externalDocs}</if>
+			<if test="extensions != null"> and oam_extensions = #{extensions}</if>
+			<if test="sorts != null"> and oam_sorts = #{sorts}</if>
+			<if test="apiId != null"> and oam_api_id = #{apiId}</if>
 		</where>
 	</select>
 
 	<!-- 插入一个对象包括属性值为null的值 -->
 	<insert id="insertAll" parameterType="org.mirrentools.orion.entity.ProjectApi">
 		insert into
-		project_api
-		(api_id,group_id,method,path,title,description,consumes,parameters,body,produces,responses,deprecated,additional,external_docs,extensions,sorts)
+		oam_project_api
+		(oam_api_id,oam_group_id,oam_method,oam_path,oam_title,oam_description,oam_consumes,oam_parameters,oam_body,oam_produces,oam_responses,oam_deprecated,oam_additional,oam_external_docs,oam_extensions,oam_sorts)
 		values(#{apiId},#{groupId},#{method},#{path},#{title},#{description},#{consumes},#{parameters},#{body},#{produces},#{responses},#{deprecated},#{additional},#{externalDocs},#{extensions},#{sorts})
 	</insert>
 
 	<!-- 插入一个对象,只插入对象中值不为null的属性 -->
 	<insert id="insertNotNull" parameterType="org.mirrentools.orion.entity.ProjectApi">
-		insert into project_api
+		insert into oam_project_api
 		<trim prefix="(" suffix=")" suffixOverrides=",">
-			<if test="apiId != null">api_id,</if>
-			<if test="groupId != null">group_id,</if>
-			<if test="method != null">method,</if>
-			<if test="path != null">path,</if>
-			<if test="title != null">title,</if>
-			<if test="description != null">description,</if>
-			<if test="consumes != null">consumes,</if>
-			<if test="parameters != null">parameters,</if>
-			<if test="body != null">body,</if>
-			<if test="produces != null">produces,</if>
-			<if test="responses != null">responses,</if>
-			<if test="deprecated != null">deprecated,</if>
-			<if test="additional != null">additional,</if>
-			<if test="externalDocs != null">external_docs,</if>
-			<if test="extensions != null">extensions,</if>
-			<if test="sorts != null">sorts,</if>
+			<if test="apiId != null">oam_api_id,</if>
+			<if test="groupId != null">oam_group_id,</if>
+			<if test="method != null">oam_method,</if>
+			<if test="path != null">oam_path,</if>
+			<if test="title != null">oam_title,</if>
+			<if test="description != null">oam_description,</if>
+			<if test="consumes != null">oam_consumes,</if>
+			<if test="parameters != null">oam_parameters,</if>
+			<if test="body != null">oam_body,</if>
+			<if test="produces != null">oam_produces,</if>
+			<if test="responses != null">oam_responses,</if>
+			<if test="deprecated != null">oam_deprecated,</if>
+			<if test="additional != null">oam_additional,</if>
+			<if test="externalDocs != null">oam_external_docs,</if>
+			<if test="extensions != null">oam_extensions,</if>
+			<if test="sorts != null">oam_sorts,</if>
 		</trim>
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="apiId != null">#{apiId},</if>
@@ -216,8 +216,8 @@
 	<!-- 批量添加全部所有字段 -->
 	<insert id="insertBatch" parameterType="ArrayList">
 		insert into
-		project_api
-		(api_id,group_id,method,path,title,description,consumes,parameters,body,produces,responses,deprecated,additional,external_docs,extensions,sorts)
+		oam_project_api
+		(oam_api_id,oam_group_id,oam_method,oam_path,oam_title,oam_description,oam_consumes,oam_parameters,oam_body,oam_produces,oam_responses,oam_deprecated,oam_additional,oam_external_docs,oam_extensions,oam_sorts)
 		values
 		<foreach collection="list" item="item" index="index" separator=",">
 			(#{item.apiId},#{item.groupId},#{item.method},#{item.path},#{item.title},#{item.description},#{item.consumes},#{item.parameters},#{item.body},#{item.produces},#{item.responses},#{item.deprecated},#{item.additional},#{item.externalDocs},#{item.extensions},#{item.sorts})
@@ -227,40 +227,40 @@
 	<!-- 插入一个对象,如果该对象不存在就新建如果该对象已经存在就更新 -->
 	<insert id="replace" parameterType="org.mirrentools.orion.entity.ProjectApi">
 		replace into
-		project_api
-		(api_id,group_id,method,path,title,description,consumes,parameters,body,produces,responses,deprecated,additional,external_docs,extensions,sorts)
+		oam_project_api
+		(oam_api_id,oam_group_id,oam_method,oam_path,oam_title,oam_description,oam_consumes,oam_parameters,oam_body,oam_produces,oam_responses,oam_deprecated,oam_additional,oam_external_docs,oam_extensions,oam_sorts)
 		values(#{apiId},#{groupId},#{method},#{path},#{title},#{description},#{consumes},#{parameters},#{body},#{produces},#{responses},#{deprecated},#{additional},#{externalDocs},#{extensions},#{sorts})
 	</insert>
 
 	<!-- 通过查询帮助类删除数据 -->
 	<delete id="deleteByAssist" parameterType="org.mirrentools.orion.common.SqlAssist">
 		delete from
-		project_api
-		<if test="condition != null">
+		oam_project_api
+		<if test="distinct != null">
 			<include refid="assist" />
 		</if>
 	</delete>
 
 	<!-- 更新一个对象中所有的属性包括null值,条件为SqlAssist查询帮助类 ,data=对象,assist=查询帮助类 -->
 	<update id="updateAllByAssist" parameterType="map">
-		update project_api
+		update oam_project_api
 		<set>
-			api_id = #{apiId},
-			group_id = #{groupId},
-			method = #{method},
-			path = #{path},
-			title = #{title},
-			description = #{description},
-			consumes = #{consumes},
-			parameters = #{parameters},
-			body = #{body},
-			produces = #{produces},
-			responses = #{responses},
-			deprecated = #{deprecated},
-			additional = #{additional},
-			external_docs = #{externalDocs},
-			extensions = #{extensions},
-			sorts = #{sorts}
+			oam_api_id = #{apiId},
+			oam_group_id = #{groupId},
+			oam_method = #{method},
+			oam_path = #{path},
+			oam_title = #{title},
+			oam_description = #{description},
+			oam_consumes = #{consumes},
+			oam_parameters = #{parameters},
+			oam_body = #{body},
+			oam_produces = #{produces},
+			oam_responses = #{responses},
+			oam_deprecated = #{deprecated},
+			oam_additional = #{additional},
+			oam_external_docs = #{externalDocs},
+			oam_extensions = #{extensions},
+			oam_sorts = #{sorts}
 		</set>
 		<if test="assist !=null">
 			<if test="assist.condition != null">
@@ -271,24 +271,24 @@
 
 	<!--更新一个对象中属性不为null值,条件为SqlAssist查询帮助类,data=对象,assist=查询帮助类 -->
 	<update id="updateNotNullByAssist" parameterType="map">
-		update project_api
+		update oam_project_api
 		<set>
-			<if test="data.apiId != null">api_id = #{apiId},</if>
-			<if test="data.groupId != null">group_id = #{groupId},</if>
-			<if test="data.method != null">method = #{method},</if>
-			<if test="data.path != null">path = #{path},</if>
-			<if test="data.title != null">title = #{title},</if>
-			<if test="data.description != null">description = #{description},</if>
-			<if test="data.consumes != null">consumes = #{consumes},</if>
-			<if test="data.parameters != null">parameters = #{parameters},</if>
-			<if test="data.body != null">body = #{body},</if>
-			<if test="data.produces != null">produces = #{produces},</if>
-			<if test="data.responses != null">responses = #{responses},</if>
-			<if test="data.deprecated != null">deprecated = #{deprecated},</if>
-			<if test="data.additional != null">additional = #{additional},</if>
-			<if test="data.externalDocs != null">external_docs = #{externalDocs},</if>
-			<if test="data.extensions != null">extensions = #{extensions},</if>
-			<if test="data.sorts != null">sorts = #{sorts}</if>
+			<if test="data.apiId != null">oam_api_id = #{apiId},</if>
+			<if test="data.groupId != null">oam_group_id = #{groupId},</if>
+			<if test="data.method != null">oam_method = #{method},</if>
+			<if test="data.path != null">oam_path = #{path},</if>
+			<if test="data.title != null">oam_title = #{title},</if>
+			<if test="data.description != null">oam_description = #{description},</if>
+			<if test="data.consumes != null">oam_consumes = #{consumes},</if>
+			<if test="data.parameters != null">oam_parameters = #{parameters},</if>
+			<if test="data.body != null">oam_body = #{body},</if>
+			<if test="data.produces != null">oam_produces = #{produces},</if>
+			<if test="data.responses != null">oam_responses = #{responses},</if>
+			<if test="data.deprecated != null">oam_deprecated = #{deprecated},</if>
+			<if test="data.additional != null">oam_additional = #{additional},</if>
+			<if test="data.externalDocs != null">oam_external_docs = #{externalDocs},</if>
+			<if test="data.extensions != null">oam_extensions = #{extensions},</if>
+			<if test="data.sorts != null">oam_sorts = #{sorts}</if>
 		</set>
 		<if test="assist !=null">
 			<if test="assist.condition != null">
@@ -300,59 +300,59 @@
 	<select id="selectById" parameterType="String" resultMap="result_entity_map">
 		select
 		<include refid="table_column" />
-		from project_api
-		where api_id = #{id}
+		from oam_project_api
+		where oam_api_id = #{id}
 	</select>
 	
 	<!-- 通过id删除数据 -->
 	<delete id="deleteById" parameterType="String">
-		delete from project_api
-		where api_id = #{id}
+		delete from oam_project_api
+		where oam_api_id = #{id}
 	</delete>
 	
 	<!-- 更新一个对象中所有的属性包括null值,条件为对象中的id -->
 	<update id="updateAllById" parameterType="org.mirrentools.orion.entity.ProjectApi">
-		update project_api set
+		update oam_project_api set
 		<set>
-			group_id = #{groupId},
-			method = #{method},
-			path = #{path},
-			title = #{title},
-			description = #{description},
-			consumes = #{consumes},
-			parameters = #{parameters},
-			body = #{body},
-			produces = #{produces},
-			responses = #{responses},
-			deprecated = #{deprecated},
-			additional = #{additional},
-			external_docs = #{externalDocs},
-			extensions = #{extensions},
-			sorts = #{sorts}
+			oam_group_id = #{groupId},
+			oam_method = #{method},
+			oam_path = #{path},
+			oam_title = #{title},
+			oam_description = #{description},
+			oam_consumes = #{consumes},
+			oam_parameters = #{parameters},
+			oam_body = #{body},
+			oam_produces = #{produces},
+			oam_responses = #{responses},
+			oam_deprecated = #{deprecated},
+			oam_additional = #{additional},
+			oam_external_docs = #{externalDocs},
+			oam_extensions = #{extensions},
+			oam_sorts = #{sorts}
 		</set>
-		where api_id = #{apiId}
+		where oam_api_id = #{apiId}
 	</update>
 
 	<!-- 更新一个对象中属性不为null值,条件为对象中的id -->
 	<update id="updateNotNullById" parameterType="org.mirrentools.orion.entity.ProjectApi">
-		update project_api
+		update oam_project_api
 		<set>
-			<if test="groupId != null">group_id = #{groupId},</if>
-			<if test="method != null">method = #{method},</if>
-			<if test="path != null">path = #{path},</if>
-			<if test="title != null">title = #{title},</if>
-			<if test="description != null">description = #{description},</if>
-			<if test="consumes != null">consumes = #{consumes},</if>
-			<if test="parameters != null">parameters = #{parameters},</if>
-			<if test="body != null">body = #{body},</if>
-			<if test="produces != null">produces = #{produces},</if>
-			<if test="responses != null">responses = #{responses},</if>
-			<if test="deprecated != null">deprecated = #{deprecated},</if>
-			<if test="additional != null">additional = #{additional},</if>
-			<if test="externalDocs != null">external_docs = #{externalDocs},</if>
-			<if test="extensions != null">extensions = #{extensions},</if>
-			<if test="sorts != null">sorts = #{sorts}</if>
+			<if test="groupId != null">oam_group_id = #{groupId},</if>
+			<if test="method != null">oam_method = #{method},</if>
+			<if test="path != null">oam_path = #{path},</if>
+			<if test="title != null">oam_title = #{title},</if>
+			<if test="description != null">oam_description = #{description},</if>
+			<if test="consumes != null">oam_consumes = #{consumes},</if>
+			<if test="parameters != null">oam_parameters = #{parameters},</if>
+			<if test="body != null">oam_body = #{body},</if>
+			<if test="produces != null">oam_produces = #{produces},</if>
+			<if test="responses != null">oam_responses = #{responses},</if>
+			<if test="deprecated != null">oam_deprecated = #{deprecated},</if>
+			<if test="additional != null">oam_additional = #{additional},</if>
+			<if test="externalDocs != null">oam_external_docs = #{externalDocs},</if>
+			<if test="extensions != null">oam_extensions = #{extensions},</if>
+			<if test="sorts != null">oam_sorts = #{sorts}</if>
 		</set>
-		where api_id = #{apiId}
+		where oam_api_id = #{apiId}
 	</update>
 </mapper>

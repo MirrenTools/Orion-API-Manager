@@ -7,12 +7,14 @@ package org.mirrentools.orion.common;
  *
  */
 public interface ColumnsTags {
-	/** tid */
-	public static final String TID = "tid";
-	/** tname */
-	public static final String TNAME = "tname";
-	/** sorts */
-	public static final String SORTS = "sorts";
-	/** ctime */
-	public static final String CTIME = "ctime";
+	/** 表的名称 */
+	public final static String TABLE_NAME = "oam_tags";
+	/** 标签的id */
+	public static final String TID = "oam_tid";
+	/** 标签的名称 */
+	public static final String TNAME = "oam_tname";
+	/** 标签的排序 */
+	public static final String SORTS = "oam_sorts";
+	/** 标签的创建时间 */
+	public static final String CTIME = "oam_ctime";
 }

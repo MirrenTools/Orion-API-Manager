@@ -19,6 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mirrentools.orion.common.ColumnsAPI;
 import org.mirrentools.orion.common.ColumnsApiGroup;
+import org.mirrentools.orion.common.ColumnsApiTemplate;
 import org.mirrentools.orion.common.ColumnsProject;
 import org.mirrentools.orion.common.ColumnsProjectShare;
 import org.mirrentools.orion.common.LoginRole;
@@ -757,7 +758,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (checkSession(loginSession)) {
 				return ResultUtil.format403();
 			}
-			Project project = projectMapper.getProjectOwnerByApiId(apiId);
+			Project project = getProjectByApiId(apiId);
 			if (project == null) {
 				return ResultUtil.format404();
 			}
@@ -834,7 +835,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 				return ResultUtil.format403();
 			}
 			if (loginSession.getRole() != LoginRole.ROOT) {
-				Project project = projectMapper.getProjectOwnerByApiId(apiId);
+				Project project = getProjectByApiId(apiId);
 				if (project == null) {
 					return ResultUtil.format403();
 				}
@@ -857,9 +858,9 @@ public class DefaultProjectServiceImpl implements ProjectService {
 				return ResultUtil.format403();
 			}
 			SqlAssist assist = new SqlAssist();
-			assist.andEq("uid", loginSession.getUid());
-			assist.setOrderBy("ctime desc");
-			assist.setResultColumn("tid,name");
+			assist.andEq(ColumnsApiTemplate.UID, loginSession.getUid());
+			assist.setOrderBy(ColumnsApiTemplate.CTIME + " desc");
+			assist.setResultColumn(ColumnsApiTemplate.TID + "," + ColumnsApiTemplate.NAME);
 			List<ProjectApiTemplate> result = templateMapper.selectAll(assist);
 			return ResultUtil.format200(result);
 		} catch (Exception e) {
@@ -911,7 +912,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(tid)) {
 				return ResultUtil.format(ResultCode.R412);
 			}
-			SqlAssist assist = new SqlAssist().andEq("uid", loginSession.getUid()).andEq("tid", tid);
+			SqlAssist assist = new SqlAssist().andEq(ColumnsApiTemplate.UID, loginSession.getUid()).andEq(ColumnsApiTemplate.TID, tid);
 			System.out.println(assist);
 			int result = templateMapper.deleteByAssist(assist);
 			return ResultUtil.format200(result);
@@ -1232,7 +1233,24 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	private boolean checkSession(LoginSession loginSession) {
 		return loginSession == null || loginSession.getUid() == null || loginSession.getRole() == null;
 	}
-
+	/**
+	 * 通过API的id获取项目信息
+	 * 
+	 * @param aid
+	 * @return
+	 */
+	private Project getProjectByApiId(String aid) {
+		SqlAssist assist = new SqlAssist();
+		String in = String.format(" %s IN (SELECT g.%s FROM %s g INNER JOIN %s a ON g.%s=a.%s WHERE a.%s=", ColumnsProject.KEY,
+				ColumnsApiGroup.PROJECT_ID, ColumnsApiGroup.TABLE_NAME, ColumnsAPI.TABLE_NAME, ColumnsApiGroup.GROUP_ID, ColumnsAPI.GROUP_ID,
+				ColumnsAPI.API_ID);
+		assist.setCondition(SqlAssist.whereCondition(in, aid, ")"));
+		List<Project> all = projectMapper.selectAll(assist);
+		if (all != null && all.size() >= 1) {
+			return all.get(0);
+		}
+		return null;
+	}
 	/**
 	 * 检查用户是否是项目的负责人
 	 * 

@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
+import org.mirrentools.orion.common.ColumnsAPI;
 import org.mirrentools.orion.common.SqlAssist;
 import org.mirrentools.orion.common.SqlAssist.LimitResult;
 import org.mirrentools.orion.entity.ProjectApi;
@@ -177,7 +178,9 @@ public interface ProjectApiMapper {
 	 * @param aid 接口的id
 	 * @return
 	 */
-	@Update("UPDATE project_api SET sorts=sorts-1 WHERE api_id=#{aid}")
+	@Update("UPDATE " + ColumnsAPI.TABLE_NAME 
+			+ " SET " + ColumnsAPI.SORTS + "=" + ColumnsAPI.SORTS + "-1 "
+			+ " WHERE "+ ColumnsAPI.API_ID + "=#{aid}")
 	int updateProjectApiMoveUp(@Param("aid") String aid);
 
 	/**
@@ -186,6 +189,8 @@ public interface ProjectApiMapper {
 	 * @param aid 接口的id
 	 * @return
 	 */
-	@Update("UPDATE project_api SET sorts=sorts+1 WHERE api_id=#{aid}")
+	@Update("UPDATE " + ColumnsAPI.TABLE_NAME 
+			+ " SET " + ColumnsAPI.SORTS + "=" + ColumnsAPI.SORTS + "+1 "
+			+ " WHERE "+ ColumnsAPI.API_ID + "=#{aid}")
 	int updateProjectApiMoveDown(@Param("aid") String aid);
 }

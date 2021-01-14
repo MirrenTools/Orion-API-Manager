@@ -3,19 +3,19 @@
 <mapper namespace="org.mirrentools.orion.mapper.ProjectMapper">
 	<!-- 实体类的返回map-->
 	<resultMap id="result_entity_map" type="org.mirrentools.orion.entity.Project">
-		<id column="key" property="key" />
-		<result column="name" property="name" />
-		<result column="versions" property="versions" />
-		<result column="description" property="description" />
-		<result column="servers" property="servers" />
-		<result column="external_docs" property="externalDocs" />
-		<result column="contact_name" property="contactName" />
-		<result column="contact_info" property="contactInfo" />
-		<result column="extensions" property="extensions" />
-		<result column="owner" property="owner" />
-		<result column="owners" property="owners" />
-		<result column="last_time" property="lastTime" />
-		<result column="sorts" property="sorts" />
+		<id column="oam_key" property="key" />
+		<result column="oam_name" property="name" />
+		<result column="oam_versions" property="versions" />
+		<result column="oam_description" property="description" />
+		<result column="oam_servers" property="servers" />
+		<result column="oam_external_docs" property="externalDocs" />
+		<result column="oam_contact_name" property="contactName" />
+		<result column="oam_contact_info" property="contactInfo" />
+		<result column="oam_extensions" property="extensions" />
+		<result column="oam_owner" property="owner" />
+		<result column="oam_owners" property="owners" />
+		<result column="oam_last_time" property="lastTime" />
+		<result column="oam_sorts" property="sorts" />
 	</resultMap>
 	<!-- assist是 SQL查询帮助类添加条件, ${req.condition}表示列名或前缀,#{req.value}表示值它是防SQL注入的 -->
 	<sql id="assist">
@@ -70,12 +70,12 @@
 
 	<!-- 数据库中表的列名 -->
 	<sql id="table_column">
-		key,name,versions,description,servers,external_docs,contact_name,contact_info,extensions,owner,owners,last_time,sorts
+		oam_key,oam_name,oam_versions,oam_description,oam_servers,oam_external_docs,oam_contact_name,oam_contact_info,oam_extensions,oam_owner,oam_owners,oam_last_time,oam_sorts
 	</sql>
 
 	<!--获取数据总行数 -->
 	<select id="getCount" parameterType="org.mirrentools.orion.common.SqlAssist" resultType="java.lang.Long">
-		select count(*) from project
+		select count(*) from oam_project
 		<if test="condition != null">
 			<include refid="assist" />
 		</if>
@@ -95,7 +95,7 @@
 				<include refid="table_column" />
 			</otherwise>
 		</choose>
-		from project
+		from oam_project
 		<if test="condition != null ">
 			<include refid="assist" />
 		</if>
@@ -114,21 +114,21 @@
 	<select id="selectSingleByObj" parameterType="org.mirrentools.orion.entity.Project" resultMap="result_entity_map">
 		select
 		<include refid="table_column" />
-		from project
+		from oam_project
 		<where>
-			<if test="name != null"> and name = #{name}</if>
-			<if test="versions != null"> and versions = #{versions}</if>
-			<if test="description != null"> and description = #{description}</if>
-			<if test="servers != null"> and servers = #{servers}</if>
-			<if test="externalDocs != null"> and external_docs = #{externalDocs}</if>
-			<if test="contactName != null"> and contact_name = #{contactName}</if>
-			<if test="contactInfo != null"> and contact_info = #{contactInfo}</if>
-			<if test="extensions != null"> and extensions = #{extensions}</if>
-			<if test="owner != null"> and owner = #{owner}</if>
-			<if test="owners != null"> and owners = #{owners}</if>
-			<if test="lastTime != null"> and last_time = #{lastTime}</if>
-			<if test="sorts != null"> and sorts = #{sorts}</if>
-			<if test="key != null"> and key = #{key}</if>
+			<if test="name != null"> and oam_name = #{name}</if>
+			<if test="versions != null"> and oam_versions = #{versions}</if>
+			<if test="description != null"> and oam_description = #{description}</if>
+			<if test="servers != null"> and oam_servers = #{servers}</if>
+			<if test="externalDocs != null"> and oam_external_docs = #{externalDocs}</if>
+			<if test="contactName != null"> and oam_contact_name = #{contactName}</if>
+			<if test="contactInfo != null"> and oam_contact_info = #{contactInfo}</if>
+			<if test="extensions != null"> and oam_extensions = #{extensions}</if>
+			<if test="owner != null"> and oam_owner = #{owner}</if>
+			<if test="owners != null"> and oam_owners = #{owners}</if>
+			<if test="lastTime != null"> and oam_last_time = #{lastTime}</if>
+			<if test="sorts != null"> and oam_sorts = #{sorts}</if>
+			<if test="key != null"> and oam_key = #{key}</if>
 		</where>
 		LIMIT 1
 	</select>
@@ -137,49 +137,49 @@
 	<select id="selectByObj" parameterType="org.mirrentools.orion.entity.Project" resultMap="result_entity_map">
 		select
 		<include refid="table_column" />
-		from project
+		from oam_project
 		<where>
-			<if test="name != null"> and name = #{name}</if>
-			<if test="versions != null"> and versions = #{versions}</if>
-			<if test="description != null"> and description = #{description}</if>
-			<if test="servers != null"> and servers = #{servers}</if>
-			<if test="externalDocs != null"> and external_docs = #{externalDocs}</if>
-			<if test="contactName != null"> and contact_name = #{contactName}</if>
-			<if test="contactInfo != null"> and contact_info = #{contactInfo}</if>
-			<if test="extensions != null"> and extensions = #{extensions}</if>
-			<if test="owner != null"> and owner = #{owner}</if>
-			<if test="owners != null"> and owners = #{owners}</if>
-			<if test="lastTime != null"> and last_time = #{lastTime}</if>
-			<if test="sorts != null"> and sorts = #{sorts}</if>
-			<if test="key != null"> and key = #{key}</if>
+			<if test="name != null"> and oam_name = #{name}</if>
+			<if test="versions != null"> and oam_versions = #{versions}</if>
+			<if test="description != null"> and oam_description = #{description}</if>
+			<if test="servers != null"> and oam_servers = #{servers}</if>
+			<if test="externalDocs != null"> and oam_external_docs = #{externalDocs}</if>
+			<if test="contactName != null"> and oam_contact_name = #{contactName}</if>
+			<if test="contactInfo != null"> and oam_contact_info = #{contactInfo}</if>
+			<if test="extensions != null"> and oam_extensions = #{extensions}</if>
+			<if test="owner != null"> and oam_owner = #{owner}</if>
+			<if test="owners != null"> and oam_owners = #{owners}</if>
+			<if test="lastTime != null"> and oam_last_time = #{lastTime}</if>
+			<if test="sorts != null"> and oam_sorts = #{sorts}</if>
+			<if test="key != null"> and oam_key = #{key}</if>
 		</where>
 	</select>
 
 	<!-- 插入一个对象包括属性值为null的值 -->
 	<insert id="insertAll" parameterType="org.mirrentools.orion.entity.Project">
 		insert into
-		project
-		(key,name,versions,description,servers,external_docs,contact_name,contact_info,extensions,owner,owners,last_time,sorts)
+		oam_project
+		(oam_key,oam_name,oam_versions,oam_description,oam_servers,oam_external_docs,oam_contact_name,oam_contact_info,oam_extensions,oam_owner,oam_owners,oam_last_time,oam_sorts)
 		values(#{key},#{name},#{versions},#{description},#{servers},#{externalDocs},#{contactName},#{contactInfo},#{extensions},#{owner},#{owners},#{lastTime},#{sorts})
 	</insert>
 
 	<!-- 插入一个对象,只插入对象中值不为null的属性 -->
 	<insert id="insertNotNull" parameterType="org.mirrentools.orion.entity.Project">
-		insert into project
+		insert into oam_project
 		<trim prefix="(" suffix=")" suffixOverrides=",">
-			<if test="key != null">key,</if>
-			<if test="name != null">name,</if>
-			<if test="versions != null">versions,</if>
-			<if test="description != null">description,</if>
-			<if test="servers != null">servers,</if>
-			<if test="externalDocs != null">external_docs,</if>
-			<if test="contactName != null">contact_name,</if>
-			<if test="contactInfo != null">contact_info,</if>
-			<if test="extensions != null">extensions,</if>
-			<if test="owner != null">owner,</if>
-			<if test="owners != null">owners,</if>
-			<if test="lastTime != null">last_time,</if>
-			<if test="sorts != null">sorts,</if>
+			<if test="key != null">oam_key,</if>
+			<if test="name != null">oam_name,</if>
+			<if test="versions != null">oam_versions,</if>
+			<if test="description != null">oam_description,</if>
+			<if test="servers != null">oam_servers,</if>
+			<if test="externalDocs != null">oam_external_docs,</if>
+			<if test="contactName != null">oam_contact_name,</if>
+			<if test="contactInfo != null">oam_contact_info,</if>
+			<if test="extensions != null">oam_extensions,</if>
+			<if test="owner != null">oam_owner,</if>
+			<if test="owners != null">oam_owners,</if>
+			<if test="lastTime != null">oam_last_time,</if>
+			<if test="sorts != null">oam_sorts,</if>
 		</trim>
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="key != null">#{key},</if>
@@ -201,8 +201,8 @@
 	<!-- 批量添加全部所有字段 -->
 	<insert id="insertBatch" parameterType="ArrayList">
 		insert into
-		project
-		(key,name,versions,description,servers,external_docs,contact_name,contact_info,extensions,owner,owners,last_time,sorts)
+		oam_project
+		(oam_key,oam_name,oam_versions,oam_description,oam_servers,oam_external_docs,oam_contact_name,oam_contact_info,oam_extensions,oam_owner,oam_owners,oam_last_time,oam_sorts)
 		values
 		<foreach collection="list" item="item" index="index" separator=",">
 			(#{item.key},#{item.name},#{item.versions},#{item.description},#{item.servers},#{item.externalDocs},#{item.contactName},#{item.contactInfo},#{item.extensions},#{item.owner},#{item.owners},#{item.lastTime},#{item.sorts})
@@ -212,37 +212,37 @@
 	<!-- 插入一个对象,如果该对象不存在就新建如果该对象已经存在就更新 -->
 	<insert id="replace" parameterType="org.mirrentools.orion.entity.Project">
 		replace into
-		project
-		(key,name,versions,description,servers,external_docs,contact_name,contact_info,extensions,owner,owners,last_time,sorts)
+		oam_project
+		(oam_key,oam_name,oam_versions,oam_description,oam_servers,oam_external_docs,oam_contact_name,oam_contact_info,oam_extensions,oam_owner,oam_owners,oam_last_time,oam_sorts)
 		values(#{key},#{name},#{versions},#{description},#{servers},#{externalDocs},#{contactName},#{contactInfo},#{extensions},#{owner},#{owners},#{lastTime},#{sorts})
 	</insert>
 
 	<!-- 通过查询帮助类删除数据 -->
 	<delete id="deleteByAssist" parameterType="org.mirrentools.orion.common.SqlAssist">
 		delete from
-		project
-		<if test="condition != null">
+		oam_project
+		<if test="distinct != null">
 			<include refid="assist" />
 		</if>
 	</delete>
 
 	<!-- 更新一个对象中所有的属性包括null值,条件为SqlAssist查询帮助类 ,data=对象,assist=查询帮助类 -->
 	<update id="updateAllByAssist" parameterType="map">
-		update project
+		update oam_project
 		<set>
-			key = #{key},
-			name = #{name},
-			versions = #{versions},
-			description = #{description},
-			servers = #{servers},
-			external_docs = #{externalDocs},
-			contact_name = #{contactName},
-			contact_info = #{contactInfo},
-			extensions = #{extensions},
-			owner = #{owner},
-			owners = #{owners},
-			last_time = #{lastTime},
-			sorts = #{sorts}
+			oam_key = #{key},
+			oam_name = #{name},
+			oam_versions = #{versions},
+			oam_description = #{description},
+			oam_servers = #{servers},
+			oam_external_docs = #{externalDocs},
+			oam_contact_name = #{contactName},
+			oam_contact_info = #{contactInfo},
+			oam_extensions = #{extensions},
+			oam_owner = #{owner},
+			oam_owners = #{owners},
+			oam_last_time = #{lastTime},
+			oam_sorts = #{sorts}
 		</set>
 		<if test="assist !=null">
 			<if test="assist.condition != null">
@@ -253,21 +253,21 @@
 
 	<!--更新一个对象中属性不为null值,条件为SqlAssist查询帮助类,data=对象,assist=查询帮助类 -->
 	<update id="updateNotNullByAssist" parameterType="map">
-		update project
+		update oam_project
 		<set>
-			<if test="data.key != null">key = #{key},</if>
-			<if test="data.name != null">name = #{name},</if>
-			<if test="data.versions != null">versions = #{versions},</if>
-			<if test="data.description != null">description = #{description},</if>
-			<if test="data.servers != null">servers = #{servers},</if>
-			<if test="data.externalDocs != null">external_docs = #{externalDocs},</if>
-			<if test="data.contactName != null">contact_name = #{contactName},</if>
-			<if test="data.contactInfo != null">contact_info = #{contactInfo},</if>
-			<if test="data.extensions != null">extensions = #{extensions},</if>
-			<if test="data.owner != null">owner = #{owner},</if>
-			<if test="data.owners != null">owners = #{owners},</if>
-			<if test="data.lastTime != null">last_time = #{lastTime},</if>
-			<if test="data.sorts != null">sorts = #{sorts}</if>
+			<if test="data.key != null">oam_key = #{key},</if>
+			<if test="data.name != null">oam_name = #{name},</if>
+			<if test="data.versions != null">oam_versions = #{versions},</if>
+			<if test="data.description != null">oam_description = #{description},</if>
+			<if test="data.servers != null">oam_servers = #{servers},</if>
+			<if test="data.externalDocs != null">oam_external_docs = #{externalDocs},</if>
+			<if test="data.contactName != null">oam_contact_name = #{contactName},</if>
+			<if test="data.contactInfo != null">oam_contact_info = #{contactInfo},</if>
+			<if test="data.extensions != null">oam_extensions = #{extensions},</if>
+			<if test="data.owner != null">oam_owner = #{owner},</if>
+			<if test="data.owners != null">oam_owners = #{owners},</if>
+			<if test="data.lastTime != null">oam_last_time = #{lastTime},</if>
+			<if test="data.sorts != null">oam_sorts = #{sorts}</if>
 		</set>
 		<if test="assist !=null">
 			<if test="assist.condition != null">
@@ -279,53 +279,53 @@
 	<select id="selectById" parameterType="String" resultMap="result_entity_map">
 		select
 		<include refid="table_column" />
-		from project
-		where key = #{id}
+		from oam_project
+		where oam_key = #{id}
 	</select>
 	
 	<!-- 通过id删除数据 -->
 	<delete id="deleteById" parameterType="String">
-		delete from project
-		where key = #{id}
+		delete from oam_project
+		where oam_key = #{id}
 	</delete>
 	
 	<!-- 更新一个对象中所有的属性包括null值,条件为对象中的id -->
 	<update id="updateAllById" parameterType="org.mirrentools.orion.entity.Project">
-		update project set
+		update oam_project set
 		<set>
-			name = #{name},
-			versions = #{versions},
-			description = #{description},
-			servers = #{servers},
-			external_docs = #{externalDocs},
-			contact_name = #{contactName},
-			contact_info = #{contactInfo},
-			extensions = #{extensions},
-			owner = #{owner},
-			owners = #{owners},
-			last_time = #{lastTime},
-			sorts = #{sorts}
+			oam_name = #{name},
+			oam_versions = #{versions},
+			oam_description = #{description},
+			oam_servers = #{servers},
+			oam_external_docs = #{externalDocs},
+			oam_contact_name = #{contactName},
+			oam_contact_info = #{contactInfo},
+			oam_extensions = #{extensions},
+			oam_owner = #{owner},
+			oam_owners = #{owners},
+			oam_last_time = #{lastTime},
+			oam_sorts = #{sorts}
 		</set>
-		where key = #{key}
+		where oam_key = #{key}
 	</update>
 
 	<!-- 更新一个对象中属性不为null值,条件为对象中的id -->
 	<update id="updateNotNullById" parameterType="org.mirrentools.orion.entity.Project">
-		update project
+		update oam_project
 		<set>
-			<if test="name != null">name = #{name},</if>
-			<if test="versions != null">versions = #{versions},</if>
-			<if test="description != null">description = #{description},</if>
-			<if test="servers != null">servers = #{servers},</if>
-			<if test="externalDocs != null">external_docs = #{externalDocs},</if>
-			<if test="contactName != null">contact_name = #{contactName},</if>
-			<if test="contactInfo != null">contact_info = #{contactInfo},</if>
-			<if test="extensions != null">extensions = #{extensions},</if>
-			<if test="owner != null">owner = #{owner},</if>
-			<if test="owners != null">owners = #{owners},</if>
-			<if test="lastTime != null">last_time = #{lastTime},</if>
-			<if test="sorts != null">sorts = #{sorts}</if>
+			<if test="name != null">oam_name = #{name},</if>
+			<if test="versions != null">oam_versions = #{versions},</if>
+			<if test="description != null">oam_description = #{description},</if>
+			<if test="servers != null">oam_servers = #{servers},</if>
+			<if test="externalDocs != null">oam_external_docs = #{externalDocs},</if>
+			<if test="contactName != null">oam_contact_name = #{contactName},</if>
+			<if test="contactInfo != null">oam_contact_info = #{contactInfo},</if>
+			<if test="extensions != null">oam_extensions = #{extensions},</if>
+			<if test="owner != null">oam_owner = #{owner},</if>
+			<if test="owners != null">oam_owners = #{owners},</if>
+			<if test="lastTime != null">oam_last_time = #{lastTime},</if>
+			<if test="sorts != null">oam_sorts = #{sorts}</if>
 		</set>
-		where key = #{key}
+		where oam_key = #{key}
 	</update>
 </mapper>

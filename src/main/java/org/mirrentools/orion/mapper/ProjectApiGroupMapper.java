@@ -5,21 +5,24 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
+import org.mirrentools.orion.common.ColumnsApiGroup;
 import org.mirrentools.orion.common.SqlAssist;
 import org.mirrentools.orion.common.SqlAssist.LimitResult;
 import org.mirrentools.orion.entity.ProjectApiGroup;
 
 /**
  * ProjectApiGroup数据库相关操作
- * @author 
- */ 
+ * 
+ * @author
+ */
 @Mapper
 public interface ProjectApiGroupMapper {
 
 	/**
 	 * 获取数据总行数
 	 * 
-	 * @param assist 查询帮助类,没有时可以传入null
+	 * @param assist
+	 *          查询帮助类,没有时可以传入null
 	 * @return
 	 */
 	long getCount(SqlAssist assist);
@@ -27,7 +30,8 @@ public interface ProjectApiGroupMapper {
 	/**
 	 * 查询所有数据
 	 * 
-	 * @param assist 查询帮助类,没有时可以传入null
+	 * @param assist
+	 *          查询帮助类,没有时可以传入null
 	 * @return
 	 */
 	List<ProjectApiGroup> selectAll(SqlAssist assist);
@@ -35,7 +39,8 @@ public interface ProjectApiGroupMapper {
 	/**
 	 * 分页获取数据,
 	 * 
-	 * @param assist 查询帮助类,默认page=1,rowSize=15
+	 * @param assist
+	 *          查询帮助类,默认page=1,rowSize=15
 	 * @return
 	 */
 	default LimitResult<ProjectApiGroup> limitAll(SqlAssist assist) {
@@ -62,7 +67,6 @@ public interface ProjectApiGroupMapper {
 		result.setData(data);
 		return result;
 	}
-
 
 	/**
 	 * 通过对象中不为空的属性为条件获取数据,只返回一条结果
@@ -112,21 +116,22 @@ public interface ProjectApiGroupMapper {
 	 */
 	int replace(ProjectApiGroup data);
 
-
 	/**
 	 * 通过查询帮助类删除数据
 	 * 
-	 * @param assist 查询帮助类,没有时可以传入null
+	 * @param assist
+	 *          查询帮助类,没有时可以传入null
 	 * @return
 	 */
 	int deleteByAssist(SqlAssist assist);
 
-
 	/**
 	 * 更新一个对象中所有的属性包括null值,条件为SqlAssist查询帮助类
 	 * 
-	 * @param data   对象
-	 * @param assist 查询帮助类
+	 * @param data
+	 *          对象
+	 * @param assist
+	 *          查询帮助类
 	 * @return
 	 */
 	int updateAllByAssist(@Param("data") ProjectApiGroup data, @Param("assist") SqlAssist assist);
@@ -134,8 +139,10 @@ public interface ProjectApiGroupMapper {
 	/**
 	 * 更新一个对象中属性不为null值,条件为SqlAssist查询帮助类
 	 * 
-	 * @param data   对象
-	 * @param assist 查询帮助类
+	 * @param data
+	 *          对象
+	 * @param assist
+	 *          查询帮助类
 	 * @return
 	 */
 	int updateNotNullByAssist(@Param("data") ProjectApiGroup data, @Param("assist") SqlAssist assist);
@@ -152,7 +159,7 @@ public interface ProjectApiGroupMapper {
 	 * @param id
 	 * @return
 	 */
-	int deleteById(String  id);
+	int deleteById(String id);
 	/**
 	 * 更新一个对象中所有的属性包括null值,条件为对象中的id
 	 * 
@@ -171,18 +178,24 @@ public interface ProjectApiGroupMapper {
 	/**
 	 * 将接口分组上移动
 	 * 
-	 * @param gid 分组的id
+	 * @param gid
+	 *          分组的id
 	 * @return
 	 */
-	@Update("UPDATE project_api_group SET sorts=sorts-1 WHERE group_id=#{gid}")
+	@Update("UPDATE " + ColumnsApiGroup.TABLE_NAME 
+				+ " SET " + ColumnsApiGroup.SORTS + "=" + ColumnsApiGroup.SORTS + "-1 "
+				+ " WHERE "+ ColumnsApiGroup.GROUP_ID + "=#{gid}")
 	int updateProjectApiGroupMoveUp(@Param("gid") String gid);
 
 	/**
 	 * 将接口分组下移动
 	 * 
-	 * @param gid 分组的id
+	 * @param gid
+	 *          分组的id
 	 * @return
 	 */
-	@Update("UPDATE project_api_group SET sorts=sorts+1 WHERE group_id=#{gid}")
+	@Update("UPDATE " + ColumnsApiGroup.TABLE_NAME 
+			+ " SET " + ColumnsApiGroup.SORTS + "=" + ColumnsApiGroup.SORTS + "+1 "
+			+ " WHERE "+ ColumnsApiGroup.GROUP_ID + "=#{gid}")
 	int updateProjectApiGroupMoveDown(@Param("gid") String gid);
 }

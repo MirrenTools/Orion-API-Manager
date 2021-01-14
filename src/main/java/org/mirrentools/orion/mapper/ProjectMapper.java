@@ -181,9 +181,9 @@ public interface ProjectMapper {
 	 * @param apiId
 	 * @return
 	 */
-	@Select(" select p.* from project p" 
-			+ " inner join project_api_group g on p." + ColumnsProject.KEY + "=g."+ ColumnsApiGroup.PROJECT_ID 
-			+ " inner join project_api a on a." + ColumnsAPI.GROUP_ID + "=g."+ ColumnsApiGroup.GROUP_ID
+	@Select(" select p."+ColumnsProject.KEY+" from "+ColumnsProject.TABLE_NAME+" p" 
+			+ " inner join "+ColumnsApiGroup.TABLE_NAME+" g on p." + ColumnsProject.KEY + "=g."+ ColumnsApiGroup.PROJECT_ID 
+			+ " inner join "+ColumnsAPI.TABLE_NAME+" a on a." + ColumnsAPI.GROUP_ID + "=g."+ ColumnsApiGroup.GROUP_ID
 			+ " where a."+ColumnsAPI.API_ID+"=#{apiId}")
 	Project getProjectOwnerByApiId(@Param("apiId") String apiId);
 
@@ -193,7 +193,7 @@ public interface ProjectMapper {
 	 * @param pid 项目的id
 	 * @return
 	 */
-	@Update("UPDATE project SET "+ColumnsProject.SORTS+"="+ColumnsProject.SORTS+"-1 WHERE key=#{pid}")
+	@Update("UPDATE "+ColumnsProject.TABLE_NAME+" SET "+ColumnsProject.SORTS+"="+ColumnsProject.SORTS+"-1 WHERE "+ColumnsProject.KEY+"=#{pid}")
 	int updateProjectMoveUp(@Param("pid") String pid);
 
 	/**
@@ -202,6 +202,6 @@ public interface ProjectMapper {
 	 * @param pid 项目的id
 	 * @return
 	 */
-	@Update("UPDATE project SET "+ColumnsProject.SORTS+"="+ColumnsProject.SORTS+"+1 WHERE key=#{pid}")
+	@Update("UPDATE "+ColumnsProject.TABLE_NAME+" SET "+ColumnsProject.SORTS+"="+ColumnsProject.SORTS+"+1 WHERE "+ColumnsProject.KEY+"=#{pid}")
 	int updateProjectMoveDown(@Param("pid") String pid);
 }

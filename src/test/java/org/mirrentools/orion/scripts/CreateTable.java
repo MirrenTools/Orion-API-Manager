@@ -2,6 +2,8 @@ package org.mirrentools.orion.scripts;
 
 import org.mirrentools.orion.Constant;
 import org.mirrentools.sd.ScrewDriver;
+import org.mirrentools.sd.constant.MySQL;
+import org.mirrentools.sd.constant.SQLite;
 import org.mirrentools.sd.options.ScrewDriverOptions;
 import org.mirrentools.sd.options.SdDatabaseOptions;
 
@@ -14,13 +16,15 @@ import org.mirrentools.sd.options.SdDatabaseOptions;
 public class CreateTable {
 	public static void main(String[] args) {
 		// 数据库的驱动类
-		String driver = "org.sqlite.JDBC";
+		 String driver = SQLite.SQLITE_DERVER;
+		// String driver = MySQL.MYSQL_8_DERVER;
 		// 数据库的连接地址
-		String url = "jdbc:sqlite:" + System.getProperty("user.dir") + "/config/ConfigDB.db";
+		 String url = "jdbc:sqlite:" + System.getProperty("user.dir") + "/config/ConfigDB.db";
+		// String url = "jdbc:mysql://127.0.0.1:3306/orion_api_manager?useUnicode=true&useSSL=false&serverTimezone=UTC";
 		// 数据库的登录用户
-		String username=null; 
+		String username="root"; 
 		// 数据库的登录密码
-		String password=null; 
+		String password="root"; 
 		SdDatabaseOptions databaseOptions = new SdDatabaseOptions(driver, url);
 		databaseOptions.setUser(username).setPassword(password);
 		

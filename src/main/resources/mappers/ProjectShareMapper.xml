@@ -3,10 +3,10 @@
 <mapper namespace="org.mirrentools.orion.mapper.ProjectShareMapper">
 	<!-- 实体类的返回map-->
 	<resultMap id="result_entity_map" type="org.mirrentools.orion.entity.ProjectShare">
-		<id column="sid" property="sid" />
-		<result column="pid" property="pid" />
-		<result column="pwd" property="pwd" />
-		<result column="share_time" property="shareTime" />
+		<id column="oam_sid" property="sid" />
+		<result column="oam_pid" property="pid" />
+		<result column="oam_pwd" property="pwd" />
+		<result column="oam_share_time" property="shareTime" />
 	</resultMap>
 	<!-- assist是 SQL查询帮助类添加条件, ${req.condition}表示列名或前缀,#{req.value}表示值它是防SQL注入的 -->
 	<sql id="assist">
@@ -61,12 +61,12 @@
 
 	<!-- 数据库中表的列名 -->
 	<sql id="table_column">
-		sid,pid,pwd,share_time
+		oam_sid,oam_pid,oam_pwd,oam_share_time
 	</sql>
 
 	<!--获取数据总行数 -->
 	<select id="getCount" parameterType="org.mirrentools.orion.common.SqlAssist" resultType="java.lang.Long">
-		select count(*) from project_share
+		select count(*) from oam_project_share
 		<if test="condition != null">
 			<include refid="assist" />
 		</if>
@@ -86,7 +86,7 @@
 				<include refid="table_column" />
 			</otherwise>
 		</choose>
-		from project_share
+		from oam_project_share
 		<if test="condition != null ">
 			<include refid="assist" />
 		</if>
@@ -105,12 +105,12 @@
 	<select id="selectSingleByObj" parameterType="org.mirrentools.orion.entity.ProjectShare" resultMap="result_entity_map">
 		select
 		<include refid="table_column" />
-		from project_share
+		from oam_project_share
 		<where>
-			<if test="pid != null"> and pid = #{pid}</if>
-			<if test="pwd != null"> and pwd = #{pwd}</if>
-			<if test="shareTime != null"> and share_time = #{shareTime}</if>
-			<if test="sid != null"> and sid = #{sid}</if>
+			<if test="pid != null"> and oam_pid = #{pid}</if>
+			<if test="pwd != null"> and oam_pwd = #{pwd}</if>
+			<if test="shareTime != null"> and oam_share_time = #{shareTime}</if>
+			<if test="sid != null"> and oam_sid = #{sid}</if>
 		</where>
 		LIMIT 1
 	</select>
@@ -119,31 +119,31 @@
 	<select id="selectByObj" parameterType="org.mirrentools.orion.entity.ProjectShare" resultMap="result_entity_map">
 		select
 		<include refid="table_column" />
-		from project_share
+		from oam_project_share
 		<where>
-			<if test="pid != null"> and pid = #{pid}</if>
-			<if test="pwd != null"> and pwd = #{pwd}</if>
-			<if test="shareTime != null"> and share_time = #{shareTime}</if>
-			<if test="sid != null"> and sid = #{sid}</if>
+			<if test="pid != null"> and oam_pid = #{pid}</if>
+			<if test="pwd != null"> and oam_pwd = #{pwd}</if>
+			<if test="shareTime != null"> and oam_share_time = #{shareTime}</if>
+			<if test="sid != null"> and oam_sid = #{sid}</if>
 		</where>
 	</select>
 
 	<!-- 插入一个对象包括属性值为null的值 -->
 	<insert id="insertAll" parameterType="org.mirrentools.orion.entity.ProjectShare">
 		insert into
-		project_share
-		(sid,pid,pwd,share_time)
+		oam_project_share
+		(oam_sid,oam_pid,oam_pwd,oam_share_time)
 		values(#{sid},#{pid},#{pwd},#{shareTime})
 	</insert>
 
 	<!-- 插入一个对象,只插入对象中值不为null的属性 -->
 	<insert id="insertNotNull" parameterType="org.mirrentools.orion.entity.ProjectShare">
-		insert into project_share
+		insert into oam_project_share
 		<trim prefix="(" suffix=")" suffixOverrides=",">
-			<if test="sid != null">sid,</if>
-			<if test="pid != null">pid,</if>
-			<if test="pwd != null">pwd,</if>
-			<if test="shareTime != null">share_time,</if>
+			<if test="sid != null">oam_sid,</if>
+			<if test="pid != null">oam_pid,</if>
+			<if test="pwd != null">oam_pwd,</if>
+			<if test="shareTime != null">oam_share_time,</if>
 		</trim>
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="sid != null">#{sid},</if>
@@ -156,8 +156,8 @@
 	<!-- 批量添加全部所有字段 -->
 	<insert id="insertBatch" parameterType="ArrayList">
 		insert into
-		project_share
-		(sid,pid,pwd,share_time)
+		oam_project_share
+		(oam_sid,oam_pid,oam_pwd,oam_share_time)
 		values
 		<foreach collection="list" item="item" index="index" separator=",">
 			(#{item.sid},#{item.pid},#{item.pwd},#{item.shareTime})
@@ -167,28 +167,28 @@
 	<!-- 插入一个对象,如果该对象不存在就新建如果该对象已经存在就更新 -->
 	<insert id="replace" parameterType="org.mirrentools.orion.entity.ProjectShare">
 		replace into
-		project_share
-		(sid,pid,pwd,share_time)
+		oam_project_share
+		(oam_sid,oam_pid,oam_pwd,oam_share_time)
 		values(#{sid},#{pid},#{pwd},#{shareTime})
 	</insert>
 
 	<!-- 通过查询帮助类删除数据 -->
 	<delete id="deleteByAssist" parameterType="org.mirrentools.orion.common.SqlAssist">
 		delete from
-		project_share
-		<if test="condition != null">
+		oam_project_share
+		<if test="distinct != null">
 			<include refid="assist" />
 		</if>
 	</delete>
 
 	<!-- 更新一个对象中所有的属性包括null值,条件为SqlAssist查询帮助类 ,data=对象,assist=查询帮助类 -->
 	<update id="updateAllByAssist" parameterType="map">
-		update project_share
+		update oam_project_share
 		<set>
-			sid = #{sid},
-			pid = #{pid},
-			pwd = #{pwd},
-			share_time = #{shareTime}
+			oam_sid = #{sid},
+			oam_pid = #{pid},
+			oam_pwd = #{pwd},
+			oam_share_time = #{shareTime}
 		</set>
 		<if test="assist !=null">
 			<if test="assist.condition != null">
@@ -199,12 +199,12 @@
 
 	<!--更新一个对象中属性不为null值,条件为SqlAssist查询帮助类,data=对象,assist=查询帮助类 -->
 	<update id="updateNotNullByAssist" parameterType="map">
-		update project_share
+		update oam_project_share
 		<set>
-			<if test="data.sid != null">sid = #{sid},</if>
-			<if test="data.pid != null">pid = #{pid},</if>
-			<if test="data.pwd != null">pwd = #{pwd},</if>
-			<if test="data.shareTime != null">share_time = #{shareTime}</if>
+			<if test="data.sid != null">oam_sid = #{sid},</if>
+			<if test="data.pid != null">oam_pid = #{pid},</if>
+			<if test="data.pwd != null">oam_pwd = #{pwd},</if>
+			<if test="data.shareTime != null">oam_share_time = #{shareTime}</if>
 		</set>
 		<if test="assist !=null">
 			<if test="assist.condition != null">
@@ -216,35 +216,35 @@
 	<select id="selectById" parameterType="String" resultMap="result_entity_map">
 		select
 		<include refid="table_column" />
-		from project_share
-		where sid = #{id}
+		from oam_project_share
+		where oam_sid = #{id}
 	</select>
 	
 	<!-- 通过id删除数据 -->
 	<delete id="deleteById" parameterType="String">
-		delete from project_share
-		where sid = #{id}
+		delete from oam_project_share
+		where oam_sid = #{id}
 	</delete>
 	
 	<!-- 更新一个对象中所有的属性包括null值,条件为对象中的id -->
 	<update id="updateAllById" parameterType="org.mirrentools.orion.entity.ProjectShare">
-		update project_share set
+		update oam_project_share set
 		<set>
-			pid = #{pid},
-			pwd = #{pwd},
-			share_time = #{shareTime}
+			oam_pid = #{pid},
+			oam_pwd = #{pwd},
+			oam_share_time = #{shareTime}
 		</set>
-		where sid = #{sid}
+		where oam_sid = #{sid}
 	</update>
 
 	<!-- 更新一个对象中属性不为null值,条件为对象中的id -->
 	<update id="updateNotNullById" parameterType="org.mirrentools.orion.entity.ProjectShare">
-		update project_share
+		update oam_project_share
 		<set>
-			<if test="pid != null">pid = #{pid},</if>
-			<if test="pwd != null">pwd = #{pwd},</if>
-			<if test="shareTime != null">share_time = #{shareTime}</if>
+			<if test="pid != null">oam_pid = #{pid},</if>
+			<if test="pwd != null">oam_pwd = #{pwd},</if>
+			<if test="shareTime != null">oam_share_time = #{shareTime}</if>
 		</set>
-		where sid = #{sid}
+		where oam_sid = #{sid}
 	</update>
 </mapper>

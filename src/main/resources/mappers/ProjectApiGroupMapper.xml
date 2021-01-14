@@ -3,14 +3,14 @@
 <mapper namespace="org.mirrentools.orion.mapper.ProjectApiGroupMapper">
 	<!-- 实体类的返回map-->
 	<resultMap id="result_entity_map" type="org.mirrentools.orion.entity.ProjectApiGroup">
-		<id column="group_id" property="groupId" />
-		<result column="project_id" property="projectId" />
-		<result column="name" property="name" />
-		<result column="summary" property="summary" />
-		<result column="description" property="description" />
-		<result column="external_docs" property="externalDocs" />
-		<result column="extensions" property="extensions" />
-		<result column="sorts" property="sorts" />
+		<id column="oam_group_id" property="groupId" />
+		<result column="oam_project_id" property="projectId" />
+		<result column="oam_name" property="name" />
+		<result column="oam_summary" property="summary" />
+		<result column="oam_description" property="description" />
+		<result column="oam_external_docs" property="externalDocs" />
+		<result column="oam_extensions" property="extensions" />
+		<result column="oam_sorts" property="sorts" />
 	</resultMap>
 	<!-- assist是 SQL查询帮助类添加条件, ${req.condition}表示列名或前缀,#{req.value}表示值它是防SQL注入的 -->
 	<sql id="assist">
@@ -65,12 +65,12 @@
 
 	<!-- 数据库中表的列名 -->
 	<sql id="table_column">
-		group_id,project_id,name,summary,description,external_docs,extensions,sorts
+		oam_group_id,oam_project_id,oam_name,oam_summary,oam_description,oam_external_docs,oam_extensions,oam_sorts
 	</sql>
 
 	<!--获取数据总行数 -->
 	<select id="getCount" parameterType="org.mirrentools.orion.common.SqlAssist" resultType="java.lang.Long">
-		select count(*) from project_api_group
+		select count(*) from oam_project_api_group
 		<if test="condition != null">
 			<include refid="assist" />
 		</if>
@@ -90,7 +90,7 @@
 				<include refid="table_column" />
 			</otherwise>
 		</choose>
-		from project_api_group
+		from oam_project_api_group
 		<if test="condition != null ">
 			<include refid="assist" />
 		</if>
@@ -109,16 +109,16 @@
 	<select id="selectSingleByObj" parameterType="org.mirrentools.orion.entity.ProjectApiGroup" resultMap="result_entity_map">
 		select
 		<include refid="table_column" />
-		from project_api_group
+		from oam_project_api_group
 		<where>
-			<if test="projectId != null"> and project_id = #{projectId}</if>
-			<if test="name != null"> and name = #{name}</if>
-			<if test="summary != null"> and summary = #{summary}</if>
-			<if test="description != null"> and description = #{description}</if>
-			<if test="externalDocs != null"> and external_docs = #{externalDocs}</if>
-			<if test="extensions != null"> and extensions = #{extensions}</if>
-			<if test="sorts != null"> and sorts = #{sorts}</if>
-			<if test="groupId != null"> and group_id = #{groupId}</if>
+			<if test="projectId != null"> and oam_project_id = #{projectId}</if>
+			<if test="name != null"> and oam_name = #{name}</if>
+			<if test="summary != null"> and oam_summary = #{summary}</if>
+			<if test="description != null"> and oam_description = #{description}</if>
+			<if test="externalDocs != null"> and oam_external_docs = #{externalDocs}</if>
+			<if test="extensions != null"> and oam_extensions = #{extensions}</if>
+			<if test="sorts != null"> and oam_sorts = #{sorts}</if>
+			<if test="groupId != null"> and oam_group_id = #{groupId}</if>
 		</where>
 		LIMIT 1
 	</select>
@@ -127,39 +127,39 @@
 	<select id="selectByObj" parameterType="org.mirrentools.orion.entity.ProjectApiGroup" resultMap="result_entity_map">
 		select
 		<include refid="table_column" />
-		from project_api_group
+		from oam_project_api_group
 		<where>
-			<if test="projectId != null"> and project_id = #{projectId}</if>
-			<if test="name != null"> and name = #{name}</if>
-			<if test="summary != null"> and summary = #{summary}</if>
-			<if test="description != null"> and description = #{description}</if>
-			<if test="externalDocs != null"> and external_docs = #{externalDocs}</if>
-			<if test="extensions != null"> and extensions = #{extensions}</if>
-			<if test="sorts != null"> and sorts = #{sorts}</if>
-			<if test="groupId != null"> and group_id = #{groupId}</if>
+			<if test="projectId != null"> and oam_project_id = #{projectId}</if>
+			<if test="name != null"> and oam_name = #{name}</if>
+			<if test="summary != null"> and oam_summary = #{summary}</if>
+			<if test="description != null"> and oam_description = #{description}</if>
+			<if test="externalDocs != null"> and oam_external_docs = #{externalDocs}</if>
+			<if test="extensions != null"> and oam_extensions = #{extensions}</if>
+			<if test="sorts != null"> and oam_sorts = #{sorts}</if>
+			<if test="groupId != null"> and oam_group_id = #{groupId}</if>
 		</where>
 	</select>
 
 	<!-- 插入一个对象包括属性值为null的值 -->
 	<insert id="insertAll" parameterType="org.mirrentools.orion.entity.ProjectApiGroup">
 		insert into
-		project_api_group
-		(group_id,project_id,name,summary,description,external_docs,extensions,sorts)
+		oam_project_api_group
+		(oam_group_id,oam_project_id,oam_name,oam_summary,oam_description,oam_external_docs,oam_extensions,oam_sorts)
 		values(#{groupId},#{projectId},#{name},#{summary},#{description},#{externalDocs},#{extensions},#{sorts})
 	</insert>
 
 	<!-- 插入一个对象,只插入对象中值不为null的属性 -->
 	<insert id="insertNotNull" parameterType="org.mirrentools.orion.entity.ProjectApiGroup">
-		insert into project_api_group
+		insert into oam_project_api_group
 		<trim prefix="(" suffix=")" suffixOverrides=",">
-			<if test="groupId != null">group_id,</if>
-			<if test="projectId != null">project_id,</if>
-			<if test="name != null">name,</if>
-			<if test="summary != null">summary,</if>
-			<if test="description != null">description,</if>
-			<if test="externalDocs != null">external_docs,</if>
-			<if test="extensions != null">extensions,</if>
-			<if test="sorts != null">sorts,</if>
+			<if test="groupId != null">oam_group_id,</if>
+			<if test="projectId != null">oam_project_id,</if>
+			<if test="name != null">oam_name,</if>
+			<if test="summary != null">oam_summary,</if>
+			<if test="description != null">oam_description,</if>
+			<if test="externalDocs != null">oam_external_docs,</if>
+			<if test="extensions != null">oam_extensions,</if>
+			<if test="sorts != null">oam_sorts,</if>
 		</trim>
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="groupId != null">#{groupId},</if>
@@ -176,8 +176,8 @@
 	<!-- 批量添加全部所有字段 -->
 	<insert id="insertBatch" parameterType="ArrayList">
 		insert into
-		project_api_group
-		(group_id,project_id,name,summary,description,external_docs,extensions,sorts)
+		oam_project_api_group
+		(oam_group_id,oam_project_id,oam_name,oam_summary,oam_description,oam_external_docs,oam_extensions,oam_sorts)
 		values
 		<foreach collection="list" item="item" index="index" separator=",">
 			(#{item.groupId},#{item.projectId},#{item.name},#{item.summary},#{item.description},#{item.externalDocs},#{item.extensions},#{item.sorts})
@@ -187,32 +187,32 @@
 	<!-- 插入一个对象,如果该对象不存在就新建如果该对象已经存在就更新 -->
 	<insert id="replace" parameterType="org.mirrentools.orion.entity.ProjectApiGroup">
 		replace into
-		project_api_group
-		(group_id,project_id,name,summary,description,external_docs,extensions,sorts)
+		oam_project_api_group
+		(oam_group_id,oam_project_id,oam_name,oam_summary,oam_description,oam_external_docs,oam_extensions,oam_sorts)
 		values(#{groupId},#{projectId},#{name},#{summary},#{description},#{externalDocs},#{extensions},#{sorts})
 	</insert>
 
 	<!-- 通过查询帮助类删除数据 -->
 	<delete id="deleteByAssist" parameterType="org.mirrentools.orion.common.SqlAssist">
 		delete from
-		project_api_group
-		<if test="condition != null">
+		oam_project_api_group
+		<if test="distinct != null">
 			<include refid="assist" />
 		</if>
 	</delete>
 
 	<!-- 更新一个对象中所有的属性包括null值,条件为SqlAssist查询帮助类 ,data=对象,assist=查询帮助类 -->
 	<update id="updateAllByAssist" parameterType="map">
-		update project_api_group
+		update oam_project_api_group
 		<set>
-			group_id = #{groupId},
-			project_id = #{projectId},
-			name = #{name},
-			summary = #{summary},
-			description = #{description},
-			external_docs = #{externalDocs},
-			extensions = #{extensions},
-			sorts = #{sorts}
+			oam_group_id = #{groupId},
+			oam_project_id = #{projectId},
+			oam_name = #{name},
+			oam_summary = #{summary},
+			oam_description = #{description},
+			oam_external_docs = #{externalDocs},
+			oam_extensions = #{extensions},
+			oam_sorts = #{sorts}
 		</set>
 		<if test="assist !=null">
 			<if test="assist.condition != null">
@@ -223,16 +223,16 @@
 
 	<!--更新一个对象中属性不为null值,条件为SqlAssist查询帮助类,data=对象,assist=查询帮助类 -->
 	<update id="updateNotNullByAssist" parameterType="map">
-		update project_api_group
+		update oam_project_api_group
 		<set>
-			<if test="data.groupId != null">group_id = #{groupId},</if>
-			<if test="data.projectId != null">project_id = #{projectId},</if>
-			<if test="data.name != null">name = #{name},</if>
-			<if test="data.summary != null">summary = #{summary},</if>
-			<if test="data.description != null">description = #{description},</if>
-			<if test="data.externalDocs != null">external_docs = #{externalDocs},</if>
-			<if test="data.extensions != null">extensions = #{extensions},</if>
-			<if test="data.sorts != null">sorts = #{sorts}</if>
+			<if test="data.groupId != null">oam_group_id = #{groupId},</if>
+			<if test="data.projectId != null">oam_project_id = #{projectId},</if>
+			<if test="data.name != null">oam_name = #{name},</if>
+			<if test="data.summary != null">oam_summary = #{summary},</if>
+			<if test="data.description != null">oam_description = #{description},</if>
+			<if test="data.externalDocs != null">oam_external_docs = #{externalDocs},</if>
+			<if test="data.extensions != null">oam_extensions = #{extensions},</if>
+			<if test="data.sorts != null">oam_sorts = #{sorts}</if>
 		</set>
 		<if test="assist !=null">
 			<if test="assist.condition != null">
@@ -244,43 +244,43 @@
 	<select id="selectById" parameterType="String" resultMap="result_entity_map">
 		select
 		<include refid="table_column" />
-		from project_api_group
-		where group_id = #{id}
+		from oam_project_api_group
+		where oam_group_id = #{id}
 	</select>
 	
 	<!-- 通过id删除数据 -->
 	<delete id="deleteById" parameterType="String">
-		delete from project_api_group
-		where group_id = #{id}
+		delete from oam_project_api_group
+		where oam_group_id = #{id}
 	</delete>
 	
 	<!-- 更新一个对象中所有的属性包括null值,条件为对象中的id -->
 	<update id="updateAllById" parameterType="org.mirrentools.orion.entity.ProjectApiGroup">
-		update project_api_group set
+		update oam_project_api_group set
 		<set>
-			project_id = #{projectId},
-			name = #{name},
-			summary = #{summary},
-			description = #{description},
-			external_docs = #{externalDocs},
-			extensions = #{extensions},
-			sorts = #{sorts}
+			oam_project_id = #{projectId},
+			oam_name = #{name},
+			oam_summary = #{summary},
+			oam_description = #{description},
+			oam_external_docs = #{externalDocs},
+			oam_extensions = #{extensions},
+			oam_sorts = #{sorts}
 		</set>
-		where group_id = #{groupId}
+		where oam_group_id = #{groupId}
 	</update>
 
 	<!-- 更新一个对象中属性不为null值,条件为对象中的id -->
 	<update id="updateNotNullById" parameterType="org.mirrentools.orion.entity.ProjectApiGroup">
-		update project_api_group
+		update oam_project_api_group
 		<set>
-			<if test="projectId != null">project_id = #{projectId},</if>
-			<if test="name != null">name = #{name},</if>
-			<if test="summary != null">summary = #{summary},</if>
-			<if test="description != null">description = #{description},</if>
-			<if test="externalDocs != null">external_docs = #{externalDocs},</if>
-			<if test="extensions != null">extensions = #{extensions},</if>
-			<if test="sorts != null">sorts = #{sorts}</if>
+			<if test="projectId != null">oam_project_id = #{projectId},</if>
+			<if test="name != null">oam_name = #{name},</if>
+			<if test="summary != null">oam_summary = #{summary},</if>
+			<if test="description != null">oam_description = #{description},</if>
+			<if test="externalDocs != null">oam_external_docs = #{externalDocs},</if>
+			<if test="extensions != null">oam_extensions = #{extensions},</if>
+			<if test="sorts != null">oam_sorts = #{sorts}</if>
 		</set>
-		where group_id = #{groupId}
+		where oam_group_id = #{groupId}
 	</update>
 </mapper>

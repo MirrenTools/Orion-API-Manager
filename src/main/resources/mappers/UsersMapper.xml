@@ -1,16 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.mirrentools.orion.mapper.UsersMapper">
 	<!-- 实体类的返回map-->
 	<resultMap id="result_entity_map" type="org.mirrentools.orion.entity.Users">
-		<id column="uid" property="uid" />
-		<result column="role" property="role" />
-		<result column="tags" property="tags" />
-		<result column="pwd" property="pwd" />
-		<result column="nickname" property="nickname" />
-		<result column="contact" property="contact" />
-		<result column="summary" property="summary" />
-		<result column="ctime" property="ctime" />
-		<result column="lasttime" property="lasttime" />
+		<id column="oam_uid" property="uid" />
+		<result column="oam_role" property="role" />
+		<result column="oam_tags" property="tags" />
+		<result column="oam_pwd" property="pwd" />
+		<result column="oam_nickname" property="nickname" />
+		<result column="oam_contact" property="contact" />
+		<result column="oam_summary" property="summary" />
+		<result column="oam_ctime" property="ctime" />
+		<result column="oam_lasttime" property="lasttime" />
 	</resultMap>
 	<!-- assist是 SQL查询帮助类添加条件, ${req.condition}表示列名或前缀,#{req.value}表示值它是防SQL注入的 -->
 	<sql id="assist">
@@ -65,12 +66,12 @@
 
 	<!-- 数据库中表的列名 -->
 	<sql id="table_column">
-		uid,role,tags,pwd,nickname,contact,summary,ctime,lasttime
+		oam_uid,oam_role,oam_tags,oam_pwd,oam_nickname,oam_contact,oam_summary,oam_ctime,oam_lasttime
 	</sql>
 
 	<!--获取数据总行数 -->
 	<select id="getCount" parameterType="org.mirrentools.orion.common.SqlAssist" resultType="java.lang.Long">
-		select count(*) from users
+		select count(*) from oam_users
 		<if test="condition != null">
 			<include refid="assist" />
 		</if>
@@ -90,7 +91,7 @@
 				<include refid="table_column" />
 			</otherwise>
 		</choose>
-		from users
+		from oam_users
 		<if test="condition != null ">
 			<include refid="assist" />
 		</if>
@@ -109,17 +110,17 @@
 	<select id="selectSingleByObj" parameterType="org.mirrentools.orion.entity.Users" resultMap="result_entity_map">
 		select
 		<include refid="table_column" />
-		from users
+		from oam_users
 		<where>
-			<if test="role != null"> and role = #{role}</if>
-			<if test="tags != null"> and tags = #{tags}</if>
-			<if test="pwd != null"> and pwd = #{pwd}</if>
-			<if test="nickname != null"> and nickname = #{nickname}</if>
-			<if test="contact != null"> and contact = #{contact}</if>
-			<if test="summary != null"> and summary = #{summary}</if>
-			<if test="ctime != null"> and ctime = #{ctime}</if>
-			<if test="lasttime != null"> and lasttime = #{lasttime}</if>
-			<if test="uid != null"> and uid = #{uid}</if>
+			<if test="role != null"> and oam_role = #{role}</if>
+			<if test="tags != null"> and oam_tags = #{tags}</if>
+			<if test="pwd != null"> and oam_pwd = #{pwd}</if>
+			<if test="nickname != null"> and oam_nickname = #{nickname}</if>
+			<if test="contact != null"> and oam_contact = #{contact}</if>
+			<if test="summary != null"> and oam_summary = #{summary}</if>
+			<if test="ctime != null"> and oam_ctime = #{ctime}</if>
+			<if test="lasttime != null"> and oam_lasttime = #{lasttime}</if>
+			<if test="uid != null"> and oam_uid = #{uid}</if>
 		</where>
 		LIMIT 1
 	</select>
@@ -128,41 +129,41 @@
 	<select id="selectByObj" parameterType="org.mirrentools.orion.entity.Users" resultMap="result_entity_map">
 		select
 		<include refid="table_column" />
-		from users
+		from oam_users
 		<where>
-			<if test="role != null"> and role = #{role}</if>
-			<if test="tags != null"> and tags = #{tags}</if>
-			<if test="pwd != null"> and pwd = #{pwd}</if>
-			<if test="nickname != null"> and nickname = #{nickname}</if>
-			<if test="contact != null"> and contact = #{contact}</if>
-			<if test="summary != null"> and summary = #{summary}</if>
-			<if test="ctime != null"> and ctime = #{ctime}</if>
-			<if test="lasttime != null"> and lasttime = #{lasttime}</if>
-			<if test="uid != null"> and uid = #{uid}</if>
+			<if test="role != null"> and oam_role = #{role}</if>
+			<if test="tags != null"> and oam_tags = #{tags}</if>
+			<if test="pwd != null"> and oam_pwd = #{pwd}</if>
+			<if test="nickname != null"> and oam_nickname = #{nickname}</if>
+			<if test="contact != null"> and oam_contact = #{contact}</if>
+			<if test="summary != null"> and oam_summary = #{summary}</if>
+			<if test="ctime != null"> and oam_ctime = #{ctime}</if>
+			<if test="lasttime != null"> and oam_lasttime = #{lasttime}</if>
+			<if test="uid != null"> and oam_uid = #{uid}</if>
 		</where>
 	</select>
 
 	<!-- 插入一个对象包括属性值为null的值 -->
 	<insert id="insertAll" parameterType="org.mirrentools.orion.entity.Users">
 		insert into
-		users
-		(uid,role,tags,pwd,nickname,contact,summary,ctime,lasttime)
+		oam_users
+		(oam_uid,oam_role,oam_tags,oam_pwd,oam_nickname,oam_contact,oam_summary,oam_ctime,oam_lasttime)
 		values(#{uid},#{role},#{tags},#{pwd},#{nickname},#{contact},#{summary},#{ctime},#{lasttime})
 	</insert>
 
 	<!-- 插入一个对象,只插入对象中值不为null的属性 -->
 	<insert id="insertNotNull" parameterType="org.mirrentools.orion.entity.Users">
-		insert into users
+		insert into oam_users
 		<trim prefix="(" suffix=")" suffixOverrides=",">
-			<if test="uid != null">uid,</if>
-			<if test="role != null">role,</if>
-			<if test="tags != null">tags,</if>
-			<if test="pwd != null">pwd,</if>
-			<if test="nickname != null">nickname,</if>
-			<if test="contact != null">contact,</if>
-			<if test="summary != null">summary,</if>
-			<if test="ctime != null">ctime,</if>
-			<if test="lasttime != null">lasttime,</if>
+			<if test="uid != null">oam_uid,</if>
+			<if test="role != null">oam_role,</if>
+			<if test="tags != null">oam_tags,</if>
+			<if test="pwd != null">oam_pwd,</if>
+			<if test="nickname != null">oam_nickname,</if>
+			<if test="contact != null">oam_contact,</if>
+			<if test="summary != null">oam_summary,</if>
+			<if test="ctime != null">oam_ctime,</if>
+			<if test="lasttime != null">oam_lasttime,</if>
 		</trim>
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="uid != null">#{uid},</if>
@@ -180,8 +181,8 @@
 	<!-- 批量添加全部所有字段 -->
 	<insert id="insertBatch" parameterType="ArrayList">
 		insert into
-		users
-		(uid,role,tags,pwd,nickname,contact,summary,ctime,lasttime)
+		oam_users
+		(oam_uid,oam_role,oam_tags,oam_pwd,oam_nickname,oam_contact,oam_summary,oam_ctime,oam_lasttime)
 		values
 		<foreach collection="list" item="item" index="index" separator=",">
 			(#{item.uid},#{item.role},#{item.tags},#{item.pwd},#{item.nickname},#{item.contact},#{item.summary},#{item.ctime},#{item.lasttime})
@@ -191,33 +192,33 @@
 	<!-- 插入一个对象,如果该对象不存在就新建如果该对象已经存在就更新 -->
 	<insert id="replace" parameterType="org.mirrentools.orion.entity.Users">
 		replace into
-		users
-		(uid,role,tags,pwd,nickname,contact,summary,ctime,lasttime)
+		oam_users
+		(oam_uid,oam_role,oam_tags,oam_pwd,oam_nickname,oam_contact,oam_summary,oam_ctime,oam_lasttime)
 		values(#{uid},#{role},#{tags},#{pwd},#{nickname},#{contact},#{summary},#{ctime},#{lasttime})
 	</insert>
 
 	<!-- 通过查询帮助类删除数据 -->
 	<delete id="deleteByAssist" parameterType="org.mirrentools.orion.common.SqlAssist">
 		delete from
-		users
-		<if test="condition != null">
+		oam_users
+		<if test="distinct != null">
 			<include refid="assist" />
 		</if>
 	</delete>
 
 	<!-- 更新一个对象中所有的属性包括null值,条件为SqlAssist查询帮助类 ,data=对象,assist=查询帮助类 -->
 	<update id="updateAllByAssist" parameterType="map">
-		update users
+		update oam_users
 		<set>
-			uid = #{uid},
-			role = #{role},
-			tags = #{tags},
-			pwd = #{pwd},
-			nickname = #{nickname},
-			contact = #{contact},
-			summary = #{summary},
-			ctime = #{ctime},
-			lasttime = #{lasttime}
+			oam_uid = #{uid},
+			oam_role = #{role},
+			oam_tags = #{tags},
+			oam_pwd = #{pwd},
+			oam_nickname = #{nickname},
+			oam_contact = #{contact},
+			oam_summary = #{summary},
+			oam_ctime = #{ctime},
+			oam_lasttime = #{lasttime}
 		</set>
 		<if test="assist !=null">
 			<if test="assist.condition != null">
@@ -228,17 +229,17 @@
 
 	<!--更新一个对象中属性不为null值,条件为SqlAssist查询帮助类,data=对象,assist=查询帮助类 -->
 	<update id="updateNotNullByAssist" parameterType="map">
-		update users
+		update oam_users
 		<set>
-			<if test="data.uid != null">uid = #{uid},</if>
-			<if test="data.role != null">role = #{role},</if>
-			<if test="data.tags != null">tags = #{tags},</if>
-			<if test="data.pwd != null">pwd = #{pwd},</if>
-			<if test="data.nickname != null">nickname = #{nickname},</if>
-			<if test="data.contact != null">contact = #{contact},</if>
-			<if test="data.summary != null">summary = #{summary},</if>
-			<if test="data.ctime != null">ctime = #{ctime},</if>
-			<if test="data.lasttime != null">lasttime = #{lasttime}</if>
+			<if test="data.uid != null">oam_uid = #{uid},</if>
+			<if test="data.role != null">oam_role = #{role},</if>
+			<if test="data.tags != null">oam_tags = #{tags},</if>
+			<if test="data.pwd != null">oam_pwd = #{pwd},</if>
+			<if test="data.nickname != null">oam_nickname = #{nickname},</if>
+			<if test="data.contact != null">oam_contact = #{contact},</if>
+			<if test="data.summary != null">oam_summary = #{summary},</if>
+			<if test="data.ctime != null">oam_ctime = #{ctime},</if>
+			<if test="data.lasttime != null">oam_lasttime = #{lasttime}</if>
 		</set>
 		<if test="assist !=null">
 			<if test="assist.condition != null">
@@ -250,45 +251,45 @@
 	<select id="selectById" parameterType="String" resultMap="result_entity_map">
 		select
 		<include refid="table_column" />
-		from users
-		where uid = #{id}
+		from oam_users
+		where oam_uid = #{id}
 	</select>
 	
 	<!-- 通过id删除数据 -->
 	<delete id="deleteById" parameterType="String">
-		delete from users
-		where uid = #{id}
+		delete from oam_users
+		where oam_uid = #{id}
 	</delete>
 	
 	<!-- 更新一个对象中所有的属性包括null值,条件为对象中的id -->
 	<update id="updateAllById" parameterType="org.mirrentools.orion.entity.Users">
-		update users set
+		update oam_users set
 		<set>
-			role = #{role},
-			tags = #{tags},
-			pwd = #{pwd},
-			nickname = #{nickname},
-			contact = #{contact},
-			summary = #{summary},
-			ctime = #{ctime},
-			lasttime = #{lasttime}
+			oam_role = #{role},
+			oam_tags = #{tags},
+			oam_pwd = #{pwd},
+			oam_nickname = #{nickname},
+			oam_contact = #{contact},
+			oam_summary = #{summary},
+			oam_ctime = #{ctime},
+			oam_lasttime = #{lasttime}
 		</set>
-		where uid = #{uid}
+		where oam_uid = #{uid}
 	</update>
 
 	<!-- 更新一个对象中属性不为null值,条件为对象中的id -->
 	<update id="updateNotNullById" parameterType="org.mirrentools.orion.entity.Users">
-		update users
+		update oam_users
 		<set>
-			<if test="role != null">role = #{role},</if>
-			<if test="tags != null">tags = #{tags},</if>
-			<if test="pwd != null">pwd = #{pwd},</if>
-			<if test="nickname != null">nickname = #{nickname},</if>
-			<if test="contact != null">contact = #{contact},</if>
-			<if test="summary != null">summary = #{summary},</if>
-			<if test="ctime != null">ctime = #{ctime},</if>
-			<if test="lasttime != null">lasttime = #{lasttime}</if>
+			<if test="role != null">oam_role = #{role},</if>
+			<if test="tags != null">oam_tags = #{tags},</if>
+			<if test="pwd != null">oam_pwd = #{pwd},</if>
+			<if test="nickname != null">oam_nickname = #{nickname},</if>
+			<if test="contact != null">oam_contact = #{contact},</if>
+			<if test="summary != null">oam_summary = #{summary},</if>
+			<if test="ctime != null">oam_ctime = #{ctime},</if>
+			<if test="lasttime != null">oam_lasttime = #{lasttime}</if>
 		</set>
-		where uid = #{uid}
+		where oam_uid = #{uid}
 	</update>
 </mapper>

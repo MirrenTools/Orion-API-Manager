@@ -3,10 +3,10 @@
 <mapper namespace="org.mirrentools.orion.mapper.TagsMapper">
 	<!-- 实体类的返回map-->
 	<resultMap id="result_entity_map" type="org.mirrentools.orion.entity.Tags">
-		<id column="tid" property="tid" />
-		<result column="tname" property="tname" />
-		<result column="sorts" property="sorts" />
-		<result column="ctime" property="ctime" />
+		<id column="oam_tid" property="tid" />
+		<result column="oam_tname" property="tname" />
+		<result column="oam_sorts" property="sorts" />
+		<result column="oam_ctime" property="ctime" />
 	</resultMap>
 	<!-- assist是 SQL查询帮助类添加条件, ${req.condition}表示列名或前缀,#{req.value}表示值它是防SQL注入的 -->
 	<sql id="assist">
@@ -61,12 +61,12 @@
 
 	<!-- 数据库中表的列名 -->
 	<sql id="table_column">
-		tid,tname,sorts,ctime
+		oam_tid,oam_tname,oam_sorts,oam_ctime
 	</sql>
 
 	<!--获取数据总行数 -->
 	<select id="getCount" parameterType="org.mirrentools.orion.common.SqlAssist" resultType="java.lang.Long">
-		select count(*) from tags
+		select count(*) from oam_tags
 		<if test="condition != null">
 			<include refid="assist" />
 		</if>
@@ -86,7 +86,7 @@
 				<include refid="table_column" />
 			</otherwise>
 		</choose>
-		from tags
+		from oam_tags
 		<if test="condition != null ">
 			<include refid="assist" />
 		</if>
@@ -105,12 +105,12 @@
 	<select id="selectSingleByObj" parameterType="org.mirrentools.orion.entity.Tags" resultMap="result_entity_map">
 		select
 		<include refid="table_column" />
-		from tags
+		from oam_tags
 		<where>
-			<if test="tname != null"> and tname = #{tname}</if>
-			<if test="sorts != null"> and sorts = #{sorts}</if>
-			<if test="ctime != null"> and ctime = #{ctime}</if>
-			<if test="tid != null"> and tid = #{tid}</if>
+			<if test="tname != null"> and oam_tname = #{tname}</if>
+			<if test="sorts != null"> and oam_sorts = #{sorts}</if>
+			<if test="ctime != null"> and oam_ctime = #{ctime}</if>
+			<if test="tid != null"> and oam_tid = #{tid}</if>
 		</where>
 		LIMIT 1
 	</select>
@@ -119,31 +119,31 @@
 	<select id="selectByObj" parameterType="org.mirrentools.orion.entity.Tags" resultMap="result_entity_map">
 		select
 		<include refid="table_column" />
-		from tags
+		from oam_tags
 		<where>
-			<if test="tname != null"> and tname = #{tname}</if>
-			<if test="sorts != null"> and sorts = #{sorts}</if>
-			<if test="ctime != null"> and ctime = #{ctime}</if>
-			<if test="tid != null"> and tid = #{tid}</if>
+			<if test="tname != null"> and oam_tname = #{tname}</if>
+			<if test="sorts != null"> and oam_sorts = #{sorts}</if>
+			<if test="ctime != null"> and oam_ctime = #{ctime}</if>
+			<if test="tid != null"> and oam_tid = #{tid}</if>
 		</where>
 	</select>
 
 	<!-- 插入一个对象包括属性值为null的值 -->
 	<insert id="insertAll" parameterType="org.mirrentools.orion.entity.Tags">
 		insert into
-		tags
-		(tid,tname,sorts,ctime)
+		oam_tags
+		(oam_tid,oam_tname,oam_sorts,oam_ctime)
 		values(#{tid},#{tname},#{sorts},#{ctime})
 	</insert>
 
 	<!-- 插入一个对象,只插入对象中值不为null的属性 -->
 	<insert id="insertNotNull" parameterType="org.mirrentools.orion.entity.Tags">
-		insert into tags
+		insert into oam_tags
 		<trim prefix="(" suffix=")" suffixOverrides=",">
-			<if test="tid != null">tid,</if>
-			<if test="tname != null">tname,</if>
-			<if test="sorts != null">sorts,</if>
-			<if test="ctime != null">ctime,</if>
+			<if test="tid != null">oam_tid,</if>
+			<if test="tname != null">oam_tname,</if>
+			<if test="sorts != null">oam_sorts,</if>
+			<if test="ctime != null">oam_ctime,</if>
 		</trim>
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="tid != null">#{tid},</if>
@@ -156,8 +156,8 @@
 	<!-- 批量添加全部所有字段 -->
 	<insert id="insertBatch" parameterType="ArrayList">
 		insert into
-		tags
-		(tid,tname,sorts,ctime)
+		oam_tags
+		(oam_tid,oam_tname,oam_sorts,oam_ctime)
 		values
 		<foreach collection="list" item="item" index="index" separator=",">
 			(#{item.tid},#{item.tname},#{item.sorts},#{item.ctime})
@@ -167,28 +167,28 @@
 	<!-- 插入一个对象,如果该对象不存在就新建如果该对象已经存在就更新 -->
 	<insert id="replace" parameterType="org.mirrentools.orion.entity.Tags">
 		replace into
-		tags
-		(tid,tname,sorts,ctime)
+		oam_tags
+		(oam_tid,oam_tname,oam_sorts,oam_ctime)
 		values(#{tid},#{tname},#{sorts},#{ctime})
 	</insert>
 
 	<!-- 通过查询帮助类删除数据 -->
 	<delete id="deleteByAssist" parameterType="org.mirrentools.orion.common.SqlAssist">
 		delete from
-		tags
-		<if test="condition != null">
+		oam_tags
+		<if test="distinct != null">
 			<include refid="assist" />
 		</if>
 	</delete>
 
 	<!-- 更新一个对象中所有的属性包括null值,条件为SqlAssist查询帮助类 ,data=对象,assist=查询帮助类 -->
 	<update id="updateAllByAssist" parameterType="map">
-		update tags
+		update oam_tags
 		<set>
-			tid = #{tid},
-			tname = #{tname},
-			sorts = #{sorts},
-			ctime = #{ctime}
+			oam_tid = #{tid},
+			oam_tname = #{tname},
+			oam_sorts = #{sorts},
+			oam_ctime = #{ctime}
 		</set>
 		<if test="assist !=null">
 			<if test="assist.condition != null">
@@ -199,12 +199,12 @@
 
 	<!--更新一个对象中属性不为null值,条件为SqlAssist查询帮助类,data=对象,assist=查询帮助类 -->
 	<update id="updateNotNullByAssist" parameterType="map">
-		update tags
+		update oam_tags
 		<set>
-			<if test="data.tid != null">tid = #{tid},</if>
-			<if test="data.tname != null">tname = #{tname},</if>
-			<if test="data.sorts != null">sorts = #{sorts},</if>
-			<if test="data.ctime != null">ctime = #{ctime}</if>
+			<if test="data.tid != null">oam_tid = #{tid},</if>
+			<if test="data.tname != null">oam_tname = #{tname},</if>
+			<if test="data.sorts != null">oam_sorts = #{sorts},</if>
+			<if test="data.ctime != null">oam_ctime = #{ctime}</if>
 		</set>
 		<if test="assist !=null">
 			<if test="assist.condition != null">
@@ -216,35 +216,35 @@
 	<select id="selectById" parameterType="String" resultMap="result_entity_map">
 		select
 		<include refid="table_column" />
-		from tags
-		where tid = #{id}
+		from oam_tags
+		where oam_tid = #{id}
 	</select>
 	
 	<!-- 通过id删除数据 -->
 	<delete id="deleteById" parameterType="String">
-		delete from tags
-		where tid = #{id}
+		delete from oam_tags
+		where oam_tid = #{id}
 	</delete>
 	
 	<!-- 更新一个对象中所有的属性包括null值,条件为对象中的id -->
 	<update id="updateAllById" parameterType="org.mirrentools.orion.entity.Tags">
-		update tags set
+		update oam_tags set
 		<set>
-			tname = #{tname},
-			sorts = #{sorts},
-			ctime = #{ctime}
+			oam_tname = #{tname},
+			oam_sorts = #{sorts},
+			oam_ctime = #{ctime}
 		</set>
-		where tid = #{tid}
+		where oam_tid = #{tid}
 	</update>
 
 	<!-- 更新一个对象中属性不为null值,条件为对象中的id -->
 	<update id="updateNotNullById" parameterType="org.mirrentools.orion.entity.Tags">
-		update tags
+		update oam_tags
 		<set>
-			<if test="tname != null">tname = #{tname},</if>
-			<if test="sorts != null">sorts = #{sorts},</if>
-			<if test="ctime != null">ctime = #{ctime}</if>
+			<if test="tname != null">oam_tname = #{tname},</if>
+			<if test="sorts != null">oam_sorts = #{sorts},</if>
+			<if test="ctime != null">oam_ctime = #{ctime}</if>
 		</set>
-		where tid = #{tid}
+		where oam_tid = #{tid}
 	</update>
 </mapper>
