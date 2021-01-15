@@ -36,7 +36,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		registry.addResourceHandler("/client/**")
 				.addResourceLocations("file:" + System.getProperty("user.dir") + "/Client-UI/")
 				.setCacheControl(CacheControl.maxAge(7, TimeUnit.DAYS));
-		registry.addResourceHandler("/favicon.ico").addResourceLocations("classpath:favicon.ico");
+		registry.addResourceHandler("/favicon.ico")
+		.addResourceLocations("classpath:favicon.ico","classpath:/BOOT-INF/classes/favicon.ico");
 		WebMvcConfigurer.super.addResourceHandlers(registry);
 	}
 
