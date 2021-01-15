@@ -1,8 +1,9 @@
 1.如果已经有java 1.8环境,直接运行start.bat(windows)或start.sh(unix)
-2.软件默认端口号为8686,如果需要改端口可以修改或执行内容为:java -jar -Dserver.port=端口号  Orion-API-Manager.jar
+2.软件默认端口号为8686,如果需要改端口可以在./config/application.yml中修改server-port
 3.启动软件后在浏览器访问http://服务地址:端口号
 4.选择服务端UI或客户端UI进行操作
 5.服务端地址: http://服务地址:端口号/console/index.html
 6.客户端地址: http://服务地址:端口号/client/index.html
 7.默认超级管理员账号为X-root,密码为helloOAM,超级管理员账号在config/user.json中管理
 8.软件升级时,可以将config里面的ConfigDB.db复制的新版本中就可以继续使用旧版本的数据
+9.使用文档请参考: https://mirren.gitee.io/orion-api-manager-docs

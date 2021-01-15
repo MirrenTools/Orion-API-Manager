@@ -39,8 +39,6 @@ public interface ColumnsAPI {
 	public static final String EXTERNAL_DOCS = "oam_external_docs";
 	/** 附加参数 */
 	public static final String EXTENSIONS = "oam_extensions";
-	/** 版本号 */
-	public static final String VERSION = "oam_version";
 	/** 排序 */
 	public static final String SORTS = "oam_sorts";
 }
