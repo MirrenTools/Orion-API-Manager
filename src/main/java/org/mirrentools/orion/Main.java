@@ -39,7 +39,7 @@ import org.springframework.web.socket.server.standard.ServerEndpointExporter;
  * @author <a href="https://mirrentools.org/">Mirren</a>
  * @date 2020-08-22
  */
-@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class })
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
 @EnableWebMvc
 @ServletComponentScan
 @MapperScan("org.mirrentools.orion.mapper")
@@ -53,4 +53,5 @@ public class Main {
 	public ServerEndpointExporter serverEndpointExporter() {
 		return new ServerEndpointExporter();
 	}
+
 }
