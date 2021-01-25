@@ -16,11 +16,11 @@ import org.mirrentools.sd.options.SdDatabaseOptions;
 public class CreateTable {
 	public static void main(String[] args) {
 		// 数据库的驱动类
-		 String driver = SQLite.SQLITE_DERVER;
-		// String driver = MySQL.MYSQL_8_DERVER;
+//		 String driver = SQLite.SQLITE_DERVER;
+		 String driver = MySQL.MYSQL_8_DERVER;
 		// 数据库的连接地址
-		 String url = "jdbc:sqlite:" + System.getProperty("user.dir") + "/config/ConfigDB.db";
-		// String url = "jdbc:mysql://127.0.0.1:3306/orion_api_manager?useUnicode=true&useSSL=false&serverTimezone=UTC";
+//		 String url = "jdbc:sqlite:" + System.getProperty("user.dir") + "/config/ConfigDB.db";
+		 String url = "jdbc:mysql://127.0.0.1:3306/orion_api_manager?useUnicode=true&useSSL=false&serverTimezone=UTC";
 		// 数据库的登录用户
 		String username="root"; 
 		// 数据库的登录密码

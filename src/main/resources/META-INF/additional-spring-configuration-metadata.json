@@ -8,5 +8,15 @@
     "name": "proxyAllowUnauthorized",
     "type": "java.lang.String",
     "description": "Allow unauthorized users to use proxy requests"
+  },
+  {
+    "name": "orionConsoleTitle",
+    "type": "java.lang.String",
+    "description": "A description for 'orionConsoleTitle'"
+  },
+  {
+    "name": "orionConsoleWelcome",
+    "type": "java.lang.String",
+    "description": "A description for 'orionConsoleWelcome'"
   }
 ]}

@@ -31,9 +31,11 @@ QQ交流群:796665306 <a target="_blank" href="//qm.qq.com/cgi-bin/qm/qr?k=d6kTE
 
 ## 修改配置信息
 - 配置信息所在目录为打包后的./config/application.yml 是一个YAML的SpringBoot配置文件
-- **clientAllowUnauthorized**: 是否允许未登录的用户访问客户端,**取值true=允许,false=不允许**
-- **proxyAllowUnauthorized**: 是否允许未登录的用户使用代理服务,**取值true=允许,false=不允许**
-- **server.port**: OAM服务的端口号,**默认为8686**
+- **clientAllowUnauthorized**(Boolean): 是否允许未登录的用户访问客户端,**取值true=允许,false=不允许**
+- **proxyAllowUnauthorized**(Boolean): 是否允许未登录的用户使用代理服务,**取值true=允许,false=不允许**
+- **orionConsoleTitle**(String): 管理端显示的标题
+- **orionConsoleWelcome**(String): 管理端登录页的欢迎语句
+- **server.port**(Integer): OAM服务的端口号,**默认为8686**
 - **spring.datasource**: <br>url: 数据库连接地址<br>driver-class-name: 数据库连接的驱动<br>username: 数据库用户<br>password: 数据库密码
 - **mybatis**: 相关的mapper XML一般不需要操作
 - **logging**: 相关的为日志操作
@@ -59,6 +61,114 @@ QQ交流群:796665306 <a target="_blank" href="//qm.qq.com/cgi-bin/qm/qr?k=d6kTE
   4. 如果使用的数据库不兼容MySQL语法(比如Oracle),你需要再执行第5步
   5. [可选] 打开src/test/java/org.mirrentools.orion.scripts.CreateTable.java<br>修改 MYBATIS_MAAPPER_TEMPLATE=注释中对应数据库的Mapper
   6. 重新执行**mvn clean package**进行打包就可以了,数据库表与代码的生成基于[Screw-Driver](https://mirren.gitee.io/screw-driver-docs/)
+
+## 导入或加载项目数据格式说明
+项目数据说明:
+``` java
+{
+	orionApi(String): OAM的版本
+	key(String): 项目的id
+	name(String): 项目的名称
+	versions(String): 项目的版本
+	description(String): 项目的描述(支持HTML)
+	lastTime(String): 项目最后更新时间
+	contactName(String): 项目联系人
+	contactInfo(String): 项目联系信息(支持HTML)
+	extensions(String|Object|Array): 拓展信息(客户端未实现)
+	servers(Array[Object]): 项目的服务集
+	--[
+	----{
+	------url(String): 附加文档URL
+	------description(String): 附加文档说明
+	----}
+	--]
+	externalDocs(Object): 附加文档
+	--{
+	----url(String): 附加文档URL
+	----description(String): 附加文档说明(支持HTML)
+	--}
+	content(Array[Object]): API分组[{见下方API分组说明}]
+}
+```
+
+API分组说明:
+
+``` java
+{
+	groupId(String): 分组的id
+	projectId(String): 项目的id
+	name(String): 分组的名称
+	summary(String): 分组的简介
+	description(String): 分组的详细描述(支持HTML)
+	extensions(String|Object|Array): 拓展信息(客户端未实现)
+	externalDocs(Object): 附加文档
+	--{
+	----url(String): 附加文档URL
+	----description(String): 附加文档说明(支持HTML)
+	--}
+	apis(Array[Object]): API列表[{见下方API说明}]
+}
+```
+
+API说明:
+``` java
+{
+	apiId(String): API的id
+	groupId(String): 分组的id
+	title(String): API的名称
+	method(String): 请求方法
+	path(String): 请求的路径
+	description(String): API的描述(支持HTML)
+	deprecated(Boolean): API是否已经过期
+	consumes(Array[String]): 请求类型集
+	parameters(Array[Object]): 请求的参数
+	--[{
+	----required(Boolean): 是否必填
+	----in(enum): 参数位置(query|body|path|header)
+	----type(enum): 参数类型(string|int|long|object|array|float|double|number|boolean)
+	----name(String): 参数的名称
+	----description(String): 参数的描述(支持HTML)
+	----def(String): 默认值
+	----enums(JsonArray(String)): 枚举值
+	----minLength(int): 字符串类型最小长度
+	----maxLength(int): 字符串类型最大长度
+	----minimum(Number): 数值最小值
+	----maximum(Number): 数值最大值
+	----pattern(String): 正则表达式
+	----items(JsonArray(JsonObject)): 与data一致
+	------[{
+	--------type(String): 响应类型与parameters的类型一致
+	--------name(String): 参数的名称
+	--------description(String): 参数的描述(支持HTML)
+	--------items(JsonArray(JsonObject)): 与items一致
+	------}]
+	--}]
+	body(String): 请求的body
+	produces(Array[String]): 响应的类型
+	body(String): 请求的body
+	responses(Array[Object]): 响应结果
+	--[{
+	----status(Integer): 状态码
+	----description(String): 附加文档说明(支持HTML)
+	----data(JsonArray(JsonObject)): 响应参数:
+	------[{
+	--------in(enum): 响应位置(header|body)
+	--------type(String): 响应类型与parameters的类型一致
+	--------name(String): 参数的名称
+	--------description(String): 参数的描述(支持HTML)
+	--------items(JsonArray(JsonObject)): 与data一致
+	------}]
+	--}]
+	additional(Array[Object]): 附加说明(已弃用)
+	extensions(String|Object|Array): 拓展信息(客户端未实现)
+	externalDocs(Object): 附加文档
+	--{
+	----url(String): 附加文档URL
+	----description(String): 附加文档说明(支持HTML)
+	--}
+}
+```
+
 ## 数据表格式说明
 ### 项目信息表 oam_project 
 |数据类型	|表列名称	|属性名称	|属性描述	|

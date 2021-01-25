@@ -16,25 +16,58 @@ public class ProjectApi {
 	private String path; 
 	/** 接口的名称 */
 	private String title; 
-	/** 接口的描述 */
+	/** 接口的描述(支持HTML) */
 	private String description; 
-	/** 请求类型 */
+	/** 请求类型(JsonArray(String)) */
 	private String consumes; 
-	/** 请求参数 */
+	/** 请求参数(JsonArray(JsonObject)):
+	 * required(Boolean): 是否必填,
+	 * in(enum): 参数位置(query|body|path|header),
+	 * type(enum): 参数类型(string|int|long|object|array|float|double|number|boolean),
+	 * name(String): 参数的名称,
+	 * description(String): 参数的描述(支持HTML),
+	 * def(String): 默认值,
+	 * enums(JsonArray(String)): 枚举值,
+	 * minLength(int): 字符串类型最小长度,
+	 * maxLength(int): 字符串类型最大长度,
+	 * minimum(Number): 数值最小值,
+	 * maximum(Number): 数值最大值,
+	 * pattern(String): 正则表达式,
+	 * items(JsonArray(JsonObject)): 响应参数:
+	 *   type(String): 响应类型与parameters的类型一致,
+	 *   name(String): 参数的名称,
+	 *   description(String): 参数的描述(支持HTML),
+	 *   items(JsonArray(JsonObject)): 与items一致
+	 */
 	private String parameters; 
 	/** 请求body */
 	private String body; 
-	/** 响应类型 */
+	/** 响应类型(JsonArray(String)) */
 	private String produces; 
-	/** 响应参数 */
+	/** 响应参数(JsonArray(JsonObject)): 
+	 * 	[{
+	 *    status(Integer): 状态码,
+	 *    msg(String): 状态信息,
+	 *    data(JsonArray(JsonObject)): 响应参数:
+	 *      in(enum): 响应位置(header|body),
+	 *      type(String): 响应类型与parameters的类型一致,
+	 *      name(String): 参数的名称,
+	 *      description(String): 参数的描述(支持HTML),
+	 *      items(JsonArray(JsonObject)): 与data一致
+	 *  }]
+	 */
 	private String responses; 
-	/** 接口是否已经过期 */
+	/** 接口是否已经过期(Boolean) */
 	private String deprecated; 
-	/** 附加信息 */
+	/** 附加信息-已弃用 */
 	private String additional; 
-	/** 附加文档 */
+	/**
+	 * 附加文档(JsonObject):
+	 * description(String):附加文档说明
+	 * url(String): 附加文档路径
+	 */
 	private String externalDocs; 
-	/** 拓展信息 */
+	/** 拓展信息String|String(JsonArray)|String(JsonObject) */
 	private String extensions; 
 	/** 项目排序 */
 	private Integer sorts; 

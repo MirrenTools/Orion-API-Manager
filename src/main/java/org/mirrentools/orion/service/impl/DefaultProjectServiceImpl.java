@@ -1146,9 +1146,9 @@ public class DefaultProjectServiceImpl implements ProjectService {
 						JSONObject api = new JSONObject();
 						api.put("apiId", pa.getApiId());
 						api.put("groupId", pa.getGroupId());
+						api.put("title", pa.getTitle());
 						api.put("method", pa.getMethod());
 						api.put("path", pa.getPath());
-						api.put("title", pa.getTitle());
 						api.put("description", pa.getDescription());
 						api.put("deprecated", "true".equals(pa.getDeprecated()) ? true : false);
 						if (pa.getConsumes() != null) {

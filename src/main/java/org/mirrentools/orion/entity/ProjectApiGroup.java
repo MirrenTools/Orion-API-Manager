@@ -17,19 +17,18 @@ public class ProjectApiGroup {
 	private String name;
 	/** 分组的简单描述 */
 	private String summary;
-	/** 分组的详细描述 */
+	/** 分组的详细描述(支持HTML) */
 	private String description;
 	/**
-	 * 分组的拓展文档(JsonObject):<br>
-	 * description(String):附加文档说明<br>
+	 * 分组的拓展文档(JsonObject):
+	 * description(String):附加文档说明
 	 * url(String): 附加文档路径
 	 */
 	private String externalDocs;
-	/** 分组的拓展属性 */
+	/** 分组的拓展属性String|String(JsonArray)|String(JsonObject) */
 	private String extensions;
 	/** 分组的排序 */
 	private Integer sorts;
-
 	/** 该分组下的所有接口 */
 	private List<ProjectApi> apis;
 

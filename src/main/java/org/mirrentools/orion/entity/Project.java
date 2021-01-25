@@ -12,23 +12,24 @@ public class Project {
 	private String name;
 	/** 版本号 */
 	private String versions;
-	/** 描述 */
+	/** 描述(支持HTML) */
 	private String description;
 	/** 服务集(JsonArray(JsonObject)):
-	 * 	[{url(String):"服务地址",description(String):描述简介}]
-	 *  */
+	 * 	[{
+	 *    url(String):服务地址,
+	 *    description(String):描述简介
+	 *  }]
+	 */
 	private String servers;
 	/** 附加文档(JsonObject):<br>
 	 * description(String):附加文档说明<br>
 	 * url(String): 附加文档路径
-	 *  */
+	 */
 	private String externalDocs;
 	/** 联系人 */
 	private String contactName;
 	/** 联系人信息 */
 	private String contactInfo;
-	/** 拓展信息 */
-	private String extensions;
 	/** 项目的负责人,为空时则为超级管理员 */
 	private String owner;
 	/** 用户的信息 */
@@ -39,6 +40,8 @@ public class Project {
 	private Long lastTime;
 	/** 项目排序 */
 	private Integer sorts;
+	/** 拓展信息String|String(JsonArray)|String(JsonObject) */
+	private String extensions;
 
 	/**
 	 * 获取项目的id

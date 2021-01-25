@@ -4,7 +4,7 @@ clientAllowUnauthorized: true
 proxyAllowUnauthorized: true
 # 控制台显示的标题(Title displayed on the console)
 orionConsoleTitle: Orion-API-Manager
-# 控制台的欢迎语句(Welcome statement displayed on the console)
+# 控制台登录页的欢迎语句(Welcome statement displayed on the console login page)
 orionConsoleWelcome: Welcome to Orion-API-Manager
 
 server:
