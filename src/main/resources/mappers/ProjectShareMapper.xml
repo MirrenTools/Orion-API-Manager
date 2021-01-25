@@ -228,7 +228,7 @@
 	
 	<!-- 更新一个对象中所有的属性包括null值,条件为对象中的id -->
 	<update id="updateAllById" parameterType="org.mirrentools.orion.entity.ProjectShare">
-		update oam_project_share set
+		update oam_project_share 
 		<set>
 			oam_pid = #{pid},
 			oam_pwd = #{pwd},

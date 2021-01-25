@@ -249,7 +249,7 @@
 	
 	<!-- 更新一个对象中所有的属性包括null值,条件为对象中的id -->
 	<update id="updateAllById" parameterType="org.mirrentools.orion.entity.ProjectApiTemplate">
-		update oam_project_api_template set
+		update oam_project_api_template 
 		<set>
 			oam_uid = #{uid},
 			oam_name = #{name},

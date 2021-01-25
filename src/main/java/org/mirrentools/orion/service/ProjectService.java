@@ -228,6 +228,14 @@ public interface ProjectService {
 	 * @return
 	 */
 	Map<String, Object> getApi(LoginSession loginSession, String apiId);
+	
+	/**
+	 * 复制指定API
+	 * 
+	 * @param apiId 接口的id
+	 * @return
+	 */
+	Map<String, Object> copyApi(LoginSession loginSession, String apiId);
 
 	/**
 	 * 更新接口

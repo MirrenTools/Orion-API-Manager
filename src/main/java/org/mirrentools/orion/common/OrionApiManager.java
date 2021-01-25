@@ -10,6 +10,8 @@ public interface OrionApiManager {
 	static final String MIN_NAME = "Orion";
 	/** 项目的名字 */
 	static final String NAME = "Orion-API-Manager";
+	/** 项目的欢迎词 */
+	static final String WELCOME = "Welcome to "+NAME;
 	/** 项目的版本 */
 	static final String VERSION = "1.0.0";
 	/** 项目的名称_版本 */

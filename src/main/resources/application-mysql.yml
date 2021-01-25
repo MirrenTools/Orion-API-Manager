@@ -1,7 +1,11 @@
-# Allow unauthorized users to access the client
+# 是否允许未登录用户访问客户端(Allow unauthorized users to access the client)
 clientAllowUnauthorized: true
-# Allow unauthorized users to access the client
-proxyAllowUnauthorized: false
+# 是否允许未登录用户使用代理请求(Allow unauthorized users to access the proxy)
+proxyAllowUnauthorized: true
+# 控制台显示的标题(Title displayed on the console)
+orionConsoleTitle: Orion-API-Manager
+# 控制台的欢迎语句(Welcome statement displayed on the console)
+orionConsoleWelcome: Welcome to Orion-API-Manager
 
 server:
   port: 8686

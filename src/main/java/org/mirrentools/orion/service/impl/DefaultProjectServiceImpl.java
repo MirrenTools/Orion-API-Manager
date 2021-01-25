@@ -87,8 +87,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 				return ResultUtil.format403();
 			}
 			SqlAssist assist = new SqlAssist();
-			assist.setResultColumn(String.format("%s,%s,%s,%s,%s,%s", ColumnsProject.KEY, ColumnsProject.OWNER,
-					ColumnsProject.NAME, ColumnsProject.VERSIONS, ColumnsProject.LAST_TIME, ColumnsProject.SORTS));
+			assist.setResultColumn(String.format("%s,%s,%s,%s,%s,%s", ColumnsProject.KEY, ColumnsProject.OWNER, ColumnsProject.NAME,
+					ColumnsProject.VERSIONS, ColumnsProject.LAST_TIME, ColumnsProject.SORTS));
 			assist.setOrderBy(String.format("%s asc, %s desc", ColumnsProject.SORTS, ColumnsProject.LAST_TIME));
 			List<Project> all;
 			if (loginSession.getRole() == LoginRole.ROOT) {
@@ -286,8 +286,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 						ProjectApiGroup group = convertGroup(project.getKey(), gdata);
 						int saveGroup = groupMapper.insertNotNull(group);
 						if (session != null && session.isOpen()) {
-							remote.sendText(WebSocket.success(WebSocket.GROUP_SAVED,
-									WebSocket.progressModel(group.getName(), (i + 1), groups.length(), saveGroup)));
+							remote.sendText(
+									WebSocket.success(WebSocket.GROUP_SAVED, WebSocket.progressModel(group.getName(), (i + 1), groups.length(), saveGroup)));
 						}
 						if (saveGroup > 0 && gdata.has("apis")) {
 							JSONArray apis = gdata.getJSONArray("apis");
@@ -296,8 +296,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 								ProjectApi api = convertApi(group.getGroupId(), adata);
 								int saveApi = apiMapper.insertNotNull(api);
 								if (session != null && session.isOpen()) {
-									remote.sendText(WebSocket.success(WebSocket.API_SAVED,
-											WebSocket.progressModel(api.getTitle(), (j + 1), apis.length(), saveApi)));
+									remote.sendText(
+											WebSocket.success(WebSocket.API_SAVED, WebSocket.progressModel(api.getTitle(), (j + 1), apis.length(), saveApi)));
 								}
 							}
 						}
@@ -783,6 +783,40 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
+	public Map<String, Object> copyApi(LoginSession loginSession, String apiId) {
+		try {
+			if (checkSession(loginSession)) {
+				return ResultUtil.format403();
+			}
+			if (StringUtil.isNullOrEmpty(apiId)) {
+				return ResultUtil.format(ResultCode.R412, "存在空值,id不能为空");
+			}
+			ProjectApi api = apiMapper.selectById(apiId);
+			if (api == null || api.getGroupId() == null) {
+				return ResultUtil.format(ResultCode.R404);
+			}
+			ProjectApiGroup group = groupMapper.selectById(api.getGroupId());
+			if (group == null || group.getProjectId() == null) {
+				return ResultUtil.format404();
+			}
+			if (!isProjectOwner(loginSession, group.getProjectId())) {
+				return ResultUtil.format403();
+			}
+			api.setApiId(UUID.randomUUID().toString());
+			String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM-dd hh:mm:ss"));
+			api.setTitle(api.getTitle()+"-copy-"+now);
+			if (api.getSorts() == null) {
+				api.setSorts(0);
+			}
+			int result = apiMapper.insertNotNull(api);
+			return ResultUtil.format200(result);
+		} catch (Throwable e) {
+			LOG.error("执行复制接口->\n" + apiId + "\n-->失败:", e);
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
+		}
+	}
+
+	@Override
 	public Map<String, Object> updateApi(LoginSession loginSession, ProjectApi api) {
 		try {
 			if (checkSession(loginSession)) {
@@ -921,8 +955,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(tid)) {
 				return ResultUtil.format(ResultCode.R412);
 			}
-			SqlAssist assist = new SqlAssist().andEq(ColumnsApiTemplate.UID, loginSession.getUid())
-					.andEq(ColumnsApiTemplate.TID, tid);
+			SqlAssist assist = new SqlAssist().andEq(ColumnsApiTemplate.UID, loginSession.getUid()).andEq(ColumnsApiTemplate.TID, tid);
 			System.out.println(assist);
 			int result = templateMapper.deleteByAssist(assist);
 			return ResultUtil.format200(result);
@@ -997,7 +1030,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	 * 获取指定项目的所有分组
 	 * 
 	 * @param projectId
-	 * @param getApis   是否包括分组的接口,true包括,false不包括
+	 * @param getApis
+	 *          是否包括分组的接口,true包括,false不包括
 	 * @return
 	 */
 	private List<ProjectApiGroup> getProjectApiGroupList(String projectId, boolean getApis) {
@@ -1251,9 +1285,9 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	 */
 	private Project getProjectByApiId(String aid) {
 		SqlAssist assist = new SqlAssist();
-		String in = String.format(" %s IN (SELECT g.%s FROM %s g INNER JOIN %s a ON g.%s=a.%s WHERE a.%s=",
-				ColumnsProject.KEY, ColumnsApiGroup.PROJECT_ID, ColumnsApiGroup.TABLE_NAME, ColumnsAPI.TABLE_NAME,
-				ColumnsApiGroup.GROUP_ID, ColumnsAPI.GROUP_ID, ColumnsAPI.API_ID);
+		String in = String.format(" %s IN (SELECT g.%s FROM %s g INNER JOIN %s a ON g.%s=a.%s WHERE a.%s=", ColumnsProject.KEY,
+				ColumnsApiGroup.PROJECT_ID, ColumnsApiGroup.TABLE_NAME, ColumnsAPI.TABLE_NAME, ColumnsApiGroup.GROUP_ID, ColumnsAPI.GROUP_ID,
+				ColumnsAPI.API_ID);
 		assist.setCondition(SqlAssist.whereCondition(in, aid, ")"));
 		List<Project> all = projectMapper.selectAll(assist);
 		if (all != null && all.size() >= 1) {
