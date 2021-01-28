@@ -1,5 +1,5 @@
 # 起步
-Orion-API-Manager(以下简称: OAM)是一个API文档管理器，为后端开发人员提供API管理，也为前端人员提供友好容易查看与测试的UI; 系统集成了权限适合在一个机构中不同的团队使用，支持导入或显示OpenAPI (Swagger)等接口文档...
+Orion-API-Manager(以下简称: OrionAM)是一个API文档管理器，为后端开发人员提供API管理，也为前端人员提供友好容易查看与测试的UI; 系统集成了权限适合在一个机构中不同的团队使用，支持导入或显示OpenAPI (Swagger)等接口文档...
 
 QQ交流群:796665306 <a target="_blank" href="//qm.qq.com/cgi-bin/qm/qr?k=d6kTExBscrndpdI5nhGDSbNedO0IJeHd&jump_from=webapi"><img border="0" src="//pub.idqqimg.com/wpa/images/group.png" alt="QQ交流群" title="QQ交流群"></a>
 
@@ -10,17 +10,17 @@ QQ交流群:796665306 <a target="_blank" href="//qm.qq.com/cgi-bin/qm/qr?k=d6kTE
 ## 启动服务
 - 项目你可以通过Releases(发行版)中下载最新已经打包的项目或者clone代码后执行**mvn clean package**进行打包,打包完毕后软件在**target/Orion**文件夹
 - 项目的开发环境为java 1.8.0_121,理论上java1.8以上都可以运行
-- 在Orion目录中执行java -jar Orion-API-Manager.jar 或运行start.bat(windows)start.sh(unix)启动OAM服务,端口号默认为8686
-- 启动OAM服务后在浏览器访问http://服务地址:端口号 便可以进行API的管理,登录账号与密码参考下方 用户与角色权限
+- 在Orion目录中执行java -jar Orion-API-Manager.jar 或运行start.bat(windows)start.sh(unix)启动OrionAM服务,端口号默认为8686
+- 启动OrionAM服务后在浏览器访问http://服务地址:端口号 便可以进行API的管理,登录账号与密码参考下方 用户与角色权限
 
 ## 用户与角色权限
-- OAM有3中身份角色:<br>
+- OrionAM有3中身份角色:<br>
 - root=超级管理员(管理所有项目)<br>
 - server=普通管理员(管理自己的项目)<br>
 - client=普通用户(查看自己加入的项目)<br>
 - root用户需要在./config/user.json中定义,server与client用户在管理端的用户管理中创建;<br>
 - 用户管理中的标签相当于用户分组,项目中可以指定允许访问的分组(标签)<br>
-- **默认**只有一个超级管理员用户,登录账号为**X-root**,登录密码为**helloOAM**<br>正确的做法应该使用超级管理员账号登录后,创建管理员用户(注:超级管理员可以创建管理员用户,管理员用户只能创建普通用户),再禁用超级管理员或修改超级管理员账号密码;
+- **默认**只有一个超级管理员用户,登录账号为**X-root**,登录密码为**helloOrionAM**<br>正确的做法应该使用超级管理员账号登录后,创建管理员用户(注:超级管理员可以创建管理员用户,管理员用户只能创建普通用户),再禁用超级管理员或修改超级管理员账号密码;
 
 ## 其他人员如何查看API文档
 - **方式一:** 在用户管理中创建普通用户,普通用户登录后就可以看到他参与的项目列表
@@ -35,26 +35,26 @@ QQ交流群:796665306 <a target="_blank" href="//qm.qq.com/cgi-bin/qm/qr?k=d6kTE
 - **proxyAllowUnauthorized**(Boolean): 是否允许未登录的用户使用代理服务,**取值true=允许,false=不允许**
 - **orionConsoleTitle**(String): 管理端显示的标题
 - **orionConsoleWelcome**(String): 管理端登录页的欢迎语句
-- **server.port**(Integer): OAM服务的端口号,**默认为8686**
+- **server.port**(Integer): OrionAM服务的端口号,**默认为8686**
 - **spring.datasource**: <br>url: 数据库连接地址<br>driver-class-name: 数据库连接的驱动<br>username: 数据库用户<br>password: 数据库密码
 - **mybatis**: 相关的mapper XML一般不需要操作
 - **logging**: 相关的为日志操作
 
 ## 二次开发目录说明
 - **config** 软件运行时的配置文件,默认的数据库与用户在这个文件夹中
-- **Client-UI** OAM的客户端UI静态资源,WebMvcConfig中创建引用
+- **Client-UI** OrionAM的客户端UI静态资源,WebMvcConfig中创建引用
 - **resources** 模板资源文件,当进行软件打包时会将该文件夹复制到打包文件夹(target/Orion)中
 - **SdTemplates** [Screw-Driver](https://mirren.gitee.io/screw-driver-docs/)生成代码的模板文件夹
-- **Server-UI** OAM的管理端UI静态资源,WebMvcConfig中创建引用
-- **Orion-API-Manager-Docs** OAM的使用说明是一个[vuepress](https://www.vuepress.cn/)项目,其中dist文件夹是编译后的使用文档
+- **Server-UI** OrionAM的管理端UI静态资源,WebMvcConfig中创建引用
+- **Orion-API-Manager-Docs** OrionAM的使用说明是一个[vuepress](https://www.vuepress.cn/)项目,其中dist文件夹是编译后的使用文档
 - **src/test/java/org.mirrentools.orion** <br>Constant.java: 生成代码与创建表的Bean<br>scripts.CreateCode.java: 生成代码的脚本<br>scripts.CreateTable.java: 创建表的脚本
 - **src/main/resources/** <br>mappers: mybatis的mapper XML,默认是MySQL版<br>application.yml: IDE启动的配置文件
 - **src/main/java/org.mirrentools.orion** <br> Main.java是启动类,其他的包是基本的三层结构
 
 ## 修改为其他数据库存储数据
-- OAM默认使用**SQLite3**数据库做为数据存储,对应路径为./config/ConfigDB.db
-- OAM修改为**MySQL**(或其他数据库)存储,你只需修改application.yml中的数据源指向MySQL(创建表可以使用下方的方法在测试资源文件的generate包中执行创建脚本,或自己根据[数据表格式说明](./introduction.md#数据表格式说明)创建表)
-- OAM默认已经添加了SQLite与MySQL的maven jar 依赖,如果你需要修改为**其他数据库**你参考下方操作:
+- OrionAM默认使用**SQLite3**数据库做为数据存储,对应路径为./config/ConfigDB.db
+- OrionAM修改为**MySQL**(或其他数据库)存储,你只需修改application.yml中的数据源指向MySQL(创建表可以使用下方的方法在测试资源文件的generate包中执行创建脚本,或自己根据[数据表格式说明](./introduction.md#数据表格式说明)创建表)
+- OrionAM默认已经添加了SQLite与MySQL的maven jar 依赖,如果你需要修改为**其他数据库**你参考下方操作:
 * 1. 在pom.xml中添加对应数据库的maven依赖
   2. 打开src/test/java/org.mirrentools.orion.scripts.CreateTable.java
   3. 修改driver、url、username、password为数据库对应的信息后执行Main方法进行创建数据库表
@@ -66,7 +66,7 @@ QQ交流群:796665306 <a target="_blank" href="//qm.qq.com/cgi-bin/qm/qr?k=d6kTE
 项目数据说明:
 ``` java
 {
-	orionApi(String): OAM的版本
+	orionApi(String): OrionAM的版本
 	key(String): 项目的id
 	name(String): 项目的名称
 	versions(String): 项目的版本
