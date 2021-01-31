@@ -9,11 +9,11 @@ QQ交流群:796665306 <a target="_blank" href="//qm.qq.com/cgi-bin/qm/qr?k=d6kTE
 
 ## 界面预览图
 1.项目列表
-![项目列表](/projects.png)
+![项目列表](/orion-api-manager-docs/projects.png)
 2.API分组
-![API分组](/apigroup.png)
+![API分组](/orion-api-manager-docs/apigroup.png)
 3.项目API详情
-![项目API详情](/api.png)
+![项目API详情](/orion-api-manager-docs/api.png)
 
 ## 启动服务
 - 项目你可以通过Releases(发行版)中下载最新已经打包的项目或者clone代码后执行**mvn clean package**进行打包,打包完毕后软件在**target/Orion**文件夹
