@@ -3,9 +3,17 @@ Orion-API-Manager(以下简称: OrionAM)是一个API文档管理器，为后端�
 
 QQ交流群:796665306 <a target="_blank" href="//qm.qq.com/cgi-bin/qm/qr?k=d6kTExBscrndpdI5nhGDSbNedO0IJeHd&jump_from=webapi"><img border="0" src="//pub.idqqimg.com/wpa/images/group.png" alt="QQ交流群" title="QQ交流群"></a>
 
-如果不能观看你可以在 [哔哩哔哩中查看视频](https://www.bilibili.com/video/av76507691/)
+如果不能观看你可以在 [哔哩哔哩中查看视频](https://www.bilibili.com/video/BV1rv4y1f78J/)
 
-<iframe src="//player.bilibili.com/player.html?aid=76507691&cid=130869495&page=1" width='100%' height='600px' scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
+<iframe src="//player.bilibili.com/player.html?aid=543877750&bvid=BV1rv4y1f78J&cid=290114253&page=1" width='100%' height='600px' scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
+
+## 界面预览图
+1.项目列表
+![项目列表](/projects.png)
+2.API分组
+![API分组](/apigroup.png)
+3.项目API详情
+![项目API详情](/api.png)
 
 ## 启动服务
 - 项目你可以通过Releases(发行版)中下载最新已经打包的项目或者clone代码后执行**mvn clean package**进行打包,打包完毕后软件在**target/Orion**文件夹
