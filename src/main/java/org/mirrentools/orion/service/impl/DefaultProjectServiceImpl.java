@@ -444,10 +444,15 @@ public class DefaultProjectServiceImpl implements ProjectService {
 					.selectAll(new SqlAssist().setResultColumn(ColumnsApiGroup.GROUP_ID).andEq(ColumnsApiGroup.PROJECT_ID, key));
 			if (gids != null) {
 				for (ProjectApiGroup g : gids) {
+					// 删除API
 					apiMapper.deleteByAssist(new SqlAssist().andEq(ColumnsAPI.GROUP_ID, g.getGroupId()));
+					// 删除分组
 					groupMapper.deleteById(g.getGroupId());
 				}
 			}
+			// 删除分享记录
+			shareMapper.deleteByAssist(new SqlAssist().andEq(ColumnsProjectShare.PID, key));
+			// 删除项目
 			int result = projectMapper.deleteById(key);
 			return ResultUtil.format200(result);
 		} catch (Throwable e) {
@@ -804,7 +809,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			}
 			api.setApiId(UUID.randomUUID().toString());
 			String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM-dd hh:mm:ss"));
-			api.setTitle(api.getTitle()+"-copy-"+now);
+			api.setTitle(api.getTitle() + "-copy-" + now);
 			if (api.getSorts() == null) {
 				api.setSorts(0);
 			}
