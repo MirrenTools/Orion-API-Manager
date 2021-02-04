@@ -28,18 +28,18 @@ public class CreateCode {
 	public static void main(String[] args) {
 		ScrewDriver screwDriver = ScrewDriver.instance(new ScrewDriverOptions());
 
-		// 创建项目的代码
-		screwDriver.createCode(Constant.getProjectBean(), getTemplates("Project"));
-		// 创建项目分享记录的代码
-		screwDriver.createCode(Constant.getProjectShareBean(), getTemplates("ProjectShare"));
-		// 创建接口分组的代码
-		screwDriver.createCode(Constant.getProjectApiGroupBean(), getTemplates("ProjectApiGroup"));
-		// 创建接口的代码
-		screwDriver.createCode(Constant.getProjectApiBean(), getTemplates("ProjectApi"));
-		// 创建接口模板的代码
-		screwDriver.createCode(Constant.getProjectApiTemplateBean(), getTemplates("ProjectApiTemplate"));
-		// 创建用户代码
-		screwDriver.createCode(Constant.getUsersBean(), getTemplates("Users"));
+//		// 创建项目的代码
+//		screwDriver.createCode(Constant.getProjectBean(), getTemplates("Project"));
+//		// 创建项目分享记录的代码
+//		screwDriver.createCode(Constant.getProjectShareBean(), getTemplates("ProjectShare"));
+//		// 创建接口分组的代码
+//		screwDriver.createCode(Constant.getProjectApiGroupBean(), getTemplates("ProjectApiGroup"));
+//		// 创建接口的代码
+//		screwDriver.createCode(Constant.getProjectApiBean(), getTemplates("ProjectApi"));
+//		// 创建接口模板的代码
+//		screwDriver.createCode(Constant.getProjectApiTemplateBean(), getTemplates("ProjectApiTemplate"));
+//		// 创建用户代码
+//		screwDriver.createCode(Constant.getUsersBean(), getTemplates("Users"));
 		// 创建用户代码
 		screwDriver.createCode(Constant.getTagsBean(), getTemplates("Tags"));
 	}
