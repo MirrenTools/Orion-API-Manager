@@ -1257,18 +1257,21 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	 */
 	private ProjectApi convertApi(String groupId, JSONObject adata) {
 		ProjectApi api = new ProjectApi();
-		api.setApiId(UUID.randomUUID().toString());
+		api.setApiId(adata.has("apiId") ? adata.getString("apiId") : UUID.randomUUID().toString());
 		api.setGroupId(groupId);
-		api.setSorts(adata.has("sorts") ? adata.getInt("sorts") : 0);
 		api.setMethod(adata.has("method") ? adata.getString("method") : "get");
-		api.setTitle(adata.has("title") ? adata.getString("title") : "title");
 		api.setPath(adata.has("path") ? adata.getString("path") : "path");
+		api.setTitle(adata.has("title") ? adata.getString("title") : "title");
 		api.setDescription(adata.has("description") ? adata.getString("description") : null);
 		api.setConsumes(adata.has("consumes") ? adata.getString("consumes") : null);
 		api.setParameters(adata.has("parameters") ? adata.getString("parameters") : null);
+		api.setBody(adata.has("body")?adata.getString("body"):null);
 		api.setProduces(adata.has("produces") ? adata.getString("produces") : null);
 		api.setResponses(adata.has("responses") ? adata.getString("responses") : null);
+		api.setDeprecated(adata.has("deprecated") ? adata.getString("deprecated") : null);
 		api.setExternalDocs(adata.has("externalDocs") ? adata.getString("externalDocs") : null);
+		api.setExtensions(adata.has("extensions") ? adata.getString("extensions") : null);
+		api.setSorts(adata.has("sorts") ? adata.getInt("sorts") : 0);
 		return api;
 	}
 
