@@ -1,7 +1,9 @@
 package org.mirrentools.orion.common;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -9,24 +11,41 @@ import java.util.regex.Pattern;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 
 import io.swagger.parser.OpenAPIParser;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.servers.ServerVariable;
 import io.swagger.v3.oas.models.servers.ServerVariables;
+import io.swagger.v3.oas.models.tags.Tag;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
-
+/**
+ * 将Swagger2与OpenAPI转换为OrionAM的数据格式
+ * 
+ * @author <a href="https://mirrentools.org">Mirren</a>
+ *
+ */
 public class OpenApiConverter {
-
-	public static JSONObject convert(String doc) throws Exception {
-		SwaggerParseResult spr = new OpenAPIParser().readContents(doc, null, null);
+	/**
+	 * 将Swagger2与OpenAPI转换为OrionAM的数据格式
+	 * 
+	 * @param docs
+	 * @return
+	 * @throws Exception
+	 */
+	public static JSONObject convert(String docs) throws Exception {
+		SwaggerParseResult spr = new OpenAPIParser().readContents(docs, null, null);
 		OpenAPI openAPI = spr.getOpenAPI();
 		if (openAPI == null) {
 			throw new Exception(Optional.ofNullable(spr.getMessages()).orElse(new ArrayList<>()).toString());
@@ -36,18 +55,19 @@ public class OpenApiConverter {
 
 		JSONObject result = new JSONObject();
 		result.put("orionApi", OrionApiManager.VERSION);
-		result.put("key", System.currentTimeMillis());
+		String projectId = "pid_" + System.currentTimeMillis();
+		result.put("key", projectId);
 		Info info = Optional.ofNullable(openAPI.getInfo()).orElse(new Info());
 		result.put("name", info.getTitle());
 		result.put("versions", info.getVersion());
+
 		StringBuilder description = new StringBuilder();
 		if (info.getDescription() != null) {
-			description.append(htmlRenderer.render(mdParser.parse(info.getDescription())));
+			description.append(htmlRenderer.render(mdParser.parse(info.getDescription())).replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
 		}
 		if (info.getTermsOfService() != null) {
 			description.append("\n");
-			description.append(
-					String.format("<div><a href=\"%s\" target=\"_blank\">Terms of service</a></div>", info.getTermsOfService()));
+			description.append(String.format("<div><a href=\"%s\" target=\"_blank\">Terms of service</a></div>", info.getTermsOfService()));
 		}
 		License license = info.getLicense();
 		if (license != null) {
@@ -56,28 +76,33 @@ public class OpenApiConverter {
 					Optional.ofNullable(license.getUrl()).orElse("#"), Optional.ofNullable(license.getName()).orElse("")));
 		}
 		result.put("description", description);
-		Contact contact = info.getContact();
-		if (contact != null) {
+
+		if (info.getContact() != null) {
+			Contact contact = info.getContact();
 			if (contact.getName() != null) {
 				result.put("contactName", contact.getName());
 			}
 			StringBuilder contactInfo = new StringBuilder();
 			if (contact.getEmail() != null) {
-				contactInfo
-						.append(String.format("Email: <a href=\"mailto:%s\">%s</a> ", contact.getEmail(), contact.getEmail()));
+				contactInfo.append(String.format("Email: <a href=\"mailto:%s\">%s</a> ", contact.getEmail(), contact.getEmail()));
 				contactInfo.append("　");
 			}
 			if (contact.getUrl() != null) {
-				contactInfo
-						.append(String.format("URL: <a href=\"%s\" target=\"_blank\">%s</a>", contact.getUrl(), contact.getUrl()));
+				contactInfo.append(String.format("URL: <a href=\"%s\" target=\"_blank\">%s</a>", contact.getUrl(), contact.getUrl()));
 			}
 			result.put("contactInfo", contactInfo.toString());
 		}
+		if (openAPI.getExtensions() != null) {
+			result.put("extensions", new JSONObject(openAPI.getExtensions()));
+		}
+		JSONArray servers = new JSONArray();
 		if (openAPI.getServers() != null) {
-			JSONArray servers = new JSONArray();
 			for (Server server : openAPI.getServers()) {
 				String url = server.getUrl();
-				String desc = htmlRenderer.render(mdParser.parse(server.getDescription()));
+				StringBuilder serverDesc = new StringBuilder();
+				serverDesc.append(
+						Optional.ofNullable(htmlRenderer.render(mdParser.parse(server.getDescription())).replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""))
+								.orElse(""));
 				if (url.contains("{") && url.contains("}")) {
 					ServerVariables variables = server.getVariables() == null ? new ServerVariables() : server.getVariables();
 					Matcher matcher = Pattern.compile("(\\{)(\\w*)(\\})").matcher(url);
@@ -85,43 +110,93 @@ public class OpenApiConverter {
 						String param = matcher.group();
 						ServerVariable variable = variables.get(matcher.group(2));
 						if (variable == null || variable.getDefault() == null || variable.getDefault().isEmpty()) {
-							Server value = new Server();
-							value.setUrl(url);
-							value.setDescription(desc);
-							servers.put(value);
 							continue;
 						}
-						List<String> urls = new ArrayList<>();
-						List<String> vals = new ArrayList<>();
 						String def = variable.getDefault();
-						urls.add(url);
-						vals.add(def);
+						url = url.replace(param, def);
 						if (variable.getEnum() != null) {
+							serverDesc.append(String.format("<br>%s default: %s,enums: ", param, def));
 							for (String e : variable.getEnum()) {
 								if (e == null || e.isEmpty() || Objects.equals(def, e)) {
 									continue;
 								}
-								urls.add(url);
-								vals.add(e);
-							}
-						}
-						urls.set(0, urls.get(0).replace(param, def));
-						for (int i = 1; i < urls.size(); i++) {
-							for (int j = 0; j < vals.size(); j++) {
-								urls.set(i, urls.get(i).replace(param, vals.get(j)));
+								serverDesc.append(" " + e);
 							}
 						}
 					}
-					
+					JSONObject value = new JSONObject();
+					value.put("url", url);
+					value.put("description", serverDesc.toString());
+					servers.put(value);
 				} else {
-					Server value = new Server();
-					value.setUrl(url);
-					value.setDescription(desc);
+					JSONObject value = new JSONObject();
+					value.put("url", url);
+					value.put("description", serverDesc.toString());
 					servers.put(value);
 				}
 			}
 		}
+		result.put("servers", servers);
+		if (openAPI.getExternalDocs() != null) {
+			ExternalDocumentation externalDocs = openAPI.getExternalDocs();
+			JSONObject d = new JSONObject();
+			d.put("url", externalDocs.getUrl());
+			d.put("description", htmlRenderer.render(mdParser.parse(externalDocs.getDescription())).replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
+			result.put("externalDocs", d);
+		}
+		Map<String, JSONObject> groups = new LinkedHashMap<>();
+		for (Tag tag : openAPI.getTags()) {
+			String name = tag.getName();
+			JSONObject g = groups.get(name);
+			if (g == null) {
+				g = new JSONObject().put("name", name).put("summary", name).put("description", "").put("apis", new JSONArray());
+				groups.put(name, g);
+			}
+			g.put("description", g.getString("description")
+					+ htmlRenderer.render(mdParser.parse(tag.getDescription())).replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
+			if (tag.getExtensions() != null) {
+				g.put("extensions", new JSONObject(tag.getExtensions()));
+			}
+			if (tag.getExternalDocs() != null) {
+				ExternalDocumentation externalDocs = tag.getExternalDocs();
+				JSONObject d = new JSONObject();
+				d.put("url", externalDocs.getUrl());
+				d.put("description",
+						htmlRenderer.render(mdParser.parse(externalDocs.getDescription())).replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
+				g.put("externalDocs", d);
+			}
+		}
+		if (openAPI.getPaths() != null) {
+			Paths paths = openAPI.getPaths();
+			
+		}
+		JSONArray content = new JSONArray();
+		for (JSONObject g : groups.values()) {
+			content.put(g);
+		}
+		result.put("content", content);
+		return result;
+	}
 
-		return null;
+	/**
+	 * 转换OpenAPI的数据类型为orion的类型
+	 * 
+	 * @param schema
+	 * @return
+	 */
+	private static String getDataType(Schema schema) {
+		if (schema == null || schema.getType() == null) {
+			return "";
+		}
+		if (Objects.equals("integer", schema.getType()) && Objects.equals("int64", schema.getFormat())) {
+			return "long";
+		} else if (Objects.equals("integer", schema.getType())) {
+			return "int";
+		} else if (Objects.equals("number", schema.getType()) && Objects.equals("float", schema.getFormat())) {
+			return "float";
+		} else if (Objects.equals("number", schema.getType()) && Objects.equals("double", schema.getFormat())) {
+			return "double";
+		}
+		return schema.getType();
 	}
 }
