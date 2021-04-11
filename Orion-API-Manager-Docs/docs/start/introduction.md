@@ -28,7 +28,7 @@ QQ交流群:796665306 <a target="_blank" href="//qm.qq.com/cgi-bin/qm/qr?k=d6kTE
 - client=普通用户(查看自己加入的项目)<br>
 - root用户需要在./config/user.json中定义,server与client用户在管理端的用户管理中创建;<br>
 - 用户管理中的标签相当于用户分组,项目中可以指定允许访问的分组(标签)<br>
-- **默认**只有一个超级管理员用户,登录账号为**X-root**,登录密码为**helloOrionAM**<br>正确的做法应该使用超级管理员账号登录后,创建管理员用户(注:超级管理员可以创建管理员用户,管理员用户只能创建普通用户),再禁用超级管理员或修改超级管理员账号密码;
+- **默认**只有一个超级管理员用户,登录账号为**X-root**,登录密码为**helloOAM**<br>正确的做法应该使用超级管理员账号登录后,创建管理员用户(注:超级管理员可以创建管理员用户,管理员用户只能创建普通用户),再禁用超级管理员或修改超级管理员账号密码;
 
 ## 其他人员如何查看API文档
 - **方式一:** 在用户管理中创建普通用户,普通用户登录后就可以看到他参与的项目列表
@@ -153,11 +153,10 @@ API说明:
 	--}]
 	body(String): 请求的body
 	produces(Array[String]): 响应的类型
-	body(String): 请求的body
 	responses(Array[Object]): 响应结果
 	--[{
 	----status(Integer): 状态码
-	----description(String): 附加文档说明(支持HTML)
+	----msg(String): 附加文档说明(支持HTML)
 	----data(JsonArray(JsonObject)): 响应参数:
 	------[{
 	--------in(enum): 响应位置(header|body)
