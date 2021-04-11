@@ -723,7 +723,7 @@ public class OpenApiConverter {
 				ref = getFullSchema(s, components, schemaMap, refs);
 				refs.put(key, ref);
 			}
-			if (ref!=null) {
+			if (ref != null) {
 				String replace = group.replace(key, ref);
 				matcher.appendReplacement(buffer, Matcher.quoteReplacement(replace));
 			}
