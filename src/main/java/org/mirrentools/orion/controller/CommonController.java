@@ -5,6 +5,7 @@ import java.util.Map;
 import org.mirrentools.orion.service.CommonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,4 +35,26 @@ public class CommonController {
 		Map<String, Object> result = service.getConsoleConfig();
 		return result;
 	}
+//	/**
+//	 * 检查转换器是否可用
+//	 * 
+//	 * @return
+//	 */
+//	@PostMapping(value = "/public/checkconverter", produces = {"application/json;charset=UTF-8"})
+//	public Map<String, Object> checkConvert(String type) {
+//		return service.checkConvert(type);
+//	}
+//
+//	/**
+//	 * 将其他接口文档转换为OrionAPI文档
+//	 * 
+//	 * @param type
+//	 * @param body
+//	 * @return
+//	 */
+//	@PostMapping(value = "/public/convertApiDocs", produces = {"application/json;charset=UTF-8"})
+//	public Map<String, Object> convert(String type, String body) {
+//		return service.convertApi(type, body);
+//	}
+
 }

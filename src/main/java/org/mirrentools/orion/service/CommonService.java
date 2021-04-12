@@ -17,4 +17,17 @@ public interface CommonService {
 	 * @return
 	 */
 	Map<String, Object> getConsoleConfig();
+	/**
+	 * 检查API转换器是否可用
+	 * 
+	 * @return
+	 */
+	Map<String, Object> checkConvert(String type);
+	/**
+	 * 检查API转换器是否可用
+	 * 
+	 * @return
+	 */
+	Map<String, Object> convertApi(String type, String body);
+	
 }

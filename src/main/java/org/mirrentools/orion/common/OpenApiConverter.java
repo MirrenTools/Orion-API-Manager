@@ -15,7 +15,6 @@ import java.util.regex.Pattern;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 
@@ -30,11 +29,8 @@ import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.media.ArraySchema;
-import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
-import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponses;
@@ -54,7 +50,6 @@ public class OpenApiConverter {
 	static final String STRING = "string";
 	static final Parser MARKDOWN_PARSER;
 	static final HtmlRenderer HTML_RENDERER;
-	private static final Schema ArraySchema = null;
 	static {
 		MARKDOWN_PARSER = Parser.builder().build();
 		HTML_RENDERER = HtmlRenderer.builder().build();
@@ -84,13 +79,11 @@ public class OpenApiConverter {
 
 		StringBuilder description = new StringBuilder();
 		if (info.getDescription() != null) {
-			description.append(HTML_RENDERER.render(MARKDOWN_PARSER.parse(info.getDescription()))
-					.replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
+			description.append(HTML_RENDERER.render(MARKDOWN_PARSER.parse(info.getDescription())).replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
 		}
 		if (info.getTermsOfService() != null) {
 			description.append("\n");
-			description.append(
-					String.format("<div><a href=\"%s\" target=\"_blank\">Terms of service</a></div>", info.getTermsOfService()));
+			description.append(String.format("<div><a href=\"%s\" target=\"_blank\">Terms of service</a></div>", info.getTermsOfService()));
 		}
 		License license = info.getLicense();
 		if (license != null) {
@@ -107,13 +100,11 @@ public class OpenApiConverter {
 			}
 			StringBuilder contactInfo = new StringBuilder();
 			if (contact.getEmail() != null) {
-				contactInfo
-						.append(String.format("Email: <a href=\"mailto:%s\">%s</a> ", contact.getEmail(), contact.getEmail()));
+				contactInfo.append(String.format("Email: <a href=\"mailto:%s\">%s</a> ", contact.getEmail(), contact.getEmail()));
 				contactInfo.append("　");
 			}
 			if (contact.getUrl() != null) {
-				contactInfo
-						.append(String.format("URL: <a href=\"%s\" target=\"_blank\">%s</a>", contact.getUrl(), contact.getUrl()));
+				contactInfo.append(String.format("URL: <a href=\"%s\" target=\"_blank\">%s</a>", contact.getUrl(), contact.getUrl()));
 			}
 			result.put("contactInfo", contactInfo.toString());
 		}
@@ -125,8 +116,9 @@ public class OpenApiConverter {
 			for (Server server : openAPI.getServers()) {
 				String url = server.getUrl();
 				StringBuilder serverDesc = new StringBuilder();
-				serverDesc.append(Optional.ofNullable(HTML_RENDERER.render(MARKDOWN_PARSER.parse(server.getDescription()))
-						.replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", "")).orElse(""));
+				serverDesc.append(Optional
+						.ofNullable(HTML_RENDERER.render(MARKDOWN_PARSER.parse(server.getDescription())).replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""))
+						.orElse(""));
 				if (url.contains("{") && url.contains("}")) {
 					ServerVariables variables = server.getVariables() == null ? new ServerVariables() : server.getVariables();
 					Matcher matcher = Pattern.compile("(\\{)(\\w*)(\\})").matcher(url);
@@ -165,8 +157,8 @@ public class OpenApiConverter {
 			ExternalDocumentation externalDocs = openAPI.getExternalDocs();
 			JSONObject d = new JSONObject();
 			d.put("url", externalDocs.getUrl());
-			d.put("description", HTML_RENDERER.render(MARKDOWN_PARSER.parse(externalDocs.getDescription()))
-					.replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
+			d.put("description",
+					HTML_RENDERER.render(MARKDOWN_PARSER.parse(externalDocs.getDescription())).replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
 			result.put("externalDocs", d);
 		}
 
@@ -175,12 +167,12 @@ public class OpenApiConverter {
 			String name = tag.getName();
 			JSONObject g = groups.get(name);
 			if (g == null) {
-				g = new JSONObject().put("groupId", "gid_" + System.currentTimeMillis()).put("projectId", projectId)
-						.put("name", name).put("summary", name).put("description", "").put("apis", new JSONArray());
+				g = new JSONObject().put("groupId", "gid_" + System.currentTimeMillis()).put("projectId", projectId).put("name", name)
+						.put("summary", name).put("description", "").put("apis", new JSONArray());
 				groups.put(name, g);
 			}
-			g.put("description", g.getString("description") + HTML_RENDERER
-					.render(MARKDOWN_PARSER.parse(tag.getDescription())).replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
+			g.put("description", g.getString("description")
+					+ HTML_RENDERER.render(MARKDOWN_PARSER.parse(tag.getDescription())).replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
 			if (tag.getExtensions() != null) {
 				g.put("extensions", new JSONObject(tag.getExtensions()));
 			}
@@ -188,8 +180,8 @@ public class OpenApiConverter {
 				ExternalDocumentation externalDocs = tag.getExternalDocs();
 				JSONObject d = new JSONObject();
 				d.put("url", externalDocs.getUrl());
-				d.put("description", HTML_RENDERER.render(MARKDOWN_PARSER.parse(externalDocs.getDescription()))
-						.replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
+				d.put("description",
+						HTML_RENDERER.render(MARKDOWN_PARSER.parse(externalDocs.getDescription())).replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
 				g.put("externalDocs", d);
 			}
 		}
@@ -241,8 +233,8 @@ public class OpenApiConverter {
 	 * @param item
 	 * @param groups
 	 */
-	private static void addApiToGroups(String method, String path, Operation item, Map<String, JSONObject> groups,
-			OpenAPI openAPI) {
+	@SuppressWarnings("rawtypes")
+	private static void addApiToGroups(String method, String path, Operation item, Map<String, JSONObject> groups, OpenAPI openAPI) {
 		Components components = openAPI.getComponents();
 		Map<String, Schema> schemaMap = new HashMap<>();
 		Map<String, Parameter> parametersMap = new HashMap<>();
@@ -272,8 +264,7 @@ public class OpenApiConverter {
 		api.put("title", Optional.ofNullable(item.getSummary()).orElse(path));
 		api.put("method", method);
 		api.put("path", path);
-		api.put("description", HTML_RENDERER.render(MARKDOWN_PARSER.parse(item.getDescription()))
-				.replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
+		api.put("description", HTML_RENDERER.render(MARKDOWN_PARSER.parse(item.getDescription())).replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
 		api.put("deprecated", item.getDeprecated());
 		JSONArray parameters = new JSONArray();
 		Set<String> consumes = new LinkedHashSet<>();
@@ -307,8 +298,8 @@ public class OpenApiConverter {
 			ExternalDocumentation externalDocs = item.getExternalDocs();
 			JSONObject d = new JSONObject();
 			d.put("url", externalDocs.getUrl());
-			d.put("description", HTML_RENDERER.render(MARKDOWN_PARSER.parse(externalDocs.getDescription()))
-					.replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
+			d.put("description",
+					HTML_RENDERER.render(MARKDOWN_PARSER.parse(externalDocs.getDescription())).replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
 			api.put("externalDocs", d);
 		}
 		group.getJSONArray("apis").put(api);
@@ -317,14 +308,19 @@ public class OpenApiConverter {
 	/**
 	 * 加载请求的body
 	 * 
-	 * @param api        OpenAPI的API
-	 * @param components OpenAPI的components
-	 * @param schemaMap  OpenAPI已解析的schema
-	 * @param consumes   需要添加到Orion的请求类型
+	 * @param api
+	 *          OpenAPI的API
+	 * @param components
+	 *          OpenAPI的components
+	 * @param schemaMap
+	 *          OpenAPI已解析的schema
+	 * @param consumes
+	 *          需要添加到Orion的请求类型
 	 * @return
 	 */
-	private static String getRequestBody(Operation api, Components components, Map<String, Schema> schemaMap,
-			Map<String, String> refs, Set<String> consumes) {
+	@SuppressWarnings("rawtypes")
+	private static String getRequestBody(Operation api, Components components, Map<String, Schema> schemaMap, Map<String, String> refs,
+			Set<String> consumes) {
 		RequestBody body = api.getRequestBody();
 		if (body != null && body.get$ref() != null) {
 			String ref = body.get$ref();
@@ -343,120 +339,93 @@ public class OpenApiConverter {
 		MediaType mediaType = body.getContent().get(next);
 		if (mediaType != null && mediaType.getSchema() != null) {
 			return getFullSchema(mediaType.getSchema(), components, schemaMap, refs);
-//			if (mediaType.getSchema().get$ref() != null) {
-//				StringBuilder result = new StringBuilder();
-//				String schemaTxt = getFullSchema(mediaType.getSchema(), components, schemaMap, refs);
-//				return schemaTxt;
-//				Schema schema = getSchema(mediaType.getSchema().get$ref(), components, schemaMap);
-//				if (schema != null) {
-//					boolean arrays = false;
-//					if (schema instanceof ArraySchema) {
-//						arrays = true;
-//						ArraySchema s = (ArraySchema) schema;
-//						if (s.getItems() != null && s.getItems().get$ref() != null) {
-//							schema = getSchema(s.getItems().get$ref(), components, schemaMap);
-//						}
-//					}
-//					if (arrays) {
-//						result.append("[");
-//					}
-//					if (schema.getProperties() != null) {
-//						Map<String, Schema> properties = schema.getProperties();
-//						JSONObject params = new JSONObject();
-//						properties.forEach((k, v) -> {
-//							System.out.println("K: "+k);
-//							String type = Optional.ofNullable(getDataType(v)).orElse(STRING);
-//							if (v instanceof ArraySchema) {
-//								ArraySchema array = (ArraySchema) v;
-//								if (array.getItems() != null && array.getItems().get$ref() != null) {
-//									Schema vr = getSchema(array.getItems().get$ref(), components, schemaMap);
-//									if (vr != null) {
-//										if (vr.getProperties() != null) {
-//											JSONObject items = new JSONObject();
-//											Map<String, Schema> vrp = vr.getProperties();
-//											vrp.forEach((vrk, vrv) -> {
-//												String dataType = getDataType(vrv);
-//												if (STRING.equals(dataType)) {
-//													params.put(vrk, "\"" + vrk + "\"");
-//												} else {
-//													params.put(vrk, vrk);
-//												}
-//											});
-//											params.put(k, "[" + items.toString()
-//													.replace(":\"{", ":{").replace(":\"\\\"{", ":\"{")
-//													.replace("}\",", "},").replace("}\\\"\",", "}\",")
-//													.replace("}\"}", "}}").replace("}\\\"\"}", "}\"}")
-//													+ "]");
-//										} else {
-//											params.put(k, "[" + k + "]");
-//										}
-//									} else {
-//										params.put(k, "[" + k + "]");
-//									}
-//								} else {
-//									params.put(k, "[" + k + "]");
-//								}
-//							} else {
-//								if (STRING.equals(type)) {
-//									params.put(k, "\"{" + k + "}\"");
-//								} else {
-//									params.put(k, "{" + k + "}");
-//								}
-//							}
-//						});
-//						System.exit(0);
-//						if (params.length() > 0) {
-//							result.append(params.toString()
-//									.replace(":\"{", ":{").replace(":\"\\\"{", ":\"{")
-//									.replace("}\",", "},").replace("}\\\"\",", "}\",")
-//									.replace("}\"}", "}}").replace("}\\\"\"}", "}\"}")
-//									);
-//						}
-//					}
-//					if (arrays) {
-//						result.append("]");
-//					}
-//					result.append("\n/*****************Schema delete before request*********************/\n");
-//					result.append(schemaTxt);
-//				}
-//				return result.toString();
-//			} else {
-//				return getFullSchema(mediaType.getSchema(), components, schemaMap, refs);
-//			}
+			// if (mediaType.getSchema().get$ref() != null) {
+			// StringBuilder result = new StringBuilder();
+			// String schemaTxt = getFullSchema(mediaType.getSchema(), components,
+			// schemaMap, refs);
+			// return schemaTxt;
+			// Schema schema = getSchema(mediaType.getSchema().get$ref(), components,
+			// schemaMap);
+			// if (schema != null) {
+			// boolean arrays = false;
+			// if (schema instanceof ArraySchema) {
+			// arrays = true;
+			// ArraySchema s = (ArraySchema) schema;
+			// if (s.getItems() != null && s.getItems().get$ref() != null) {
+			// schema = getSchema(s.getItems().get$ref(), components, schemaMap);
+			// }
+			// }
+			// if (arrays) {
+			// result.append("[");
+			// }
+			// if (schema.getProperties() != null) {
+			// Map<String, Schema> properties = schema.getProperties();
+			// JSONObject params = new JSONObject();
+			// properties.forEach((k, v) -> {
+			// System.out.println("K: "+k);
+			// String type = Optional.ofNullable(getDataType(v)).orElse(STRING);
+			// if (v instanceof ArraySchema) {
+			// ArraySchema array = (ArraySchema) v;
+			// if (array.getItems() != null && array.getItems().get$ref() != null) {
+			// Schema vr = getSchema(array.getItems().get$ref(), components,
+			// schemaMap);
+			// if (vr != null) {
+			// if (vr.getProperties() != null) {
+			// JSONObject items = new JSONObject();
+			// Map<String, Schema> vrp = vr.getProperties();
+			// vrp.forEach((vrk, vrv) -> {
+			// String dataType = getDataType(vrv);
+			// if (STRING.equals(dataType)) {
+			// params.put(vrk, "\"" + vrk + "\"");
+			// } else {
+			// params.put(vrk, vrk);
+			// }
+			// });
+			// params.put(k, "[" + items.toString()
+			// .replace(":\"{", ":{").replace(":\"\\\"{", ":\"{")
+			// .replace("}\",", "},").replace("}\\\"\",", "}\",")
+			// .replace("}\"}", "}}").replace("}\\\"\"}", "}\"}")
+			// + "]");
+			// } else {
+			// params.put(k, "[" + k + "]");
+			// }
+			// } else {
+			// params.put(k, "[" + k + "]");
+			// }
+			// } else {
+			// params.put(k, "[" + k + "]");
+			// }
+			// } else {
+			// if (STRING.equals(type)) {
+			// params.put(k, "\"{" + k + "}\"");
+			// } else {
+			// params.put(k, "{" + k + "}");
+			// }
+			// }
+			// });
+			// System.exit(0);
+			// if (params.length() > 0) {
+			// result.append(params.toString()
+			// .replace(":\"{", ":{").replace(":\"\\\"{", ":\"{")
+			// .replace("}\",", "},").replace("}\\\"\",", "}\",")
+			// .replace("}\"}", "}}").replace("}\\\"\"}", "}\"}")
+			// );
+			// }
+			// }
+			// if (arrays) {
+			// result.append("]");
+			// }
+			// result.append("\n/*****************Schema delete before
+			// request*********************/\n");
+			// result.append(schemaTxt);
+			// }
+			// return result.toString();
+			// } else {
+			// return getFullSchema(mediaType.getSchema(), components, schemaMap,
+			// refs);
+			// }
 		}
 		return null;
-	}
-
-	/**
-	 * 获取requestBody中的$ref Properties
-	 * 
-	 * @param schema
-	 * @param components
-	 * @param schemaMap
-	 * @return
-	 */
-	private static String getRequestBodyProperties(Schema schema, Components components, Map<String, Schema> schemaMap) {
-		Schema schema2 = getSchema(schema.get$ref(), components, schemaMap);
-		if (schema2 != null && schema2.getProperties() != null) {
-			String schemaDataType = Optional.ofNullable(getDataType(schema)).orElse(STRING);
-			JSONObject bodyparams = new JSONObject();
-			Map<String, Schema> properties = schema2.getProperties();
-			properties.forEach((k, v) -> {
-				String value = k;
-				if (v.get$ref() != null) {
-					value = getRequestBodyProperties(v, components, schemaMap);
-				}
-				String dataType = Optional.ofNullable(getDataType(v)).orElse(STRING);
-				bodyparams.put(k, "{" + value + "}");
-			});
-			if ("array".equalsIgnoreCase(schemaDataType)) {
-				return "[" + bodyparams.toString() + "]";
-			} else {
-				return bodyparams.toString();
-			}
-		} else {
-			return "";
-		}
 	}
 
 	/**
@@ -466,7 +435,7 @@ public class OpenApiConverter {
 	 * @param components
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	private static void loadParameters(List<Parameter> parameters, JSONArray items, Components components,
 			Map<String, Parameter> parametersMap, Map<String, Schema> schemaMap) {
 		for (Parameter p : parameters) {
@@ -496,8 +465,7 @@ public class OpenApiConverter {
 				}
 			}
 			if (p.getDescription() != null) {
-				description.append(HTML_RENDERER.render(MARKDOWN_PARSER.parse(p.getDescription()))
-						.replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
+				description.append(HTML_RENDERER.render(MARKDOWN_PARSER.parse(p.getDescription())).replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
 			}
 			param.put("description", description.toString());
 			if (schema != null) {
@@ -540,6 +508,7 @@ public class OpenApiConverter {
 	 * @param components
 	 * @param schemaMap
 	 */
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	private static void loadResponse(ApiResponses resp, JSONArray responses, Set<String> produces, Components components,
 			Map<String, Schema> schemaMap) {
 		if (resp != null) {
@@ -547,8 +516,7 @@ public class OpenApiConverter {
 				JSONObject res = new JSONObject();
 				res.put("status", k);
 				if (v.getDescription() != null) {
-					res.put("msg", HTML_RENDERER.render(MARKDOWN_PARSER.parse(v.getDescription()))
-							.replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
+					res.put("msg", HTML_RENDERER.render(MARKDOWN_PARSER.parse(v.getDescription())).replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
 				} else {
 					res.put("msg", "");
 				}
@@ -559,8 +527,8 @@ public class OpenApiConverter {
 						h.put("in", "header");
 						h.put("name", hk);
 						if (hv.getDescription() != null) {
-							h.put("description", HTML_RENDERER.render(MARKDOWN_PARSER.parse(hv.getDescription()))
-									.replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
+							h.put("description",
+									HTML_RENDERER.render(MARKDOWN_PARSER.parse(hv.getDescription())).replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
 						} else {
 							h.put("description", "");
 						}
@@ -611,8 +579,8 @@ public class OpenApiConverter {
 									String itemType = Optional.ofNullable(getDataType(pvs)).orElse(STRING);
 									item.put("type", itemType);
 									if (pvs.getDescription() != null) {
-										item.put("description", HTML_RENDERER.render(MARKDOWN_PARSER.parse(pvs.getDescription()))
-												.replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
+										item.put("description",
+												HTML_RENDERER.render(MARKDOWN_PARSER.parse(pvs.getDescription())).replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
 									}
 									if (pvs.getProperties() != null) {
 										Map<String, Schema> cps = pvs.getProperties();
@@ -645,8 +613,8 @@ public class OpenApiConverter {
 							r.put("name", schema.getName());
 							r.put("type", dataType);
 							if (schema.getDescription() != null) {
-								r.put("description", HTML_RENDERER.render(MARKDOWN_PARSER.parse(schema.getDescription()))
-										.replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
+								r.put("description",
+										HTML_RENDERER.render(MARKDOWN_PARSER.parse(schema.getDescription())).replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
 							}
 							r.put("items", items);
 							data.put(r);
@@ -657,8 +625,8 @@ public class OpenApiConverter {
 							r.put("name", schema.getName());
 							r.put("type", dataType);
 							if (schema.getDescription() != null) {
-								r.put("description", HTML_RENDERER.render(MARKDOWN_PARSER.parse(schema.getDescription()))
-										.replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
+								r.put("description",
+										HTML_RENDERER.render(MARKDOWN_PARSER.parse(schema.getDescription())).replaceAll("^(\\s|<p>)+|(\\s|<\\/p>)+$", ""));
 							}
 							data.put(r);
 						}
@@ -697,14 +665,18 @@ public class OpenApiConverter {
 	 * 
 	 * 获取所有schema 字符串,使用正则匹配$ref并将其替换
 	 * 
-	 * @param schema     要转换的对象
-	 * @param components OpenAPI的对象
-	 * @param schemaMap  已经转换好的schema
-	 * @param refs       已经转换好的schema字符串
+	 * @param schema
+	 *          要转换的对象
+	 * @param components
+	 *          OpenAPI的对象
+	 * @param schemaMap
+	 *          已经转换好的schema
+	 * @param refs
+	 *          已经转换好的schema字符串
 	 * @return
 	 */
-	private static String getFullSchema(Schema schema, Components components, Map<String, Schema> schemaMap,
-			Map<String, String> refs) {
+	@SuppressWarnings("rawtypes")
+	private static String getFullSchema(Schema schema, Components components, Map<String, Schema> schemaMap, Map<String, String> refs) {
 		if (schema == null) {
 			return null;
 		}
@@ -744,6 +716,7 @@ public class OpenApiConverter {
 	 * @param schemaMap
 	 * @return
 	 */
+	@SuppressWarnings("rawtypes")
 	private static Schema getSchema(String key, Components components, Map<String, Schema> schemaMap) {
 		Schema schema = schemaMap.get(key);
 		if (schema == null) {
@@ -764,6 +737,7 @@ public class OpenApiConverter {
 	 * @param schema
 	 * @return
 	 */
+	@SuppressWarnings("rawtypes")
 	private static String getDataType(Schema schema) {
 		if (schema == null || schema.getType() == null) {
 			return "";
