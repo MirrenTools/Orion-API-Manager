@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>org.mirrentools.orion</groupId>
 	<artifactId>Orion-API-Manager</artifactId>
-	<version>1.0.0.RC2</version>
+	<version>1.0.0</version>
 	<name>Orion-API-Manager</name>
 	<description>Orion API Document Management</description>
 
