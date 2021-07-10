@@ -176,7 +176,7 @@ public class HttpApiProxyImpl implements HttpApiProxy {
 			HeaderIterator iterator = resp.headerIterator();
 			while (iterator.hasNext()) {
 				Header h = iterator.nextHeader();
-				response.addHeader(h.getName(), h.getValue());
+				response.setHeader(h.getName(), h.getValue());
 			}
 			response.setStatus(resp.getStatusLine().getStatusCode());
 			resp.getEntity().writeTo(response.getOutputStream());

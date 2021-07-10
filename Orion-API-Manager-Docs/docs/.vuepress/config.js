@@ -5,6 +5,9 @@ module.exports = {
 	dest: 'dist',
 	themeConfig: {
 		nav: [{
+				text: 'OrionAM客户端',
+				link: 'https://mirren.gitee.io/orion-api-manager-docs/client/index.html'
+			},{
 				text: 'MirrenTools',
 				link: 'https://mirrentools.org'
 			},

@@ -36,7 +36,7 @@ public class LoginSessionAuthInterceptor implements HandlerInterceptor {
 		}
 		LoginSession session = LoginSessionStore.get(sessionId);
 		if (session == null || session.getUid() == null || session.getRole() == null) {
-			response.addHeader("Content-Type", "application/json;charset=UTF-8");
+			response.setHeader("Content-Type", "application/json;charset=UTF-8");
 			try {
 				response.getWriter().write(ResultUtil.formatAsString(ResultCode.R401));
 			} catch (Exception e) {
@@ -48,7 +48,7 @@ public class LoginSessionAuthInterceptor implements HandlerInterceptor {
 			String path = request.getServletPath();
 			LoginRole role = session.getRole();
 			if (role == LoginRole.CLIENT && path.startsWith("/private/server")) {
-				response.addHeader("Content-Type", "application/json;charset=UTF-8");
+				response.setHeader("Content-Type", "application/json;charset=UTF-8");
 				try {
 					response.getWriter().write(ResultUtil.formatAsString(ResultCode.R403));
 				} catch (Exception e) {
