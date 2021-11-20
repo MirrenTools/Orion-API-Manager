@@ -6,6 +6,8 @@ package org.mirrentools.orion.entity;
  * @author <a href="https://mirrentools.org">Mirren</a>
  */ 
 public class ProjectApi {
+	/**1.0.1版本拓展属性:隐藏API的一个属性*/
+	public static final String EXT_HIDE_API="x_api_hide";
 	/** API的id */
 	private String apiId; 
 	/** 分组的id */
@@ -67,7 +69,10 @@ public class ProjectApi {
 	 * url(String): 附加文档路径
 	 */
 	private String externalDocs; 
-	/** 拓展信息String|String(JsonArray)|String(JsonObject) */
+	/**
+	 * 拓展信息String|String(JsonArray)|String(JsonObject) <br>
+	 * @since 1.0.1 拓展属性"x_api_hide":0,存在该属性则代表该API已回收,系统通过判断not like '%"x_api_hide"%'判断是否为已回收接口
+	 */
 	private String extensions; 
 	/** 项目排序 */
 	private Integer sorts; 
@@ -297,7 +302,7 @@ public class ProjectApi {
 	}
 	/**
 	 * 获取拓展信息
-	 * 
+	 * @since 1.0.1 拓展属性"x_api_hide":0,存在该属性则代表该API已回收,系统通过判断not like '%"x_api_hide"%'判断是否为已回收接口
 	 * @return
 	 */
 	public String getExtensions() {

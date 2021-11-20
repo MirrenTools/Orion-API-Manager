@@ -214,12 +214,20 @@ public interface ProjectService {
 	Map<String, Object> saveApi(LoginSession loginSession, ProjectApi api);
 
 	/**
-	 * 通过id获取接口
+	 * 通过分组id获取接口
 	 * 
 	 * @param groupId 分组的id
+	 * @since 1.0.1
 	 * @return
 	 */
 	Map<String, Object> findApis(LoginSession loginSession, String groupId);
+	
+	/**
+	 * 获取隐藏(已回收)的接口
+	 * 
+	 * @return
+	 */
+	Map<String, Object> findHideApis(LoginSession loginSession);
 
 	/**
 	 * 通过id获取接口
@@ -228,7 +236,7 @@ public interface ProjectService {
 	 * @return
 	 */
 	Map<String, Object> getApi(LoginSession loginSession, String apiId);
-	
+
 	/**
 	 * 复制指定API
 	 * 
@@ -261,6 +269,26 @@ public interface ProjectService {
 	 * @return
 	 */
 	Map<String, Object> moveDownApi(String id);
+
+	/**
+	 * 隐藏指定接口
+	 * 
+	 * @param loginSession 用户的会话
+	 * @param apiId        接口的id
+	 * @since 1.0.1
+	 * @return
+	 */
+	Map<String, Object> hideApi(LoginSession loginSession, String apiId);
+
+	/**
+	 * 恢复显示指定API
+	 * 
+	 * @param loginSession 用户的会话
+	 * @param apiId        接口的id
+	 * @since 1.0.1
+	 * @return
+	 */
+	Map<String, Object> showApi(LoginSession loginSession, String apiId);
 
 	/**
 	 * 删除指定接口

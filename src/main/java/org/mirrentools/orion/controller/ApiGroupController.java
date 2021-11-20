@@ -202,6 +202,42 @@ public class ApiGroupController {
 		return proService.moveDownApi(id);
 	}
 
+	/**
+	 * 获取隐藏的接口数据
+	 * 
+	 * @param groupId
+	 * @return
+	 */
+	@GetMapping(value = "/private/server/hide/apis", produces = {"application/json;charset=UTF-8"})
+	public Map<String, Object> findHideApis(@RequestHeader(value = "x-session", required = false) String sessionId) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.findHideApis(session);
+	}
+	
+	/**
+	 * 隐藏(回收)API接口
+	 * 
+	 * @param group
+	 * @return
+	 */
+	@PutMapping(value = "/private/server/api/hide/{id}", produces = {"application/json;charset=UTF-8"})
+	public Map<String, Object> hideApi(@RequestHeader(value = "x-session", required = false) String sessionId,@PathVariable(value = "id") String id) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.hideApi(session,id);
+	}
+
+	/**
+	 * 显示(还原)API接口
+	 * 
+	 * @param group
+	 * @return
+	 */
+	@PutMapping(value = "/private/server/api/show/{id}", produces = {"application/json;charset=UTF-8"})
+	public Map<String, Object> showApi(@RequestHeader(value = "x-session", required = false) String sessionId,@PathVariable(value = "id") String id) {
+		LoginSession session = LoginSessionStore.get(sessionId);
+		return proService.showApi(session,id);
+	}
+
 	@DeleteMapping(value = "/private/server/api/{apiId}", produces = {"application/json;charset=UTF-8"})
 	public Map<String, Object> daleteApi(@RequestHeader(value = "x-session", required = false) String sessionId,
 			@PathVariable(value = "apiId") String apiId) {

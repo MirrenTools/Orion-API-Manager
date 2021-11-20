@@ -87,8 +87,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 				return ResultUtil.format403();
 			}
 			SqlAssist assist = new SqlAssist();
-			assist.setResultColumn(String.format("%s,%s,%s,%s,%s,%s", ColumnsProject.KEY, ColumnsProject.OWNER, ColumnsProject.NAME,
-					ColumnsProject.VERSIONS, ColumnsProject.LAST_TIME, ColumnsProject.SORTS));
+			assist.setResultColumn(String.format("%s,%s,%s,%s,%s,%s", ColumnsProject.KEY, ColumnsProject.OWNER,
+					ColumnsProject.NAME, ColumnsProject.VERSIONS, ColumnsProject.LAST_TIME, ColumnsProject.SORTS));
 			assist.setOrderBy(String.format("%s asc, %s desc", ColumnsProject.SORTS, ColumnsProject.LAST_TIME));
 			List<Project> all;
 			if (loginSession.getRole() == LoginRole.ROOT) {
@@ -286,8 +286,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 						ProjectApiGroup group = convertGroup(project.getKey(), gdata);
 						int saveGroup = groupMapper.insertNotNull(group);
 						if (session != null && session.isOpen()) {
-							remote.sendText(
-									WebSocket.success(WebSocket.GROUP_SAVED, WebSocket.progressModel(group.getName(), (i + 1), groups.length(), saveGroup)));
+							remote.sendText(WebSocket.success(WebSocket.GROUP_SAVED,
+									WebSocket.progressModel(group.getName(), (i + 1), groups.length(), saveGroup)));
 						}
 						if (saveGroup > 0 && gdata.has("apis")) {
 							JSONArray apis = gdata.getJSONArray("apis");
@@ -296,8 +296,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 								ProjectApi api = convertApi(group.getGroupId(), adata);
 								int saveApi = apiMapper.insertNotNull(api);
 								if (session != null && session.isOpen()) {
-									remote.sendText(
-											WebSocket.success(WebSocket.API_SAVED, WebSocket.progressModel(api.getTitle(), (j + 1), apis.length(), saveApi)));
+									remote.sendText(WebSocket.success(WebSocket.API_SAVED,
+											WebSocket.progressModel(api.getTitle(), (j + 1), apis.length(), saveApi)));
 								}
 							}
 						}
@@ -351,7 +351,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 				project.setSorts(0);
 			}
 			project.setLastTime(System.currentTimeMillis());
-			List<ProjectApiGroup> groups = groupMapper.selectAll(new SqlAssist().andEq(ColumnsApiGroup.PROJECT_ID, key));
+			List<ProjectApiGroup> groups = groupMapper
+					.selectAll(new SqlAssist().andEq(ColumnsApiGroup.PROJECT_ID, key));
 			if (groups != null && !groups.isEmpty()) {
 				for (ProjectApiGroup g : groups) {
 					String gid = new String(g.getGroupId());
@@ -440,8 +441,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (!isProjectOwner(loginSession, key)) {
 				return ResultUtil.format403();
 			}
-			List<ProjectApiGroup> gids = groupMapper
-					.selectAll(new SqlAssist().setResultColumn(ColumnsApiGroup.GROUP_ID).andEq(ColumnsApiGroup.PROJECT_ID, key));
+			List<ProjectApiGroup> gids = groupMapper.selectAll(
+					new SqlAssist().setResultColumn(ColumnsApiGroup.GROUP_ID).andEq(ColumnsApiGroup.PROJECT_ID, key));
 			if (gids != null) {
 				for (ProjectApiGroup g : gids) {
 					// 删除API
@@ -751,13 +752,25 @@ public class DefaultProjectServiceImpl implements ProjectService {
 					return ResultUtil.format403();
 				}
 			}
-			SqlAssist assist = new SqlAssist();
-			assist.andEq(ColumnsAPI.GROUP_ID, groupId);
-			assist.setOrderBy(ColumnsAPI.SORTS);
-			List<ProjectApi> result = apiMapper.selectAll(assist);
-			return ResultUtil.format200(result);
+			return ResultUtil.format200(findNotHideApis(groupId));
 		} catch (Throwable e) {
 			LOG.error("执行获取指定分组接口列表->" + groupId + "-->失败:", e);
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
+		}
+	}
+
+	@Override
+	public Map<String, Object> findHideApis(LoginSession loginSession) {
+		try {
+			if (checkSession(loginSession)) {
+				return ResultUtil.format403();
+			}
+			SqlAssist assist = new SqlAssist();
+			assist.andLike(ColumnsAPI.EXTENSIONS, "%\"" + ProjectApi.EXT_HIDE_API + "\"%");
+			List<ProjectApi> list = apiMapper.selectAll(assist);
+			return ResultUtil.format200(list);
+		} catch (Throwable e) {
+			LOG.error("执行获取隐藏的API列表-->失败:", e);
 			return ResultUtil.format(ResultCode.R555, e.getMessage());
 		}
 	}
@@ -874,6 +887,54 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
+	public Map<String, Object> hideApi(LoginSession loginSession, String apiId) {
+		try {
+			ProjectApi api = apiMapper.selectById(apiId);
+			String ext = api.getExtensions();
+			if (StringUtil.isNullOrEmpty(ext)) {
+				ext = new JSONObject().put(ProjectApi.EXT_HIDE_API, 0).toString();
+			} else {
+				try {
+					ext = new JSONObject(ext).put(ProjectApi.EXT_HIDE_API, 0).toString();
+				} catch (Exception e) {
+					ext += "\"" + ProjectApi.EXT_HIDE_API + "\"";
+				}
+			}
+			ProjectApi updateAPI = new ProjectApi();
+			updateAPI.setApiId(apiId);
+			updateAPI.setExtensions(ext);
+			int result = apiMapper.updateNotNullById(updateAPI);
+			return ResultUtil.format200(result);
+		} catch (Throwable e) {
+			LOG.error("执行将接口隐藏->" + apiId + "-->失败:", e);
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
+		}
+	}
+
+	@Override
+	public Map<String, Object> showApi(LoginSession loginSession, String apiId) {
+		try {
+			ProjectApi api = apiMapper.selectById(apiId);
+			String ext = api.getExtensions();
+			if (!StringUtil.isNullOrEmpty(ext)) {
+				try {
+					ext = new JSONObject(ext).remove(ProjectApi.EXT_HIDE_API).toString();
+				} catch (Exception e) {
+					ext = ext.replace("\"" + ProjectApi.EXT_HIDE_API + "\"", "");
+				}
+			}
+			ProjectApi updateAPI = new ProjectApi();
+			updateAPI.setApiId(apiId);
+			updateAPI.setExtensions(ext);
+			int result = apiMapper.updateNotNullById(updateAPI);
+			return ResultUtil.format200(result);
+		} catch (Throwable e) {
+			LOG.error("执行将接口隐藏->" + apiId + "-->失败:", e);
+			return ResultUtil.format(ResultCode.R555, e.getMessage());
+		}
+	}
+
+	@Override
 	public Map<String, Object> deleteApi(LoginSession loginSession, String apiId) {
 		try {
 			if (StringUtil.isNullOrEmpty(apiId)) {
@@ -960,7 +1021,8 @@ public class DefaultProjectServiceImpl implements ProjectService {
 			if (StringUtil.isNullOrEmpty(tid)) {
 				return ResultUtil.format(ResultCode.R412);
 			}
-			SqlAssist assist = new SqlAssist().andEq(ColumnsApiTemplate.UID, loginSession.getUid()).andEq(ColumnsApiTemplate.TID, tid);
+			SqlAssist assist = new SqlAssist().andEq(ColumnsApiTemplate.UID, loginSession.getUid())
+					.andEq(ColumnsApiTemplate.TID, tid);
 			System.out.println(assist);
 			int result = templateMapper.deleteByAssist(assist);
 			return ResultUtil.format200(result);
@@ -1035,25 +1097,37 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	 * 获取指定项目的所有分组
 	 * 
 	 * @param projectId
-	 * @param getApis
-	 *          是否包括分组的接口,true包括,false不包括
+	 * @param getApis   是否包括分组的接口,true包括,false不包括
 	 * @return
 	 */
 	private List<ProjectApiGroup> getProjectApiGroupList(String projectId, boolean getApis) {
-		SqlAssist gAssist = new SqlAssist().andEq(ColumnsApiGroup.PROJECT_ID, projectId).setOrderBy(ColumnsApiGroup.SORTS);
+		SqlAssist gAssist = new SqlAssist().andEq(ColumnsApiGroup.PROJECT_ID, projectId)
+				.setOrderBy(ColumnsApiGroup.SORTS);
 		List<ProjectApiGroup> groups = groupMapper.selectAll(gAssist);
 		if (groups != null) {
 			for (int i = 0; i < groups.size(); i++) {
 				ProjectApiGroup group = groups.get(i);
 				if (getApis) {
-					String gid = group.getGroupId();
-					SqlAssist assist = new SqlAssist().andEq(ColumnsAPI.GROUP_ID, gid).setOrderBy(ColumnsAPI.SORTS);
-					List<ProjectApi> apiList = apiMapper.selectAll(assist);
-					group.setApis(apiList);
+					group.setApis(findNotHideApis(group.getGroupId()));
 				}
 			}
 		}
 		return groups;
+	}
+
+	/**
+	 * 获取可以显示的API合集
+	 * 
+	 * @param groupId 分组的id
+	 * @return API合集
+	 * @since 1.0.1
+	 */
+	private List<ProjectApi> findNotHideApis(String groupId) {
+		SqlAssist assist = new SqlAssist();
+		assist.customCondition(String.format(" ( %s is null OR %s not like ", ColumnsAPI.EXTENSIONS, ColumnsAPI.EXTENSIONS), "%\"" + ProjectApi.EXT_HIDE_API + "\"%", ") ");
+		assist.andEq(ColumnsAPI.GROUP_ID, groupId);
+		assist.setOrderBy(ColumnsAPI.SORTS);
+		return apiMapper.selectAll(assist);
 	}
 
 	/**
@@ -1265,7 +1339,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
 		api.setDescription(adata.has("description") ? adata.getString("description") : null);
 		api.setConsumes(adata.has("consumes") ? adata.getString("consumes") : null);
 		api.setParameters(adata.has("parameters") ? adata.getString("parameters") : null);
-		api.setBody(adata.has("body")?adata.getString("body"):null);
+		api.setBody(adata.has("body") ? adata.getString("body") : null);
 		api.setProduces(adata.has("produces") ? adata.getString("produces") : null);
 		api.setResponses(adata.has("responses") ? adata.getString("responses") : null);
 		api.setDeprecated(adata.has("deprecated") ? adata.getString("deprecated") : null);
@@ -1293,9 +1367,9 @@ public class DefaultProjectServiceImpl implements ProjectService {
 	 */
 	private Project getProjectByApiId(String aid) {
 		SqlAssist assist = new SqlAssist();
-		String in = String.format(" %s IN (SELECT g.%s FROM %s g INNER JOIN %s a ON g.%s=a.%s WHERE a.%s=", ColumnsProject.KEY,
-				ColumnsApiGroup.PROJECT_ID, ColumnsApiGroup.TABLE_NAME, ColumnsAPI.TABLE_NAME, ColumnsApiGroup.GROUP_ID, ColumnsAPI.GROUP_ID,
-				ColumnsAPI.API_ID);
+		String in = String.format(" %s IN (SELECT g.%s FROM %s g INNER JOIN %s a ON g.%s=a.%s WHERE a.%s=",
+				ColumnsProject.KEY, ColumnsApiGroup.PROJECT_ID, ColumnsApiGroup.TABLE_NAME, ColumnsAPI.TABLE_NAME,
+				ColumnsApiGroup.GROUP_ID, ColumnsAPI.GROUP_ID, ColumnsAPI.API_ID);
 		assist.setCondition(SqlAssist.whereCondition(in, aid, ")"));
 		List<Project> all = projectMapper.selectAll(assist);
 		if (all != null && all.size() >= 1) {
